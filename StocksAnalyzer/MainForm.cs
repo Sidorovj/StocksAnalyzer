@@ -17,6 +17,7 @@ namespace StocksAnalyzer
     public partial class MainForm : Form
     {
         private List<Stock> russian = new List<Stock>();
+        private List<Stock> russian2 = new List<Stock>();
         private List<Stock> usa = new List<Stock>();
         private List<Stock> london = new List<Stock>();
         private List<Stock> best = new List<Stock>();
