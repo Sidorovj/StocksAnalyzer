@@ -21,78 +21,100 @@ namespace StocksAnalyzer
         EUR=20
     }
 
+    /// <summary>
+    /// Представляет собой рынок, на котором обращаются акции
+    /// </summary>
     [Serializable]
     class StockMarket
     {
-        private StockMarketLocation _location;
-        private StockMarketCurrency _currency;
-        private static double _RubToUsd; // Переделать в словарь
-        private static double _RubToEur;
+        public StockMarketLocation Location { get; private set; }
+        public StockMarketCurrency Currency        { get; private set; }
+        private static double exchangeRate_RubToUsd; // Переделать в словарь
+        private static double exchangeRate_RubToEur;
+        
         public StockMarket(StockMarketLocation loc, StockMarketCurrency curr)
         {
-            _location = loc;
-            _currency = curr;
+            Location = loc;
+            Currency = curr;
             //getExchangeRates();
         }
-        public async static void initializeCurrencies()
+
+        /// <summary>
+        /// Получение текущих курсов обмена
+        /// </summary>
+        public async static void InitializeCurrencies()
         {
-            string resp = await Web.GET(Web.exchangeRatesUrl);
-            var curr = resp.Split(',');
+            string _response = await Web.GETtask(Web.ExchangeRatesUrl);
+            var _currency = _response.Split(',');
             // Переделать распарсивание в JSON
-            for (int i = 0; i < curr.Length; i++)
+            for (int i = 0; i < _currency.Length; i++)
             {
-                if (curr[i].StartsWith("\"USD"))
+                if (_currency[i].StartsWith("\"USD"))
                 {
-                    _RubToUsd = 1.0 / curr[i].Substring(curr[i].IndexOf(':') + 1).getDoubleNum();
+                    exchangeRate_RubToUsd = 1.0 / _currency[i].Substring(_currency[i].IndexOf(':') + 1).ParseCoefStrToDouble();
                 }
-                else if (curr[i].StartsWith("\"EUR"))
+                else if (_currency[i].StartsWith("\"EUR"))
                 {
-                    _RubToEur = 1.0 / curr[i].Substring(curr[i].IndexOf(':') + 1).getDoubleNum();
+                    exchangeRate_RubToEur = 1.0 / _currency[i].Substring(_currency[i].IndexOf(':') + 1).ParseCoefStrToDouble();
                 }
 
             }
         }
-        public static double getExchangeRates(StockMarketCurrency toCurr = StockMarketCurrency.USD) // Найдем курс рубля к запрошенной валюте
+
+        /// <summary>
+        /// Получить текущий курс обмена рубля К валюте
+        /// </summary>
+        /// <param name="toCurr">Какая валюта</param>
+        /// <returns>Курс обмена</returns>
+        public static double GetExchangeRates(StockMarketCurrency toCurr) // Найдем курс рубля к запрошенной валюте
         {
             switch (toCurr)
             {
                 case StockMarketCurrency.USD:
-                    return _RubToUsd;
+                    return exchangeRate_RubToUsd;
                 case StockMarketCurrency.EUR:
-                    return _RubToEur;
+                    return exchangeRate_RubToEur;
             }
-            return -1;
-        }
-        public StockMarketLocation Location
-        {
-            get { return _location; }
-            set { _location = value; }
-        }
-        public StockMarketCurrency Currency
-        {
-            get { return _currency; }
-            set { _currency = value; }
+            throw new KeyNotFoundException();
         }
     }
 
+
+    /// <summary>
+    /// Акция и ее характеристики
+    /// </summary>
     [Serializable]
     class Stock
     {
-        private double _price;
-        private double _priceToEquity;
-        private double _priceToSales;
-        private double _priceToBook;
-        private double _EVtoEBITDA;
-        private double _debtToEBITDA; // Долг к EBITDA
-        private double _ROE;
-        private double _EPS;
+        public bool IsStarred { get; set; }
+        public DateTime LastUpdate { get; set; }
+        public StockMarket Market { get; private set; }
+        public string Name { get; private set; }
+        public string Symbol { get; private set; }
+        public string FullName => $"{Name} [{Market.Location}]";
+        public bool IsOnTinkoff { get; private set; }
+
+        #region Metrics
         public double MainPE { get; set; }
         public double Main { get; set; }
         public double MainAll { get; set; }
         public int RateMainPE { get; set; }
         public int RateMain { get; set; }
         public int RateMainAll { get; set; }
+        #endregion
 
+        #region Main properties
+        public double Price { get; set; }
+        public double PriceToEquity { get; set; }
+        public double PriceToSales { get; set; }
+        public double PriceToBook { get; set; }
+        public double EVtoEBITDA { get; set; }
+        public double DebtToEBITDA { get; set; }
+        public double ROE { get; set; }
+        public double EPS { get; set; }
+        #endregion
+
+        #region Other properties
         public double QEG { get; set; }
         public double ProfitMarg { get; set; }
         public double ProfitMarg5ya { get; set; }
@@ -122,6 +144,9 @@ namespace StocksAnalyzer
         public double CapExpenseGrow5y { get; set; }
         public double UrgentLiquidityCoef { get; set; }
         public double CurrentLiquidityCoef { get; set; }
+        #endregion
+
+
         public double this[string ind]
         {
             get
@@ -131,13 +156,13 @@ namespace StocksAnalyzer
                     case "PriceToEquity":
                         return PriceToEquity;
                     case "PriceToSales":
-                        return _priceToSales;
+                        return PriceToSales;
                     case "PriceToBook":
-                        return _priceToBook;
+                        return PriceToBook;
                     case "ROE":
-                        return _ROE;
+                        return ROE;
                     case "EPS":
-                        return _EPS;
+                        return EPS;
                     case "QEG":
                         return QEG;
                     case "ProfitMargin":
@@ -147,16 +172,10 @@ namespace StocksAnalyzer
                     case "GrossProfit":
                         return GrossProfit;
                 }
-                return -1;
+                throw new ArgumentException("Не могу найти параметр", ind);
             }
         }
-
-        private StockMarket _market;
-        private string _name;
-        private string _symbol;
-        private DateTime _lastUpdate;
-        private bool _isStarred;
-        public bool isOnTinkoff { get; private set; }
+        
 
         public Stock(string name, double price, StockMarket mar, string symb = "")
         {
@@ -165,105 +184,30 @@ namespace StocksAnalyzer
             Market = mar;
             Symbol = symb;
             LastUpdate = DateTime.Now;
+            IsOnTinkoff = false;
 
-            // ЗДЕСЬ ЗАПРОС К ТНЬКОФ
-            string nameToSearch = "";
-            var splitted = name.Split(' ');
-            for (var i = 0; i < splitted.Length - 1; i++)
+            // ЗДЕСЬ ЗАПРОС К ТИНЬКОФ
+            string _nameToSearch = "";
+            var _splitted = name.Split(' ');
+            for (var i = 0; i < _splitted.Length - 1; i++)
             {
-                nameToSearch += splitted[i].Replace(",", "");
+                _nameToSearch += _splitted[i].Replace(",", "");
             }
-            string respStr = Web.GETs("https://api.tinkoff.ru/trading/stocks/list?country=All&sortType=ByName&orderType=Asc&start=0&end=20&filter=" + nameToSearch);
-            JObject resp = JObject.Parse(respStr);
-            bool isTin = false;
-            nameToSearch = nameToSearch.ToLower();
-            for (var j = 0; j < (int)resp["payload"]["total"]; j++)
+            string _respStr = Web.GET("https://api.tinkoff.ru/trading/stocks/list?country=All&sortType=ByName&orderType=Asc&start=0&end=20&filter=" + _nameToSearch);
+            JObject jsonReponse = JObject.Parse(_respStr);
+            _nameToSearch = _nameToSearch.ToLower();
+            for (var j = 0; j < (int)jsonReponse["payload"]["total"]; j++)
             {
-                string descr = !string.IsNullOrEmpty(((string)resp["payload"]["values"][0]["symbol"]["showName"])) ? (string)resp["payload"]["values"][0]["symbol"]["showName"] : (string)resp["payload"]["values"][0]["symbol"]["description"];
-                if (descr.ToLower().Contains( nameToSearch))
+                string _descr = !string.IsNullOrEmpty(((string)jsonReponse["payload"]["values"][0]["symbol"]["showName"]))
+                    ? (string)jsonReponse["payload"]["values"][0]["symbol"]["showName"]
+                    : (string)jsonReponse["payload"]["values"][0]["symbol"]["description"];
+                if (_descr.ToLower().Contains( _nameToSearch))
                 {
-                    isTin = true;
+                    IsOnTinkoff = true;
                     break;
                 }
             }
-            isOnTinkoff = isTin;//((int) resp["payload"]["total"] > 0) && respStr.Contains(nameToSearch);
-        }
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
-        public string Symbol
-        {
-            get { return _symbol; }
-            set { _symbol = value; }
-        }
-        public string FullName
-        {
-            get
-            {
-                string tmp = "[Rus]";
-                if (Market.Location == StockMarketLocation.USA)
-                    tmp = "[USA]";
-                if (Market.Location == StockMarketLocation.London)
-                    tmp = "[Lon]";
-                return Name + ' '+ tmp;
-            }
-        }
-        public bool IsStarred
-        {
-            get { return _isStarred; }
-            set { _isStarred = value; }
-        }
-        public DateTime LastUpdate
-        {
-            get { return _lastUpdate; }
-            set { _lastUpdate = value; }
-        }
-        public double Price
-        {
-            get { return _price; }
-            set { if (value > 0) _price = value; }
-        }
-        public double PriceToEquity
-        {
-            get { return _priceToEquity; }
-            set { _priceToEquity = value; }
-        }
-        public double PriceToSales
-        {
-            get { return _priceToSales; }
-            set {  _priceToSales = value; }
-        }
-        public double PriceToBook
-        {
-            get { return _priceToBook; }
-            set { _priceToBook = value; }
-        }
-        public double EVtoEBITDA
-        {
-            get { return _EVtoEBITDA; }
-            set { _EVtoEBITDA = value; }
-        }
-        public double DebtToEBITDA
-        {
-            get { return _debtToEBITDA; }
-            set { _debtToEBITDA = value; }
-        }
-        public double ROE
-        {
-            get { return _ROE; }
-            set { _ROE = value; }
-        }
-        public double EPS
-        {
-            get { return _EPS; }
-            set { _EPS = value; }
-        }
-        public StockMarket Market
-        {
-            get { return _market; }
-            set { _market = value; }
+            //IsOnTinkoff = ((int) jsonReponse["payload"]["total"] > 0) && _respStr.Contains(_nameToSearch);
         }
     }
 }
