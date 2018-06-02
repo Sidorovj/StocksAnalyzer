@@ -16,25 +16,25 @@ namespace StocksAnalyzer
 
     public partial class MainForm : Form
     {
-        private List<Stock> russian = new List<Stock>();
-        private List<Stock> russian2 = new List<Stock>();
-        private List<Stock> usa = new List<Stock>();
-        private List<Stock> london = new List<Stock>();
-        private List<Stock> Best = new List<Stock>();
-        private List<Stock> tinkoff = new List<Stock>();
-        private List<string> bestNames = new List<string>();
-        private List<Stock> other = new List<Stock>();
-        private List<Stock> selectedList;
-        private Stock selectedStock;
+        private List<Stock> RussianStocks = new List<Stock>();
+        private List<Stock> UsaStocks = new List<Stock>();
+        private List<Stock> LondonStocks = new List<Stock>();
+        private List<Stock> BestStocks = new List<Stock>();
+        private List<Stock> TinkoffStocks = new List<Stock>();
+        private List<string> BestStocksNames = new List<string>();
+        private List<Stock> SelectedList;
+        private Stock SelectedStock;
+
         public MainForm()
         {
             InitializeComponent();
-            Best = new List<Stock>();
+            BestStocks = new List<Stock>();
             MainClass.LoadStockListFromFile();
-            fillStockListsOnInit();
+            LoadStockListsOnInit();
             this.FormClosing += Form1_FormClosing;
 
             ToolTip t = new ToolTip();
+            //Common
             t.SetToolTip(labelSymbol, "Тикет");
             t.SetToolTip(labelPE, "Цена/прибыль");
             t.SetToolTip(labelPS, "Цена/объем продаж");
@@ -66,7 +66,7 @@ namespace StocksAnalyzer
             panelRussiaCoefs.Top = panelUSACoefs.Top;
             panelRussiaCoefs.Left = panelUSACoefs.Left;
             panelRussiaCoefs.Width = panelUSACoefs.Width;
-            selectedList = MainClass.Stocks;
+            SelectedList = MainClass.Stocks;
             /*int c1 = 0, c2 = 0;
 
             foreach (var st in MainClass.Stocks)
@@ -79,115 +79,123 @@ namespace StocksAnalyzer
             richTextBoxLog.Text +='\n'+c1.ToString() + ' '+c2.ToString();*/
         }
 
+        #region Methods:public
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             MainClass.WriteStockListToFile();
         }
-        private void fillStockForm(bool getNewInfo = true)
+
+        /// <summary>
+        /// Заполнить форму данными
+        /// </summary>
+        /// <param name="getNewInfo">Надо ли загрузить новую информацию об акции с интернета</param>
+        private void FillStockForm(bool getNewInfo = true)
         {
             if (comboBoxStocks.Text == "" || !comboBoxStocks.Items.Contains(comboBoxStocks.Text))
                 return;
-            selectedStock = MainClass.GetStock(true, comboBoxStocks.Text);
-            if (selectedStock == null)
+            SelectedStock = MainClass.GetStock(true, comboBoxStocks.Text);
+            if (SelectedStock == null)
                 return;
-            checkIsStarred.Enabled = true;
+            checkBoxIsStarred.Enabled = true;
 
             // Получим инфу об акции
             if (getNewInfo)
-                MainClass.GetStockData(selectedStock);
-            if (selectedStock.Market.Location == StockMarketLocation.USA)
+                MainClass.GetStockData(SelectedStock);
+            if (SelectedStock.Market.Location == StockMarketLocation.USA)
             {
-                linkLabel1.Text = Web.GetStockDataUrl_USA.Replace("{}", selectedStock.Symbol) + selectedStock.Symbol;
+                linkLabel1.Text = Web.GetStockDataUrl_USA.Replace("{}", SelectedStock.Symbol) + SelectedStock.Symbol;
                 panelUSACoefs.Visible = true;
                 panelRussiaCoefs.Visible = false;
             }
-            else if (selectedStock.Market.Location == StockMarketLocation.Russia)
+            else if (SelectedStock.Market.Location == StockMarketLocation.Russia)
             {
-                if (MainClass.NamesToSymbolsRus.ContainsKey(selectedStock.Name))
-                    linkLabel1.Text = Web.GetStockDataUrl_Russia + MainClass.NamesToSymbolsRus[selectedStock.Name];
+                if (MainClass.NamesToSymbolsRus.ContainsKey(SelectedStock.Name))
+                    linkLabel1.Text = Web.GetStockDataUrl_Russia + MainClass.NamesToSymbolsRus[SelectedStock.Name];
                 panelUSACoefs.Visible = false;
                 panelRussiaCoefs.Visible = true;
             }
             // Получили
 
-            labelStockName.Text = selectedStock.Name;
-            checkIsStarred.Checked = selectedStock.IsStarred;
-            if (selectedStock.Market.Currency == StockMarketCurrency.RUB)
+            labelStockName.Text = SelectedStock.Name;
+            checkBoxIsStarred.Checked = SelectedStock.IsStarred;
+            if (SelectedStock.Market.Currency == StockMarketCurrency.RUB)
             {
-                textBoxStockPrice.Text = selectedStock.Price.ToString();
-                textBoxStockPriceUSD.Text = (selectedStock.Price / StockMarket.GetExchangeRates(StockMarketCurrency.USD)).ToString("F2");
+                textBoxStockPrice.Text = SelectedStock.Price.ToString();
+                textBoxStockPriceUSD.Text = (SelectedStock.Price / StockMarket.GetExchangeRates(StockMarketCurrency.USD)).ToString("F2");
             }
-            else
+            else if (SelectedStock.Market.Currency == StockMarketCurrency.USD)
             {
-                textBoxStockPriceUSD.Text = selectedStock.Price.ToString();
-                textBoxStockPrice.Text = (selectedStock.Price * StockMarket.GetExchangeRates(StockMarketCurrency.USD)).ToString("F2");
+                textBoxStockPriceUSD.Text = SelectedStock.Price.ToString();
+                textBoxStockPrice.Text = (SelectedStock.Price * StockMarket.GetExchangeRates(StockMarketCurrency.USD)).ToString("F2");
             }
-            textBoxStockSymbol.Text = selectedStock.Symbol;
-            textBoxStockLastUpdated.Text = selectedStock.LastUpdate.ToString();
-            textBoxPE.Text = selectedStock.PriceToEquity.ToCuteStr();
-            textBoxPS.Text = selectedStock.PriceToSales.ToCuteStr();
-            textBoxPBV.Text = selectedStock.PriceToBook.ToCuteStr();
-            textBoxEVEBITDA.Text = selectedStock.EVtoEBITDA.ToCuteStr();
-            textBoxDebtEBITDA.Text = selectedStock.DebtToEBITDA.ToCuteStr();
-            textBoxROE.Text = selectedStock.ROE.ToCuteStr();
-            textBoxEPS.Text = selectedStock.EPS.ToCuteStr();
-            if (selectedStock.Market.Currency == StockMarketCurrency.RUB)
+            textBoxStockSymbol.Text = SelectedStock.Symbol;
+            textBoxStockLastUpdated.Text = SelectedStock.LastUpdate.ToString();
+            textBoxPE.Text = SelectedStock.PriceToEquity.ToCuteStr();
+            textBoxPS.Text = SelectedStock.PriceToSales.ToCuteStr();
+            textBoxPBV.Text = SelectedStock.PriceToBook.ToCuteStr();
+            textBoxEVEBITDA.Text = SelectedStock.EVtoEBITDA.ToCuteStr();
+            textBoxDebtEBITDA.Text = SelectedStock.DebtToEBITDA.ToCuteStr();
+            textBoxROE.Text = SelectedStock.ROE.ToCuteStr();
+            textBoxEPS.Text = SelectedStock.EPS.ToCuteStr();
+            if (SelectedStock.Market.Currency == StockMarketCurrency.RUB)
             {
-                textBoxQEG.Text = selectedStock.QEG.ToCuteStr();
-                textBoxProfitMargin.Text = selectedStock.ProfitMarg.ToCuteStr();
-                textBoxOperatingMargin.Text = selectedStock.OperMarg.ToCuteStr();
-                textBoxGrossProfit.Text = selectedStock.GrossProfit.ToCuteStr();
-                textBox5YValProfit.Text = selectedStock.GrossProfit5ya.ToCuteStr();
-                textBoxProfitCoef.Text = selectedStock.ProfitCoef.ToCuteStr();
-                textBox5YProfitCoef.Text = selectedStock.ProfitCoef5ya.ToCuteStr();
-                textBoxProfitPerShare.Text = selectedStock.ProfitOn12mToAnalogYearAgo.ToCuteStr();
-                textBoxGrowthPS5Y.Text = selectedStock.GrowProfitPerShare5y.ToCuteStr();
-                textBoxGrowthCapCosts.Text = selectedStock.CapExpenseGrow5y.ToCuteStr();
-                textBoxProfitMargin5Y.Text = selectedStock.ProfitMarg5ya.ToCuteStr();
-                textBoxOperMargin5Y.Text = selectedStock.OperMarg5ya.ToCuteStr();
-                textBoxQuickLiquidity.Text = selectedStock.UrgentLiquidityCoef.ToCuteStr();
-                textBoxCurrLiquidity.Text = selectedStock.CurrentLiquidityCoef.ToCuteStr();
+                textBoxQEG.Text = SelectedStock.QEG.ToCuteStr();
+                textBoxProfitMargin.Text = SelectedStock.ProfitMarg.ToCuteStr();
+                textBoxOperatingMargin.Text = SelectedStock.OperMarg.ToCuteStr();
+                textBoxGrossProfit.Text = SelectedStock.GrossProfit.ToCuteStr();
+                textBox5YValProfit.Text = SelectedStock.GrossProfit5ya.ToCuteStr();
+                textBoxProfitCoef.Text = SelectedStock.ProfitCoef.ToCuteStr();
+                textBox5YProfitCoef.Text = SelectedStock.ProfitCoef5ya.ToCuteStr();
+                textBoxProfitPerShare.Text = SelectedStock.ProfitOn12mToAnalogYearAgo.ToCuteStr();
+                textBoxGrowthPS5Y.Text = SelectedStock.GrowProfitPerShare5y.ToCuteStr();
+                textBoxGrowthCapCosts.Text = SelectedStock.CapExpenseGrow5y.ToCuteStr();
+                textBoxProfitMargin5Y.Text = SelectedStock.ProfitMarg5ya.ToCuteStr();
+                textBoxOperMargin5Y.Text = SelectedStock.OperMarg5ya.ToCuteStr();
+                textBoxQuickLiquidity.Text = SelectedStock.UrgentLiquidityCoef.ToCuteStr();
+                textBoxCurrLiquidity.Text = SelectedStock.CurrentLiquidityCoef.ToCuteStr();
             }
-            else
+            else if(SelectedStock.Market.Currency == StockMarketCurrency.USD)
             {
-                textBoxEVEBITDA.Text = selectedStock.EVtoEBITDA.ToCuteStr();
-                textBoxMarketCap.Text = selectedStock.MarketCap.ToCuteStr();
-                textBoxQEG.Text = selectedStock.QEG.ToCuteStr();
-                textBoxProfitMargin.Text = selectedStock.ProfitMarg.ToCuteStr();
-                textBoxOperatingMargin.Text = selectedStock.OperMarg.ToCuteStr();
-                textBoxGrossProfit.Text = selectedStock.GrossProfit.ToCuteStr();
-                textBoxEntVal.Text = selectedStock.EV.ToCuteStr();
-                textBoxPEG.Text = selectedStock.PEG.ToCuteStr();
-                textBoxEVRev.Text = selectedStock.EVRev.ToCuteStr();
-                textBoxRetOnAssets.Text = selectedStock.RetOnAssets.ToCuteStr();
-                textBoxRevenue.Text = selectedStock.Revenue.ToCuteStr();
-                textBoxRevPerShape.Text = selectedStock.RevPerShare.ToCuteStr();
-                textBoxEBITDA.Text = selectedStock.EBITDA.ToCuteStr();
-                textBoxTotCash.Text = selectedStock.TotalCash.ToCuteStr();
-                textBoxTotCashPShape.Text = selectedStock.TotalCashPerShare.ToCuteStr();
-                textBoxTotDebt.Text = selectedStock.TotalDebt.ToCuteStr();
-                textBoxBookValPShape.Text = selectedStock.BookValPerShare.ToCuteStr();
-                textBoxOperCashFlow.Text = selectedStock.OperatingCashFlow.ToCuteStr();
-                textBoxLeveredFreeCF.Text = selectedStock.LeveredFreeCashFlow.ToCuteStr();
-                textBoxSharesCount.Text = selectedStock.TotalShares.ToCuteStr();
-                textBoxDebtEBITDA.Text = selectedStock.DebtToEBITDA.ToCuteStr();
+                textBoxEVEBITDA.Text = SelectedStock.EVtoEBITDA.ToCuteStr();
+                textBoxMarketCap.Text = SelectedStock.MarketCap.ToCuteStr();
+                textBoxQEG.Text = SelectedStock.QEG.ToCuteStr();
+                textBoxProfitMargin.Text = SelectedStock.ProfitMarg.ToCuteStr();
+                textBoxOperatingMargin.Text = SelectedStock.OperMarg.ToCuteStr();
+                textBoxGrossProfit.Text = SelectedStock.GrossProfit.ToCuteStr();
+                textBoxEntVal.Text = SelectedStock.EV.ToCuteStr();
+                textBoxPEG.Text = SelectedStock.PEG.ToCuteStr();
+                textBoxEVRev.Text = SelectedStock.EVRev.ToCuteStr();
+                textBoxRetOnAssets.Text = SelectedStock.RetOnAssets.ToCuteStr();
+                textBoxRevenue.Text = SelectedStock.Revenue.ToCuteStr();
+                textBoxRevPerShape.Text = SelectedStock.RevPerShare.ToCuteStr();
+                textBoxEBITDA.Text = SelectedStock.EBITDA.ToCuteStr();
+                textBoxTotCash.Text = SelectedStock.TotalCash.ToCuteStr();
+                textBoxTotCashPShape.Text = SelectedStock.TotalCashPerShare.ToCuteStr();
+                textBoxTotDebt.Text = SelectedStock.TotalDebt.ToCuteStr();
+                textBoxBookValPShape.Text = SelectedStock.BookValPerShare.ToCuteStr();
+                textBoxOperCashFlow.Text = SelectedStock.OperatingCashFlow.ToCuteStr();
+                textBoxLeveredFreeCF.Text = SelectedStock.LeveredFreeCashFlow.ToCuteStr();
+                textBoxSharesCount.Text = SelectedStock.TotalShares.ToCuteStr();
+                textBoxDebtEBITDA.Text = SelectedStock.DebtToEBITDA.ToCuteStr();
             }
             if (getNewInfo)
                 labelDone.Visible = true;
-            labelMainPE.Text = "MainPE: "+ selectedStock.RateMainPE.ToString();
-            labelMain.Text = "Main: "+selectedStock.RateMain.ToString();
-            labelMainAll.Text = "MainAll: "+selectedStock.RateMainAll.ToString();
+            labelMainPE.Text = "MainPE: " + SelectedStock.RateMainPE.ToString();
+            labelMain.Text = "Main: " + SelectedStock.RateMain.ToString();
+            labelMainAll.Text = "MainAll: " + SelectedStock.RateMainAll.ToString();
 
         }
-        private async void buttonGetInfo_Click(object sender, EventArgs e)
+
+        private async void ButtonGetInfo_Click(object sender, EventArgs e)
         {
-            Stopwatch stopwa = new Stopwatch();
-            setButtonsMode(false);
-            stopwa.Start();
-            fillStockForm();
-            MainClass.WriteLog(new string[] { "Запрос занял " + stopwa.Elapsed.TotalMilliseconds.ToString("F0") + " мс" });
-            stopwa.Stop();
-            setButtonsMode(true);
+            Stopwatch _stopwatch = new Stopwatch();
+            SetButtonsMode(false);
+            _stopwatch.Start();
+            FillStockForm();
+            _stopwatch.Stop();
+
+            MainClass.WriteLog(new string[] { "Запрос занял " + _stopwatch.Elapsed.TotalMilliseconds.ToString("F0") + " мс" });
+            SetButtonsMode(true);
             await Task.Run(() =>
             {
                 Thread.Sleep(2000);
@@ -195,76 +203,82 @@ namespace StocksAnalyzer
             });
         }
 
-        private void comboBoxStocks_SelectedIndexChanged(object sender, EventArgs e)
+        private void ComboBoxStocks_SelectedIndexChanged(object sender, EventArgs e)
         {
             //selectedStock = null;
             //checkIsStarred.Enabled = false;
-            fillStockForm(false);
+            FillStockForm(false);
             //else comboBoxStocks.DropDownHeight = 0;
         }
 
-        private void comboBoxStocks_TextChanged(object sender, EventArgs e)
+        private void ComboBoxStocks_TextChanged(object sender, EventArgs e)
         {
             //if (!comboBoxStocks.Items.Contains(comboBoxStocks.Text) && comboBoxStocks.Items.Count > 0 && !comboBoxStocks.DroppedDown)
             //    comboBoxStocks.DroppedDown = true;
         }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            MainClass.WriteStockListToFile();
-            MessageBox.Show("Сохранено");
-        }
-
-        private async void button1_Click(object sender, EventArgs e)
+        
+        private async void ButtonLoadAllStocksClick(object sender, EventArgs e)
         {
             comboBoxStocks.Items.Clear();
             labelRemainingTime.Text = "Время загрузки порядка 15 с.";
             Stopwatch stopwa = new Stopwatch();
             stopwa.Start();
-            setButtonsMode(false);
+            SetButtonsMode(false);
             comboBoxStocks.Text = "";
-            russian.Clear();
-            usa.Clear();
-            london.Clear();
-            bestNames.Clear();
-            foreach (var st in Best)
-                bestNames.Add(st.Name);
-            Best.Clear();
+            RussianStocks.Clear();
+            UsaStocks.Clear();
+            LondonStocks.Clear();
+            BestStocksNames.Clear();
+            foreach (var st in BestStocks)
+                BestStocksNames.Add(st.Name);
+            BestStocks.Clear();
             await Task.Run(() =>
             {
                 MainClass.Stocks.Clear();
                 MainClass.GetStocksList();
-                fillStockLists();
+                FillStockLists();
             });
-            setButtonsMode(true);
+            SetButtonsMode(true);
             MainClass.WriteLog(new string[] { "Операция заняла " + stopwa.Elapsed.TotalSeconds.ToString("F0") + " с" });
             stopwa.Stop();
             MessageBox.Show("Список загружен");
         }
 
-        private void fillStockLists()
+        /// <summary>
+        /// Заполнить список акций
+        /// </summary>
+        private void FillStockLists()
         {
             foreach (var selectedStock in MainClass.Stocks)
             {
-                if (bestNames.Contains(selectedStock.Name))
+                if (BestStocksNames.Contains(selectedStock.Name))
                     selectedStock.IsStarred = true;
-                referStock(selectedStock);
-                if (selectedStockRegime(selectedStock))
+                ReferStock(selectedStock);
+                if (SelectedStockIsInSelectedList(selectedStock))
                     this.comboBoxStocks.BeginInvoke((MethodInvoker)(delegate { this.comboBoxStocks.Items.Add(selectedStock.FullName); }));
             }
             this.labelStockCount.BeginInvoke((MethodInvoker)(delegate { labelStockCount.Text = "Общее кол-во: " + comboBoxStocks.Items.Count; }));
         }
-        private void fillStockListsOnInit()
+
+        /// <summary>
+        /// Загружает список при инициализации
+        /// </summary>
+        private void LoadStockListsOnInit()
         {
-            foreach (var selectedStock in MainClass.Stocks)
+            foreach (var _selectedStock in MainClass.Stocks)
             {
-                referStock(selectedStock);
-                if (selectedStockRegime(selectedStock))
-                    this.comboBoxStocks.Items.Add(selectedStock.FullName);
+                ReferStock(_selectedStock);
+                if (SelectedStockIsInSelectedList(_selectedStock))
+                    this.comboBoxStocks.Items.Add(_selectedStock.FullName);
             }
             labelStockCount.Text = "Общее кол-во: " + comboBoxStocks.Items.Count;
         }
-        private bool selectedStockRegime(Stock st)
+
+        /// <summary>
+        /// Относится ли акция к выбранному списку
+        /// </summary>
+        /// <param name="st">Акция</param>
+        private bool SelectedStockIsInSelectedList(Stock st)
         {
             if (radioButtonStarred.Checked)
                 return st.IsStarred;
@@ -278,20 +292,25 @@ namespace StocksAnalyzer
                 return st.Market.Location == StockMarketLocation.London;
             return false;
         }
-        private void referStock(Stock st) // Отнесем акцию к определенному списку
+
+        /// <summary>
+        /// Отнесем акцию к определенному списку
+        /// </summary>
+        /// <param name="st">Акция</param>
+        private void ReferStock(Stock st)
         {
-            if (st.IsStarred && !Best.Contains(st))
-                this.Best.Add(st);
+            if (st.IsStarred && !BestStocks.Contains(st))
+                this.BestStocks.Add(st);
             if (st.Market.Location == StockMarketLocation.Russia)
-                this.russian.Add(st);
+                this.RussianStocks.Add(st);
             if (st.Market.Location == StockMarketLocation.USA)
-                this.usa.Add(st);
+                this.UsaStocks.Add(st);
             if (st.Market.Location == StockMarketLocation.London)
-                this.london.Add(st);
+                this.LondonStocks.Add(st);
             if (st.IsOnTinkoff)
-                tinkoff.Add(st);
+                TinkoffStocks.Add(st);
         }
-        private void changeList(List<Stock> list)
+        private void LoadNewListInComboBox(List<Stock> list)
         {
             this.comboBoxStocks.Items.Clear();
             comboBoxStocks.Text = "";
@@ -301,38 +320,38 @@ namespace StocksAnalyzer
             labelStockCount.Text = "Общее кол-во: " + comboBoxStocks.Items.Count;
         }
 
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        private void RadioButtonStarred_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButtonStarred.Checked)
-                changeList(Best);
-            selectedList = Best;
+                LoadNewListInComboBox(BestStocks);
+            SelectedList = BestStocks;
         }
 
-        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        private void RadioButtonAllStocks_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButtonAllStocks.Checked)
-                changeList(MainClass.Stocks);
-            selectedList = MainClass.Stocks;
+                LoadNewListInComboBox(MainClass.Stocks);
+            SelectedList = MainClass.Stocks;
         }
 
-        private void radioButton3_CheckedChanged(object sender, EventArgs e)
+        private void RadioButtonRus_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButtonRusStocks.Checked)
-                changeList(russian);
-            selectedList = russian;
+                LoadNewListInComboBox(RussianStocks);
+            SelectedList = RussianStocks;
         }
 
-        private void radioButton4_CheckedChanged(object sender, EventArgs e)
+        private void RadioButtonUSA_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButtonUSAStocks.Checked)
-                changeList(usa);
-            selectedList = usa;
+                LoadNewListInComboBox(UsaStocks);
+            SelectedList = UsaStocks;
         }
 
-        private void radioButton5_CheckedChanged(object sender, EventArgs e)
+        private void RadioButtonLondon_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButtonLondonStocks.Checked)
-                changeList(london);
+                LoadNewListInComboBox(LondonStocks);
         }
 
         private void comboBoxStocks_DropDown(object sender, EventArgs e)
@@ -342,37 +361,37 @@ namespace StocksAnalyzer
             //    comboboxselectedStocks.droppeddown = false;
         }
 
-        private void checkIsStarred_CheckedChanged(object sender, EventArgs e)
+        private void CheckBoxIsStarred_CheckedChanged(object sender, EventArgs e)
         {
-            if (selectedStock != null && selectedStock.IsStarred != checkIsStarred.Checked)
+            if (SelectedStock != null && SelectedStock.IsStarred != checkBoxIsStarred.Checked)
             {
-                MainClass.GetStock(true, selectedStock.FullName).IsStarred = selectedStock.IsStarred = checkIsStarred.Checked;
-                if (selectedStock.IsStarred)
+                MainClass.GetStock(true, SelectedStock.FullName).IsStarred = SelectedStock.IsStarred = checkBoxIsStarred.Checked;
+                if (SelectedStock.IsStarred)
                 {
-                    Best.Add(selectedStock);
+                    BestStocks.Add(SelectedStock);
                 }
                 else
                 {
-                    Best.Remove(selectedStock);
+                    BestStocks.Remove(SelectedStock);
                 }
                 if (radioButtonStarred.Checked)
-                    changeList(Best);
+                    LoadNewListInComboBox(BestStocks);
             }
         }
 
-        private void button1_Click_1(object sender, EventArgs e)
+        private void ButtonSaveHistory_Click(object sender, EventArgs e)
         {
-            MainClass.WriteStockListToFile("History_file_" + DateTime.Now.ToString().Replace('.', '-').Replace(' ', '_').Replace(':', '-') + ".dat");
+            MainClass.WriteStockListToFile($"History_file_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.dat");
             MessageBox.Show("Сохранено");
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void ButtonLoadHistoryFile_Click(object sender, EventArgs e)
         {
             openFileDialog1.ShowDialog();
-            string s = openFileDialog1.FileName;
-            if (s != "")
-                MainClass.LoadStockListFromFile(s);
-            MainClass.WriteLog("Загружен файл " + s);
+            string _filePath = openFileDialog1.FileName;
+            if (_filePath != "")
+                MainClass.LoadStockListFromFile(_filePath);
+            MainClass.WriteLog("Загружен файл " + _filePath);
         }
 
         private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
@@ -380,45 +399,59 @@ namespace StocksAnalyzer
             string s;
         }
 
-        private async void button2_Click(object sender, EventArgs e)
+        private async void ButtonLoadStockMultiplicators_Click(object sender, EventArgs e)
         {
-            var selList = Best;
-            setButtonsMode(false); buttonOpenReport.Enabled = false;
-            Stopwatch stopwa = new Stopwatch();
-            stopwa.Start();
+            if (SelectedList == null)
+            {
+                SelectedList = BestStocks;
+                if (radioButtonAllStocks.Checked)
+                    SelectedList = MainClass.Stocks;
+                if (radioButtonRusStocks.Checked)
+                    SelectedList = RussianStocks;
+                if (radioButtonUSAStocks.Checked)
+                    SelectedList = UsaStocks;
+                if (radioButtonLondonStocks.Checked)
+                    SelectedList = LondonStocks;
+                if (radioButtonFromTinkoff.Checked)
+                    SelectedList = TinkoffStocks;
+            }
+
+            SetButtonsMode(false);
+            buttonOpenReport.Enabled = false;
+            Stopwatch _stopwatch = new Stopwatch();
+            _stopwatch.Start();
             //if (radioButton1.Checked)
             //   MainClass.loadStocksData(best);
-            if (radioButtonAllStocks.Checked)
-                selList = MainClass.Stocks;
-            if (radioButtonRusStocks.Checked)
-                selList = russian;
-            if (radioButtonUSAStocks.Checked)
-                selList = usa;
-            if (radioButtonLondonStocks.Checked)
-                selList = london;
-            if (radioButtonFromTinkoff.Checked)
-                selList = tinkoff;
             //MainClass.loadStocksData(selList);
 
             await Task.Factory.StartNew<string>(
-                                                     () => MainClass.LoadStocksData(selList, this.labelRemainingTime, this.progressBar),
+                                                     () => MainClass.LoadStocksData(SelectedList, this.labelRemainingTime, this.progressBar),
                                                      TaskCreationOptions.LongRunning);
 
-            MainClass.WriteLog(new string[] { "Операция заняла " + stopwa.Elapsed.TotalSeconds.ToString("F0") + " с" });
-            stopwa.Stop();
-            setButtonsMode(true);
-            MainClass.MakeReportAndSaveToFile(selList);
+            _stopwatch.Stop();
+            MainClass.WriteLog($"Операция заняла {_stopwatch.Elapsed.TotalSeconds.ToString("F0")} с");
+            SetButtonsMode(true);
+            MainClass.MakeReportAndSaveToFile(SelectedList);
             buttonOpenReport.Enabled = true;
         }
-        private void setButtonsMode(bool mode) // true - enabled, false - disabled
+
+        /// <summary>
+        /// Ставит доступность кнопок
+        /// </summary>
+        /// <param name="enabled">Доступны</param>
+        private void SetButtonsMode(bool enabled)
         {
-           buttonAnalyzeMultiplicators.Enabled= panelMain.Enabled = comboBoxStocks.Enabled = buttonGetInfo.Enabled = buttonLoadAllStocks.Enabled = buttonSaveHistory.Enabled = buttonLoadStocksMultiplicators.Enabled = buttonLoadHistoryFile.Enabled = radioButtonStarred.Enabled = radioButtonAllStocks.Enabled = radioButtonRusStocks.Enabled = radioButtonUSAStocks.Enabled = mode;
+            buttonAnalyzeMultiplicators.Enabled = panelMain.Enabled = comboBoxStocks.Enabled = 
+                buttonGetInfo.Enabled = buttonLoadAllStocks.Enabled = buttonSaveHistory.Enabled = 
+                buttonLoadStocksMultiplicators.Enabled = buttonLoadHistoryFile.Enabled = 
+                radioButtonStarred.Enabled = radioButtonAllStocks.Enabled = radioButtonRusStocks.Enabled = 
+                radioButtonUSAStocks.Enabled = enabled;
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            ProcessStartInfo sInfo = new ProcessStartInfo(linkLabel1.Text);
-            Process.Start(sInfo);
+        private void LinkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {           
+            ProcessStartInfo _sInfo = new ProcessStartInfo(linkLabel1.Text);
+            Process.Start(_sInfo);
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
@@ -436,7 +469,7 @@ namespace StocksAnalyzer
 
         }
 
-        private void button3_Click_1(object sender, EventArgs e)
+        private void ButtonOpenReport_Click(object sender, EventArgs e)
         {
             if (MainClass.ReportFileName != "")
             {
@@ -444,32 +477,33 @@ namespace StocksAnalyzer
             }
         }
 
-        private async void button5_Click(object sender, EventArgs e)
+        private async void ButtonAnalyzeMultiplicators_Click(object sender, EventArgs e)
         {
-            setButtonsMode(false);
-            Stopwatch stopwa = new Stopwatch();
-            stopwa.Start();
+            SetButtonsMode(false);
+            Stopwatch _stopwatch = new Stopwatch();
+            _stopwatch.Start();
             await Task.Run(() =>
             {
                 Analyzer.Analyze(MainClass.Stocks, this.labelRemainingTime);
             });
 
-            MainClass.WriteLog( "Операция заняла " + stopwa.Elapsed.TotalSeconds.ToString("F0") + " с" );
-            stopwa.Stop();
-            setButtonsMode(true);
+            _stopwatch.Stop();
+            MainClass.WriteLog($"Операция заняла {_stopwatch.Elapsed.TotalSeconds.ToString("F0")} с");
+            SetButtonsMode(true);
         }
 
-        private void radioButton6_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButtonMainPE.Checked)
-                sortList(0, selectedList);
-        }
-        private void sortList(int regime, List<Stock> lst)
+
+        /// <summary>
+        /// Сортирует список по указанной метрике
+        /// </summary>
+        /// <param name="regime">0-MainPE, 1-Main, 2-MainAll</param>
+        /// <param name="lst">Список акций</param>
+        private void SortList(int regime, List<Stock> lst)
         {
             this.comboBoxStocks.Items.Clear();
-            for (var i = 0; i < lst.Count; i++) 
+            for (var i = 0; i < lst.Count; i++)
                 for (var j = 0; j < lst.Count - i - 1; j++)
-                    if ((regime == 0 && lst[j].RateMainPE > lst[j + 1].RateMainPE)|| (regime == 1 && lst[j].RateMain > lst[j + 1].RateMain)|| (regime == 2 && lst[j].RateMainAll > lst[j + 1].RateMainAll))
+                    if ((regime == 0 && lst[j].RateMainPE > lst[j + 1].RateMainPE) || (regime == 1 && lst[j].RateMain > lst[j + 1].RateMain) || (regime == 2 && lst[j].RateMainAll > lst[j + 1].RateMainAll))
                     {
                         var st = lst[j];
                         lst[j] = lst[j + 1];
@@ -478,27 +512,34 @@ namespace StocksAnalyzer
             foreach (var st in lst)
                 this.comboBoxStocks.Items.Add(st.FullName);
         }
+        private void RadioButtonMainPE_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButtonMainPE.Checked)
+                SortList(0, SelectedList);
+        }
 
-        private void radioButton7_CheckedChanged(object sender, EventArgs e)
+        private void RadioButtonMain_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButtonMain.Checked)
-                sortList(1, selectedList);
+                SortList(1, SelectedList);
 
         }
 
-        private void radioButton8_CheckedChanged(object sender, EventArgs e)
+        private void RadioButtonMainAll_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButtonMainAll.Checked)
-                sortList(2, selectedList);
+                SortList(2, SelectedList);
         }
 
-        private void radioButton9_CheckedChanged(object sender, EventArgs e)
+        private void RadioButtonFromTinkoff_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButtonFromTinkoff.Checked)
             {
-                changeList(tinkoff);
-                selectedList = tinkoff;
+                LoadNewListInComboBox(TinkoffStocks);
+                SelectedList = TinkoffStocks;
             }
         }
+
+        #endregion
     }
 }

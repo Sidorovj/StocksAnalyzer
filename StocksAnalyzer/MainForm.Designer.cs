@@ -47,7 +47,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.labelLastUpdateTime = new System.Windows.Forms.Label();
             this.textBoxStockLastUpdated = new System.Windows.Forms.TextBox();
-            this.checkIsStarred = new System.Windows.Forms.CheckBox();
+            this.checkBoxIsStarred = new System.Windows.Forms.CheckBox();
             this.labelPriceRub = new System.Windows.Forms.Label();
             this.textBoxStockPrice = new System.Windows.Forms.TextBox();
             this.labelPE = new System.Windows.Forms.Label();
@@ -178,7 +178,7 @@
             this.buttonGetInfo.TabIndex = 2;
             this.buttonGetInfo.Text = "Получить инфо";
             this.buttonGetInfo.UseVisualStyleBackColor = true;
-            this.buttonGetInfo.Click += new System.EventHandler(this.buttonGetInfo_Click);
+            this.buttonGetInfo.Click += new System.EventHandler(this.ButtonGetInfo_Click);
             // 
             // labelSelStock
             // 
@@ -200,8 +200,8 @@
             this.comboBoxStocks.Size = new System.Drawing.Size(287, 24);
             this.comboBoxStocks.TabIndex = 3;
             this.comboBoxStocks.DropDown += new System.EventHandler(this.comboBoxStocks_DropDown);
-            this.comboBoxStocks.SelectedIndexChanged += new System.EventHandler(this.comboBoxStocks_SelectedIndexChanged);
-            this.comboBoxStocks.TextChanged += new System.EventHandler(this.comboBoxStocks_TextChanged);
+            this.comboBoxStocks.SelectedIndexChanged += new System.EventHandler(this.ComboBoxStocks_SelectedIndexChanged);
+            this.comboBoxStocks.TextChanged += new System.EventHandler(this.ComboBoxStocks_TextChanged);
             // 
             // richTextBoxLog
             // 
@@ -222,7 +222,7 @@
             this.radioButtonStarred.TabIndex = 6;
             this.radioButtonStarred.Text = "Избранные";
             this.radioButtonStarred.UseVisualStyleBackColor = true;
-            this.radioButtonStarred.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
+            this.radioButtonStarred.CheckedChanged += new System.EventHandler(this.RadioButtonStarred_CheckedChanged);
             // 
             // radioButtonAllStocks
             // 
@@ -236,7 +236,7 @@
             this.radioButtonAllStocks.TabStop = true;
             this.radioButtonAllStocks.Text = "Все";
             this.radioButtonAllStocks.UseVisualStyleBackColor = true;
-            this.radioButtonAllStocks.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
+            this.radioButtonAllStocks.CheckedChanged += new System.EventHandler(this.RadioButtonAllStocks_CheckedChanged);
             // 
             // radioButtonRusStocks
             // 
@@ -248,7 +248,7 @@
             this.radioButtonRusStocks.TabIndex = 8;
             this.radioButtonRusStocks.Text = "Русские";
             this.radioButtonRusStocks.UseVisualStyleBackColor = true;
-            this.radioButtonRusStocks.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
+            this.radioButtonRusStocks.CheckedChanged += new System.EventHandler(this.RadioButtonRus_CheckedChanged);
             // 
             // radioButtonUSAStocks
             // 
@@ -260,7 +260,7 @@
             this.radioButtonUSAStocks.TabIndex = 9;
             this.radioButtonUSAStocks.Text = "USA";
             this.radioButtonUSAStocks.UseVisualStyleBackColor = true;
-            this.radioButtonUSAStocks.CheckedChanged += new System.EventHandler(this.radioButton4_CheckedChanged);
+            this.radioButtonUSAStocks.CheckedChanged += new System.EventHandler(this.RadioButtonUSA_CheckedChanged);
             // 
             // radioButtonLondonStocks
             // 
@@ -273,7 +273,7 @@
             this.radioButtonLondonStocks.TabIndex = 10;
             this.radioButtonLondonStocks.Text = "London";
             this.radioButtonLondonStocks.UseVisualStyleBackColor = true;
-            this.radioButtonLondonStocks.CheckedChanged += new System.EventHandler(this.radioButton5_CheckedChanged);
+            this.radioButtonLondonStocks.CheckedChanged += new System.EventHandler(this.RadioButtonLondon_CheckedChanged);
             // 
             // buttonLoadAllStocks
             // 
@@ -284,7 +284,7 @@
             this.buttonLoadAllStocks.TabIndex = 11;
             this.buttonLoadAllStocks.Text = "Загрузить список акций";
             this.buttonLoadAllStocks.UseVisualStyleBackColor = true;
-            this.buttonLoadAllStocks.Click += new System.EventHandler(this.button1_Click);
+            this.buttonLoadAllStocks.Click += new System.EventHandler(this.ButtonLoadAllStocksClick);
             // 
             // buttonLoadStocksMultiplicators
             // 
@@ -295,7 +295,7 @@
             this.buttonLoadStocksMultiplicators.TabIndex = 12;
             this.buttonLoadStocksMultiplicators.Text = "Загрузить инфо для списка";
             this.buttonLoadStocksMultiplicators.UseVisualStyleBackColor = true;
-            this.buttonLoadStocksMultiplicators.Click += new System.EventHandler(this.button2_Click);
+            this.buttonLoadStocksMultiplicators.Click += new System.EventHandler(this.ButtonLoadStockMultiplicators_Click);
             // 
             // labelStockCount
             // 
@@ -361,17 +361,17 @@
             // 
             // checkIsStarred
             // 
-            this.checkIsStarred.AutoSize = true;
-            this.checkIsStarred.Enabled = false;
-            this.checkIsStarred.Location = new System.Drawing.Point(37, 41);
-            this.checkIsStarred.Margin = new System.Windows.Forms.Padding(4);
-            this.checkIsStarred.Name = "checkIsStarred";
-            this.checkIsStarred.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.checkIsStarred.Size = new System.Drawing.Size(77, 21);
-            this.checkIsStarred.TabIndex = 20;
-            this.checkIsStarred.Text = "Starred";
-            this.checkIsStarred.UseVisualStyleBackColor = true;
-            this.checkIsStarred.CheckedChanged += new System.EventHandler(this.checkIsStarred_CheckedChanged);
+            this.checkBoxIsStarred.AutoSize = true;
+            this.checkBoxIsStarred.Enabled = false;
+            this.checkBoxIsStarred.Location = new System.Drawing.Point(37, 41);
+            this.checkBoxIsStarred.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBoxIsStarred.Name = "checkIsStarred";
+            this.checkBoxIsStarred.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.checkBoxIsStarred.Size = new System.Drawing.Size(77, 21);
+            this.checkBoxIsStarred.TabIndex = 20;
+            this.checkBoxIsStarred.Text = "Starred";
+            this.checkBoxIsStarred.UseVisualStyleBackColor = true;
+            this.checkBoxIsStarred.CheckedChanged += new System.EventHandler(this.CheckBoxIsStarred_CheckedChanged);
             // 
             // labelPriceRub
             // 
@@ -561,7 +561,7 @@
             this.buttonSaveHistory.TabIndex = 40;
             this.buttonSaveHistory.Text = "Сохранить в историю";
             this.buttonSaveHistory.UseVisualStyleBackColor = true;
-            this.buttonSaveHistory.Click += new System.EventHandler(this.button1_Click_1);
+            this.buttonSaveHistory.Click += new System.EventHandler(this.ButtonSaveHistory_Click);
             // 
             // buttonLoadHistoryFile
             // 
@@ -572,7 +572,7 @@
             this.buttonLoadHistoryFile.TabIndex = 41;
             this.buttonLoadHistoryFile.Text = "Загрузить файл истории";
             this.buttonLoadHistoryFile.UseVisualStyleBackColor = true;
-            this.buttonLoadHistoryFile.Click += new System.EventHandler(this.button4_Click);
+            this.buttonLoadHistoryFile.Click += new System.EventHandler(this.ButtonLoadHistoryFile_Click);
             // 
             // openFileDialog1
             // 
@@ -587,7 +587,7 @@
             this.panelMain.Controls.Add(this.panelUSACoefs);
             this.panelMain.Controls.Add(this.panel2);
             this.panelMain.Controls.Add(this.linkLabel1);
-            this.panelMain.Controls.Add(this.checkIsStarred);
+            this.panelMain.Controls.Add(this.checkBoxIsStarred);
             this.panelMain.Controls.Add(this.labelStockName);
             this.panelMain.Location = new System.Drawing.Point(551, 65);
             this.panelMain.Margin = new System.Windows.Forms.Padding(4);
@@ -1293,7 +1293,7 @@
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(0, 17);
             this.linkLabel1.TabIndex = 41;
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel1_LinkClicked);
             // 
             // progressBar
             // 
@@ -1313,7 +1313,7 @@
             this.buttonOpenReport.TabIndex = 44;
             this.buttonOpenReport.Text = "Открыть отчет";
             this.buttonOpenReport.UseVisualStyleBackColor = true;
-            this.buttonOpenReport.Click += new System.EventHandler(this.button3_Click_1);
+            this.buttonOpenReport.Click += new System.EventHandler(this.ButtonOpenReport_Click);
             // 
             // buttonAnalyzeMultiplicators
             // 
@@ -1324,7 +1324,7 @@
             this.buttonAnalyzeMultiplicators.TabIndex = 45;
             this.buttonAnalyzeMultiplicators.Text = "Проанализировать все";
             this.buttonAnalyzeMultiplicators.UseVisualStyleBackColor = true;
-            this.buttonAnalyzeMultiplicators.Click += new System.EventHandler(this.button5_Click);
+            this.buttonAnalyzeMultiplicators.Click += new System.EventHandler(this.ButtonAnalyzeMultiplicators_Click);
             // 
             // labelMainPE
             // 
@@ -1379,7 +1379,7 @@
             this.radioButtonMainPE.TabIndex = 50;
             this.radioButtonMainPE.TabStop = true;
             this.radioButtonMainPE.UseVisualStyleBackColor = true;
-            this.radioButtonMainPE.CheckedChanged += new System.EventHandler(this.radioButton6_CheckedChanged);
+            this.radioButtonMainPE.CheckedChanged += new System.EventHandler(this.RadioButtonMainPE_CheckedChanged);
             // 
             // radioButtonMain
             // 
@@ -1391,7 +1391,7 @@
             this.radioButtonMain.TabIndex = 51;
             this.radioButtonMain.TabStop = true;
             this.radioButtonMain.UseVisualStyleBackColor = true;
-            this.radioButtonMain.CheckedChanged += new System.EventHandler(this.radioButton7_CheckedChanged);
+            this.radioButtonMain.CheckedChanged += new System.EventHandler(this.RadioButtonMain_CheckedChanged);
             // 
             // radioButtonMainAll
             // 
@@ -1403,7 +1403,7 @@
             this.radioButtonMainAll.TabIndex = 52;
             this.radioButtonMainAll.TabStop = true;
             this.radioButtonMainAll.UseVisualStyleBackColor = true;
-            this.radioButtonMainAll.CheckedChanged += new System.EventHandler(this.radioButton8_CheckedChanged);
+            this.radioButtonMainAll.CheckedChanged += new System.EventHandler(this.RadioButtonMainAll_CheckedChanged);
             // 
             // panel5
             // 
@@ -1427,7 +1427,7 @@
             this.radioButtonFromTinkoff.TabIndex = 54;
             this.radioButtonFromTinkoff.Text = "С сайта Tinkoff";
             this.radioButtonFromTinkoff.UseVisualStyleBackColor = true;
-            this.radioButtonFromTinkoff.CheckedChanged += new System.EventHandler(this.radioButton9_CheckedChanged);
+            this.radioButtonFromTinkoff.CheckedChanged += new System.EventHandler(this.RadioButtonFromTinkoff_CheckedChanged);
             // 
             // buttonGetTinkoffStocks
             // 
@@ -1513,7 +1513,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label labelLastUpdateTime;
         private System.Windows.Forms.TextBox textBoxStockLastUpdated;
-        private System.Windows.Forms.CheckBox checkIsStarred;
+        private System.Windows.Forms.CheckBox checkBoxIsStarred;
         private System.Windows.Forms.Label labelPriceRub;
         private System.Windows.Forms.TextBox textBoxStockPrice;
         private System.Windows.Forms.Label labelPE;
