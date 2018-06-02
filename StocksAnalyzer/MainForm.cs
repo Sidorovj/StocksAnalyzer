@@ -20,7 +20,7 @@ namespace StocksAnalyzer
         private List<Stock> russian2 = new List<Stock>();
         private List<Stock> usa = new List<Stock>();
         private List<Stock> london = new List<Stock>();
-        private List<Stock> best = new List<Stock>();
+        private List<Stock> Best = new List<Stock>();
         private List<Stock> tinkoff = new List<Stock>();
         private List<string> bestNames = new List<string>();
         private List<Stock> other = new List<Stock>();
@@ -29,6 +29,7 @@ namespace StocksAnalyzer
         public MainForm()
         {
             InitializeComponent();
+            Best = new List<Stock>();
             MainClass.LoadStockListFromFile();
             fillStockListsOnInit();
             this.FormClosing += Form1_FormClosing;
@@ -226,9 +227,9 @@ namespace StocksAnalyzer
             usa.Clear();
             london.Clear();
             bestNames.Clear();
-            foreach (var st in best)
+            foreach (var st in Best)
                 bestNames.Add(st.Name);
-            best.Clear();
+            Best.Clear();
             await Task.Run(() =>
             {
                 MainClass.Stocks.Clear();
@@ -279,8 +280,8 @@ namespace StocksAnalyzer
         }
         private void referStock(Stock st) // Отнесем акцию к определенному списку
         {
-            if (st.IsStarred && !best.Contains(st))
-                this.best.Add(st);
+            if (st.IsStarred && !Best.Contains(st))
+                this.Best.Add(st);
             if (st.Market.Location == StockMarketLocation.Russia)
                 this.russian.Add(st);
             if (st.Market.Location == StockMarketLocation.USA)
@@ -303,8 +304,8 @@ namespace StocksAnalyzer
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButtonStarred.Checked)
-                changeList(best);
-            selectedList = best;
+                changeList(Best);
+            selectedList = Best;
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
@@ -348,14 +349,14 @@ namespace StocksAnalyzer
                 MainClass.GetStock(true, selectedStock.FullName).IsStarred = selectedStock.IsStarred = checkIsStarred.Checked;
                 if (selectedStock.IsStarred)
                 {
-                    best.Add(selectedStock);
+                    Best.Add(selectedStock);
                 }
                 else
                 {
-                    best.Remove(selectedStock);
+                    Best.Remove(selectedStock);
                 }
                 if (radioButtonStarred.Checked)
-                    changeList(best);
+                    changeList(Best);
             }
         }
 
@@ -381,7 +382,7 @@ namespace StocksAnalyzer
 
         private async void button2_Click(object sender, EventArgs e)
         {
-            var selList = best;
+            var selList = Best;
             setButtonsMode(false); buttonOpenReport.Enabled = false;
             Stopwatch stopwa = new Stopwatch();
             stopwa.Start();
