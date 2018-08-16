@@ -8,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
+
 namespace StocksAnalyzer
 {
     /// TODO:
@@ -17,20 +19,22 @@ namespace StocksAnalyzer
     
     static class MainClass
     {
+        public const double Tolerance = 1e-7;
+
         public static string ReportFileName { get; private set; } = "";
         public static Dictionary<string, string> NamesToSymbolsRus { get; private set; } = new Dictionary<string, string>();
         public static List<Stock> Stocks { get; set; } = new List<Stock>();
 
-        private static string Report = "";
-        private static string[] ListToLogInReport = new string[] {"PriceToEquity","PriceToSales","PriceToBook", "ROE", "EPS", "QEG", "ProfitMargin","OperatingMargin","GrossProfit" };
+        private static string _report = "";
+        private static string[] _listToLogInReport = new string[] {"PriceToEquity","PriceToSales","PriceToBook", "ROE", "EPS", "QEG", "ProfitMargin","OperatingMargin","GrossProfit" };
         private const string StockListFilePath = "stockList.dat";
 
         #region Methods:public
 
-        public static Stock GetStock(bool compareFullName, string Name)
+        public static Stock GetStock(bool compareFullName, string name)
         {
             foreach (var st in Stocks)
-                if ((compareFullName && st.FullName == Name) || (!compareFullName && st.Name == Name))
+                if ((compareFullName && st.FullName == name) || (!compareFullName && st.Name == name))
                     return st;
             return null;
         }
@@ -42,29 +46,29 @@ namespace StocksAnalyzer
         /// <returns></returns>
         public static double ParseCoefStrToDouble(this string stringValue)
         { 
-            if (stringValue.IndexOf(":") > 0)
+            if (stringValue.IndexOf(":", StringComparison.Ordinal) > 0)
                 stringValue = stringValue.Substring(stringValue.IndexOf(':') + 1);
             while (stringValue.EndsWith("}") || stringValue.EndsWith("%"))
                 stringValue = stringValue.Substring(0, stringValue.Length - 1);
-            double _result = -1, _coefficient = 1;
+            double result, coefficient = 1;
             if (stringValue.EndsWith("M"))
             {
-                _coefficient = 1000*1000;
+                coefficient = 1000*1000;
                 stringValue = stringValue.Substring(0, stringValue.Length - 1);
             }
             else if (stringValue.EndsWith("B"))
             {
-                _coefficient = 1000*1000*1000;
+                coefficient = 1000*1000*1000;
                 stringValue = stringValue.Substring(0, stringValue.Length - 1);
             }
-            if (double.TryParse(stringValue, out _result))
-                return _result * _coefficient;
+            if (double.TryParse(stringValue, out result))
+                return result * coefficient;
             if (stringValue.Contains(','))
                 stringValue = stringValue.Replace(',', '.');
             else
                 stringValue = stringValue.Replace('.', ',');
-            if (double.TryParse(stringValue, out _result))
-                return _result * _coefficient;
+            if (double.TryParse(stringValue, out result))
+                return result * coefficient;
             throw new Exception($"Не удается распарсить строку {stringValue}");
         }
 
@@ -76,12 +80,11 @@ namespace StocksAnalyzer
         {
             if (!File.Exists(path))
                 return;
-            List<Stock> _temp = null;
-            Serializer _ser = new Serializer(path, _temp);
-            _temp = (List<Stock>)_ser.Deserialize();
+            Serializer ser = new Serializer(path);
+            var temp = (List<Stock>)ser.Deserialize();
             //foreach (var st in Temp)
             //    st.IsStarred = false;
-            Stocks = _temp;
+            Stocks = temp;
         }
 
         /// <summary>
@@ -90,8 +93,8 @@ namespace StocksAnalyzer
         /// <param name="path">Путь к файлу</param>
         public static void WriteStockListToFile(string path = StockListFilePath)
         {
-            Serializer _ser = new Serializer(path, MainClass.Stocks);
-            _ser.Serialize();
+            Serializer ser = new Serializer(path);
+            ser.Serialize(Stocks);
         }
 
         /// <summary>
@@ -100,25 +103,25 @@ namespace StocksAnalyzer
         /// <param name="stockLst">Список акций</param>
         public static void MakeReportAndSaveToFile(List<Stock> stockLst)
         {
-            Report += '\n';
-            foreach (string param in ListToLogInReport)
+            _report += '\n';
+            foreach (string param in _listToLogInReport)
             {
-                string _helpSt = "";
-                int _numRes = 0;
+                string helpSt = "";
+                int numRes = 0;
                 foreach (var st in stockLst)
                 {
-                    if (st[param] == 0)
+                    if (Math.Abs(st[param]) < Tolerance)
                     {
-                        _helpSt += st.Name + ';';
-                        _numRes++;
+                        helpSt += st.Name + ';';
+                        numRes++;
                     }
                 }
-                Report += $"{param};Заполнен в {stockLst.Count - _numRes}/{stockLst.Count};{_helpSt}\r\n";
+                _report += $"{param};Заполнен в {stockLst.Count - numRes}/{stockLst.Count};{helpSt}\r\n";
             }
             ReportFileName = $"Report_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.csv";
-            StreamWriter _sr = new StreamWriter(ReportFileName, true, Encoding.UTF8);
-            _sr.Write(Report);
-            _sr.Close();
+            StreamWriter sr = new StreamWriter(ReportFileName, true, Encoding.UTF8);
+            sr.Write(_report);
+            sr.Close();
         }
 
         /// <summary>
@@ -127,11 +130,11 @@ namespace StocksAnalyzer
         /// <param name="text">Строки лога</param>
         public static void WriteLog(params string[] text)
         {
-            string _fullText = "";
+            string fullText = "";
             foreach (var s in text)
-                _fullText += $"{DateTime.Now.ToString("HH:mm:ss")}  {s}\r\n";
-            Program.myForm.richTextBoxLog.BeginInvoke(
-                (MethodInvoker)(delegate { Program.myForm.richTextBoxLog.Text = _fullText + Program.myForm.richTextBoxLog.Text; }));
+                fullText += $"{DateTime.Now.ToString("HH:mm:ss")}  {s}\r\n";
+            Program.MyForm.richTextBoxLog.BeginInvoke(
+                (MethodInvoker)(delegate { Program.MyForm.richTextBoxLog.Text = fullText + Program.MyForm.richTextBoxLog.Text; }));
         }
 
         /// <summary>
@@ -144,8 +147,8 @@ namespace StocksAnalyzer
         public static string LoadStocksData(List<Stock> lst, Label lbl, ProgressBar bar)
         {
             var i = 0;
-            Report = "Не удалось загрузить акции:;";
-            var _count = lst.Count;
+            _report = "Не удалось загрузить акции:;";
+            var count = lst.Count;
             Stopwatch stwatch = new Stopwatch();
             stwatch.Start();
             foreach (var st in lst)
@@ -154,12 +157,13 @@ namespace StocksAnalyzer
                 GetStockData(st);
                 i++;
 
-                double _mins = stwatch.Elapsed.TotalSeconds * (1.0 / ((double)i / _count) - 1) / 60.0;
-                _mins = Math.Floor(_mins) + (_mins - Math.Floor(_mins)) * 0.6;
-                lbl.BeginInvoke((MethodInvoker)(delegate { lbl.Text = $"Обработано {i} / {_count}. Расчетное время: {(_mins >= 1 ? Math.Floor(_mins) + " мин " : "")}{Math.Floor((_mins - Math.Floor(_mins)) * 100)} с"; }));
-                bar.BeginInvoke((MethodInvoker)(delegate { bar.Value = i * 100 / _count; }));
+                double mins = stwatch.Elapsed.TotalSeconds * (1.0 / ((double)i / count) - 1) / 60.0;
+                mins = Math.Floor(mins) + (mins - Math.Floor(mins)) * 0.6;
+                var i1 = i;
+                lbl.BeginInvoke((MethodInvoker)(delegate { lbl.Text = $@"Обработано {i1} / {count}. Расчетное время: {(mins >= 1 ? Math.Floor(mins) + " мин " : "")}{Math.Floor((mins - Math.Floor(mins)) * 100)} с"; }));
+                bar.BeginInvoke((MethodInvoker)(delegate { bar.Value = i1 * 100 / count; }));
             }
-            lbl.BeginInvoke((MethodInvoker)(delegate { lbl.Text = "Готово."; }));
+            lbl.BeginInvoke((MethodInvoker)(delegate { lbl.Text = @"Готово."; }));
             stwatch.Stop();
             return "";
         }
@@ -171,14 +175,14 @@ namespace StocksAnalyzer
         /// <returns>Строку</returns>
         public static string ToCuteStr(this double num)
         {
-            string _str = "";
+            string str = "";
             if (Math.Abs(num) > 1000*1000*1000)// Миллиард
-                _str = (num / 1000*1000*1000).ToString("F2") + " B";
+                str = (num / 1000*1000*1000).ToString("F2") + " B";
             else if (Math.Abs(num) > 1000*1000)// Миллион
-                _str = (num / 1000*1000).ToString("F2") + " M";
-            else if (num != 0)
-                _str = num.ToString("F2");
-            return _str;
+                str = (num / 1000*1000).ToString("F2") + " M";
+            else if (Math.Abs(num) > Tolerance)
+                str = num.ToString("F2");
+            return str;
         }
 
         /// <summary>
@@ -187,47 +191,47 @@ namespace StocksAnalyzer
         /// <param name="st">Акция</param>
         public static void GetStockData(Stock st)
         {
-            string _stockName = st.Name;
+            string stockName = st.Name;
             st = GetStock(false, st.Name);
             if (st == null)
             {
-                WriteLog("Не удалось найти акцию в getStockData: " + _stockName);
+                WriteLog("Не удалось найти акцию в getStockData: " + stockName);
                 return;
             }
 
             try
             {
-                if (st.Market.Location == StockMarketLocation.USA)
+                if (st.Market.Location == StockMarketLocation.Usa)
                 {
-                    string _htmlCode = Web.GET(Web.GetStockDataUrl_USA.Replace("{}", st.Symbol) + st.Symbol);
-                    st.PriceToEquity = gettingYahooData("Trailing P/E", ref _htmlCode);
-                    st.PriceToSales = gettingYahooData("Price/Sales", ref _htmlCode);
-                    st.PriceToBook = gettingYahooData("Price/Book", ref _htmlCode);
-                    st.EPS = gettingYahooData("Diluted EPS", ref _htmlCode);
-                    st.ROE = gettingYahooData("Return on Equity", ref _htmlCode);
+                    string htmlCode = Web.Get(Web.GetStockDataUrlUsa.Replace("{}", st.Symbol) + st.Symbol);
+                    st.PriceToEquity = GettingYahooData("Trailing P/E", ref htmlCode);
+                    st.PriceToSales = GettingYahooData("Price/Sales", ref htmlCode);
+                    st.PriceToBook = GettingYahooData("Price/Book", ref htmlCode);
+                    st.Eps = GettingYahooData("Diluted EPS", ref htmlCode);
+                    st.Roe = GettingYahooData("Return on Equity", ref htmlCode);
 
-                    st.EVtoEBITDA = gettingYahooData("Enterprise Value/EBITDA", ref _htmlCode);
-                    st.MarketCap = gettingYahooData("Market Cap (intraday)", ref _htmlCode);
-                    st.QEG = gettingYahooData("Quarterly Revenue Growth", ref _htmlCode);
-                    st.ProfitMarg = gettingYahooData("Profit Margin", ref _htmlCode);
-                    st.OperMarg = gettingYahooData("Operating Margin", ref _htmlCode);
-                    st.GrossProfit = gettingYahooData("Gross Profit", ref _htmlCode);
-                    st.EV = gettingYahooData("Enterprise Value", ref _htmlCode);
-                    st.PEG = gettingYahooData("PEG Ratio (5 yr expected)", ref _htmlCode);
-                    st.EVRev = gettingYahooData("Enterprise Value/Revenue", ref _htmlCode);
-                    st.RetOnAssets = gettingYahooData("Return on Assets", ref _htmlCode);
-                    st.Revenue = gettingYahooData("Revenue", ref _htmlCode);
-                    st.RevPerShare = gettingYahooData("Revenue Per Share", ref _htmlCode);
-                    st.EBITDA = gettingYahooData("EBITDA", ref _htmlCode);
-                    st.TotalCash = gettingYahooData("Total Cash", ref _htmlCode);
-                    st.TotalCashPerShare = gettingYahooData("Total Cash Per Share", ref _htmlCode);
-                    st.TotalDebt = gettingYahooData("Total Debt", ref _htmlCode);
-                    st.BookValPerShare = gettingYahooData("Book Value Per Share", ref _htmlCode);
-                    st.OperatingCashFlow = gettingYahooData("Operating Cash Flow", ref _htmlCode);
-                    st.LeveredFreeCashFlow = gettingYahooData("Levered Free Cash Flow", ref _htmlCode);
-                    st.TotalShares = gettingYahooData("Shares Outstanding", ref _htmlCode);
-                    if (st.EBITDA != 0)
-                        st.DebtToEBITDA = st.TotalDebt / st.EBITDA;
+                    st.EVtoEbitda = GettingYahooData("Enterprise Value/EBITDA", ref htmlCode);
+                    st.MarketCap = GettingYahooData("Market Cap (intraday)", ref htmlCode);
+                    st.Qeg = GettingYahooData("Quarterly Revenue Growth", ref htmlCode);
+                    st.ProfitMarg = GettingYahooData("Profit Margin", ref htmlCode);
+                    st.OperMarg = GettingYahooData("Operating Margin", ref htmlCode);
+                    st.GrossProfit = GettingYahooData("Gross Profit", ref htmlCode);
+                    st.Ev = GettingYahooData("Enterprise Value", ref htmlCode);
+                    st.Peg = GettingYahooData("PEG Ratio (5 yr expected)", ref htmlCode);
+                    st.EvRev = GettingYahooData("Enterprise Value/Revenue", ref htmlCode);
+                    st.RetOnAssets = GettingYahooData("Return on Assets", ref htmlCode);
+                    st.Revenue = GettingYahooData("Revenue", ref htmlCode);
+                    st.RevPerShare = GettingYahooData("Revenue Per Share", ref htmlCode);
+                    st.Ebitda = GettingYahooData("EBITDA", ref htmlCode);
+                    st.TotalCash = GettingYahooData("Total Cash", ref htmlCode);
+                    st.TotalCashPerShare = GettingYahooData("Total Cash Per Share", ref htmlCode);
+                    st.TotalDebt = GettingYahooData("Total Debt", ref htmlCode);
+                    st.BookValPerShare = GettingYahooData("Book Value Per Share", ref htmlCode);
+                    st.OperatingCashFlow = GettingYahooData("Operating Cash Flow", ref htmlCode);
+                    st.LeveredFreeCashFlow = GettingYahooData("Levered Free Cash Flow", ref htmlCode);
+                    st.TotalShares = GettingYahooData("Shares Outstanding", ref htmlCode);
+                    if (Math.Abs(st.Ebitda) > Tolerance)
+                        st.DebtToEbitda = st.TotalDebt / st.Ebitda;
 
                     //htmlCode = htmlCode.Substring(htmlCode.IndexOf("data-reactid=\"35\"")); // react-id каждый раз разный
                     //htmlCode = htmlCode.Substring(htmlCode.IndexOf(">") + 1);
@@ -241,38 +245,38 @@ namespace StocksAnalyzer
                         WriteLog("Нет ссылки для получения инфы для " + st.Name);
                         return;
                     }
-                    string _htmlCode = Web.GET(Web.GetStockDataUrl_Russia + NamesToSymbolsRus[st.Name]);
-                    st.PriceToEquity = gettingInvestingComData("Коэффициент цена/прибыль", ref _htmlCode);
-                    st.PriceToSales = gettingInvestingComData("Коэффициент цена/объем продаж", ref _htmlCode);
-                    st.PriceToBook = gettingInvestingComData("Коэффициент цена/балансовая стоимость", ref _htmlCode);
-                    st.EPS = gettingInvestingComData("Базовая прибыль на акцию", ref _htmlCode);
-                    st.ROE = gettingInvestingComData("Прибыль на инвестиции", ref _htmlCode);
+                    string htmlCode = Web.Get(Web.GetStockDataUrlRussia + NamesToSymbolsRus[st.Name]);
+                    st.PriceToEquity = GettingInvestingComData("Коэффициент цена/прибыль", ref htmlCode);
+                    st.PriceToSales = GettingInvestingComData("Коэффициент цена/объем продаж", ref htmlCode);
+                    st.PriceToBook = GettingInvestingComData("Коэффициент цена/балансовая стоимость", ref htmlCode);
+                    st.Eps = GettingInvestingComData("Базовая прибыль на акцию", ref htmlCode);
+                    st.Roe = GettingInvestingComData("Прибыль на инвестиции", ref htmlCode);
 
-                    st.QEG = gettingInvestingComData("Прибыль на акцию за последний квартал к квартальной год назад", ref _htmlCode);
-                    st.ProfitMarg = gettingInvestingComData("Маржа прибыли до налогообложения ", ref _htmlCode, "TTM");
-                    st.OperMarg = gettingInvestingComData("Операционная маржа", ref _htmlCode, "TTM");
-                    st.GrossProfit = gettingInvestingComData("Валовая прибыль", ref _htmlCode, "TTM");
-                    st.GrossProfit5ya = gettingInvestingComData("Валовая прибыль", ref _htmlCode, "5YA");
-                    st.ProfitCoef = gettingInvestingComData("Коэффициент прибыльности", ref _htmlCode, "TTM");
-                    st.ProfitCoef5ya = gettingInvestingComData("Коэффициент прибыльности", ref _htmlCode, "5YA");
-                    st.ProfitOn12mToAnalogYearAgo = gettingInvestingComData("Прибыль на акцию за последние 12 месяцев к аналогичному периоду год назад", ref _htmlCode);
-                    st.GrowProfitPerShare5y = gettingInvestingComData("Рост прибыли на акцию за 5 лет", ref _htmlCode);
-                    st.CapExpenseGrow5y = gettingInvestingComData("Рост капитальных расходов за последние 5 лет", ref _htmlCode);
-                    st.ProfitMarg5ya = gettingInvestingComData("Маржа прибыли до налогообложения ", ref _htmlCode, "5YA");
-                    st.OperMarg5ya = gettingInvestingComData("Операционная маржа", ref _htmlCode, "5YA");
-                    st.UrgentLiquidityCoef = gettingInvestingComData("Коэффициент срочной ликвидности", ref _htmlCode);
-                    st.CurrentLiquidityCoef = gettingInvestingComData("Коэффициент текущей ликвидности", ref _htmlCode);
+                    st.Qeg = GettingInvestingComData("Прибыль на акцию за последний квартал к квартальной год назад", ref htmlCode);
+                    st.ProfitMarg = GettingInvestingComData("Маржа прибыли до налогообложения ", ref htmlCode, "TTM");
+                    st.OperMarg = GettingInvestingComData("Операционная маржа", ref htmlCode, "TTM");
+                    st.GrossProfit = GettingInvestingComData("Валовая прибыль", ref htmlCode, "TTM");
+                    st.GrossProfit5Ya = GettingInvestingComData("Валовая прибыль", ref htmlCode, "5YA");
+                    st.ProfitCoef = GettingInvestingComData("Коэффициент прибыльности", ref htmlCode, "TTM");
+                    st.ProfitCoef5Ya = GettingInvestingComData("Коэффициент прибыльности", ref htmlCode, "5YA");
+                    st.ProfitOn12MToAnalogYearAgo = GettingInvestingComData("Прибыль на акцию за последние 12 месяцев к аналогичному периоду год назад", ref htmlCode);
+                    st.GrowProfitPerShare5Y = GettingInvestingComData("Рост прибыли на акцию за 5 лет", ref htmlCode);
+                    st.CapExpenseGrow5Y = GettingInvestingComData("Рост капитальных расходов за последние 5 лет", ref htmlCode);
+                    st.ProfitMarg5Ya = GettingInvestingComData("Маржа прибыли до налогообложения ", ref htmlCode, "5YA");
+                    st.OperMarg5Ya = GettingInvestingComData("Операционная маржа", ref htmlCode, "5YA");
+                    st.UrgentLiquidityCoef = GettingInvestingComData("Коэффициент срочной ликвидности", ref htmlCode);
+                    st.CurrentLiquidityCoef = GettingInvestingComData("Коэффициент текущей ликвидности", ref htmlCode);
 
-                    _htmlCode = _htmlCode.Substring(_htmlCode.IndexOf("id=\"last_last\""));
-                    _htmlCode = _htmlCode.Substring(_htmlCode.IndexOf(">") + 1);
-                    st.Price = _htmlCode.Substring(0, _htmlCode.IndexOf("<")).ParseCoefStrToDouble();
+                    htmlCode = htmlCode.Substring(htmlCode.IndexOf("id=\"last_last\"", StringComparison.Ordinal));
+                    htmlCode = htmlCode.Substring(htmlCode.IndexOf(">", StringComparison.Ordinal) + 1);
+                    st.Price = htmlCode.Substring(0, htmlCode.IndexOf("<", StringComparison.Ordinal)).ParseCoefStrToDouble();
                     st.LastUpdate = DateTime.Now;
                 }
             }
             catch (Exception er)
             {
                 WriteLog("Не удалось получить инфу по " + st.Name + ": " + er.Message);
-                Report += st.Name + ';';
+                _report += st.Name + ';';
             }
 
         }
@@ -283,7 +287,7 @@ namespace StocksAnalyzer
             await Task.Run(() =>
             {
                 Thread.Sleep(2000);
-                WriteLog(new string[] { "USD: " + StockMarket.GetExchangeRates(StockMarketCurrency.USD).ToString("F2"), "EUR: " + StockMarket.GetExchangeRates(StockMarketCurrency.EUR).ToString("F2") });
+                WriteLog(new string[] { "USD: " + StockMarket.GetExchangeRates(StockMarketCurrency.Usd).ToString("F2"), "EUR: " + StockMarket.GetExchangeRates(StockMarketCurrency.Eur).ToString("F2") });
             });
             FillDict();
         }
@@ -294,13 +298,13 @@ namespace StocksAnalyzer
         public static void GetStocksList()
         {
             GetRussianStocks();
-            GetUSAStocks();
+            GetUsaStocks();
             //GetLondonStocks();
 
             //Отсортируем по алфавиту
             for (var i = 0; i < Stocks.Count; i++)
                 for (var j = 0; j < Stocks.Count - i - 1; j++)
-                    if (string.Compare(Stocks[j].Name, Stocks[j + 1].Name) > 0)
+                    if (string.CompareOrdinal(Stocks[j].Name, Stocks[j + 1].Name) > 0)
                     {
                         var st = Stocks[j];
                         Stocks[j] = Stocks[j + 1];
@@ -320,32 +324,32 @@ namespace StocksAnalyzer
             int i = 0;
             while (i<=270)
             {
-                string _htmlCode = Web.GET(Web.GetStocksListUrl_Russia2.Replace("{num}", i.ToString()));
-                _htmlCode = _htmlCode.Substring(_htmlCode.IndexOf("<tr class=\"tblr-head\""));
-                _htmlCode = _htmlCode.Substring(0, _htmlCode.IndexOf("</table"));
-                string _tdClass = "<a";
-                string _title = ">";
-                while (_htmlCode.Contains(_tdClass))
+                string htmlCode = Web.Get(Web.GetStocksListUrlRussia2.Replace("{num}", i.ToString()));
+                htmlCode = htmlCode.Substring(htmlCode.IndexOf("<tr class=\"tblr-head\""));
+                htmlCode = htmlCode.Substring(0, htmlCode.IndexOf("</table"));
+                string tdClass = "<a";
+                string title = ">";
+                while (htmlCode.Contains(tdClass))
                 {
-                    string _name = "";
-                    double _price = 0;
-                    _htmlCode = _htmlCode.Substring(_htmlCode.IndexOf(_tdClass) + _tdClass.Length); 
-                    _htmlCode = _htmlCode.Substring(_htmlCode.IndexOf(_title) + _title.Length);
-                    _name = _htmlCode.Substring(0, _htmlCode.IndexOf("<"));
-                    if (_name == "% за день")
+                    string name = "";
+                    double price = 0;
+                    htmlCode = htmlCode.Substring(htmlCode.IndexOf(tdClass) + tdClass.Length); 
+                    htmlCode = htmlCode.Substring(htmlCode.IndexOf(title) + title.Length);
+                    name = htmlCode.Substring(0, htmlCode.IndexOf("<"));
+                    if (name == "% за день")
                     {
-                        _htmlCode = _htmlCode.Substring(_htmlCode.IndexOf("</tr>"));
-                        _htmlCode = _htmlCode.Substring(_htmlCode.IndexOf(_tdClass) + _tdClass.Length);
-                        _htmlCode = _htmlCode.Substring(_htmlCode.IndexOf(_title) + _title.Length);
-                        _name = _htmlCode.Substring(0, _htmlCode.IndexOf("<"));
+                        htmlCode = htmlCode.Substring(htmlCode.IndexOf("</tr>"));
+                        htmlCode = htmlCode.Substring(htmlCode.IndexOf(tdClass) + tdClass.Length);
+                        htmlCode = htmlCode.Substring(htmlCode.IndexOf(title) + title.Length);
+                        name = htmlCode.Substring(0, htmlCode.IndexOf("<"));
                     }
 
                     for (var j = 0; j < 6; j++)
-                        _htmlCode = _htmlCode.Substring(_htmlCode.IndexOf("</td>") + 6);
-                    _htmlCode = _htmlCode.Substring(_htmlCode.IndexOf(">") + 1);
-                    _price = _htmlCode.Substring(0, _htmlCode.IndexOf("</td>")).ParseCoefStrToDouble();
-                    if (_price>0 && GetStock(false, _name)==null)
-                        Stocks.Add(new Stock(_name, _price, new StockMarket(StockMarketLocation.Russia, StockMarketCurrency.RUB)));
+                        htmlCode = htmlCode.Substring(htmlCode.IndexOf("</td>") + 6);
+                    htmlCode = htmlCode.Substring(htmlCode.IndexOf(">") + 1);
+                    price = htmlCode.Substring(0, htmlCode.IndexOf("</td>")).ParseCoefStrToDouble();
+                    if (price>0 && GetStock(false, name)==null)
+                        Stocks.Add(new Stock(name, price, new StockMarket(StockMarketLocation.Russia, StockMarketCurrency.Rub)));
                 }
                 i += 30;
             }
@@ -374,21 +378,21 @@ namespace StocksAnalyzer
         /// <summary>
         /// Загрузить в Stocks акции с амер. биржы
         /// </summary>
-        private static void GetUSAStocks()
+        private static void GetUsaStocks()
         {
-            string[] _htmlCode = (Web.ReadDownloadedFile(Web.GetStocksListUrl_USA_nasdaq).Replace("\",\"", "|").Replace("\"", "")+ Web.ReadDownloadedFile(Web.GetStocksListUrl_USA_nyse).Replace("\",\"", "|").Replace("\"", "")).Split('\n');
+            string[] htmlCode = (Web.ReadDownloadedFile(Web.GetStocksListUrlUsaNasdaq).Replace("\",\"", "|").Replace("\"", "")+ Web.ReadDownloadedFile(Web.GetStocksListUrlUsaNyse).Replace("\",\"", "|").Replace("\"", "")).Split('\n');
             //htmlCode.Concat(Web.DownloadFile(Web.getStocksListUrl_USA_nyse).Replace("\",\"", "|").Replace("\"", "").Split('\n'));
-            foreach (string s in _htmlCode)
+            foreach (string s in htmlCode)
             {
                 if (s.StartsWith("Symbol"))
                     continue;
-                var _parameters = s.Split('|');
-                if (_parameters.Length < 2)
+                var parameters = s.Split('|');
+                if (parameters.Length < 2)
                     continue;
-                string _name = _parameters[1], symb = _parameters[0];
-                double _price = _parameters[2].ParseCoefStrToDouble();
-                if (_price > 0 && GetStock(false, _name) == null)
-                    Stocks.Add(new Stock(_name, _price, new StockMarket(StockMarketLocation.USA, StockMarketCurrency.USD), symb));
+                string name = parameters[1], symb = parameters[0];
+                double price = parameters[2].ParseCoefStrToDouble();
+                if (price > 0 && GetStock(false, name) == null)
+                    Stocks.Add(new Stock(name, price, new StockMarket(StockMarketLocation.Usa, StockMarketCurrency.Usd), symb));
             }
         }
 
@@ -404,13 +408,13 @@ namespace StocksAnalyzer
         /// <param name="multiplicator">Название мультипликатора</param>
         /// <param name="htmlCode">Код</param>
         /// <returns>Значение</returns>
-        private static double gettingYahooData(string multiplicator, ref string htmlCode)
+        private static double GettingYahooData(string multiplicator, ref string htmlCode)
         {
-            string _temp = htmlCode.Substring(htmlCode.IndexOf(">"+multiplicator+"</span>"));
-            _temp = _temp.Substring(_temp.IndexOf("<td class")); _temp = _temp.Substring(_temp.IndexOf(">") + 1); _temp = _temp.Substring(0, _temp.IndexOf("</"));
-            if (_temp.IndexOf(">") > 0)
-                _temp = _temp.Substring(_temp.IndexOf(">") + 1);
-            return _temp.ParseCoefStrToDouble();
+            string temp = htmlCode.Substring(htmlCode.IndexOf(">"+multiplicator+"</span>"));
+            temp = temp.Substring(temp.IndexOf("<td class")); temp = temp.Substring(temp.IndexOf(">") + 1); temp = temp.Substring(0, temp.IndexOf("</"));
+            if (temp.IndexOf(">") > 0)
+                temp = temp.Substring(temp.IndexOf(">") + 1);
+            return temp.ParseCoefStrToDouble();
         }
 
         /// <summary>
@@ -420,7 +424,7 @@ namespace StocksAnalyzer
         /// <param name="htmlCode">Код html</param>
         /// <param name="appendix"></param>
         /// <returns>Значение</returns>
-        private static double gettingInvestingComData(string multiplicator, ref string htmlCode, string appendix="")
+        private static double GettingInvestingComData(string multiplicator, ref string htmlCode, string appendix="")
         {
             string sp = "<span class=\"\">";
             string temp = htmlCode.Substring(htmlCode.IndexOf(sp + multiplicator));
