@@ -10,7 +10,7 @@ namespace StocksAnalyzer
 
     static class Web
     {
-        public static string ExchangeRatesUrl => "http://api.fixer.io/latest?base=RUB";
+        public static string ExchangeRatesUrl => "http://data.fixer.io/api/latest?access_key=d7b80760e664065395dc2db532327183&symbols=RUB,USD";
         public static string GetStocksListUrlRussia1 => "https://ru.investing.com/equities/russia";
         public static string GetStocksListUrlRussia2 => "http://stocks.investfunds.ru/quotes/main/?&start={num}#beginf";
 
@@ -70,6 +70,8 @@ namespace StocksAnalyzer
             string fileName = "usa_Stocks.dat";
             using (var client = new WebClient())
             {
+                client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Win64; x64; Trident/4.0; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; .NET CLR 2.0.50727; SLCC2; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; Tablet PC 2.0; .NET4.0C; .NET4.0E)");
+                client.Encoding = Encoding.UTF8;
                 client.DownloadFile(url, fileName);
             }
             string text = File.ReadAllText(fileName);

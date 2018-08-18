@@ -24,8 +24,9 @@ namespace StocksAnalyzer
         public MainForm()
         {
             InitializeComponent();
-            MainClass.LoadStockListFromFile();
-            LoadStockListsOnInit();
+
+            Task.Run(() => InitializeMainClass());
+
             FormClosing += Form1_FormClosing;
 
             ToolTip t = new ToolTip();
@@ -61,17 +62,14 @@ namespace StocksAnalyzer
             panelRussiaCoefs.Top = panelUSACoefs.Top;
             panelRussiaCoefs.Left = panelUSACoefs.Left;
             panelRussiaCoefs.Width = panelUSACoefs.Width;
-            _selectedList = MainClass.Stocks;
-            /*int c1 = 0, c2 = 0;
+        }
 
-            foreach (var st in MainClass.Stocks)
-            {
-                if (st.EV != 0 || st.EVRev != 0 || st.EVtoEBITDA != 0)
-                    c1++;
-                if (st.PriceToEquity != 0)
-                    c2++;
-            }
-            richTextBoxLog.Text +='\n'+c1.ToString() + ' '+c2.ToString();*/
+        private void InitializeMainClass()
+        {
+            MainClass.Initialize();
+            MainClass.LoadStockListFromFile();
+            LoadStockListsOnInit();
+            _selectedList = MainClass.Stocks;
         }
 
         #region Methods:public
@@ -216,8 +214,6 @@ namespace StocksAnalyzer
         {
             comboBoxStocks.Items.Clear();
             labelRemainingTime.Text = @"Время загрузки порядка 15 с.";
-            Stopwatch stopwa = new Stopwatch();
-            stopwa.Start();
             SetButtonsMode(false);
             comboBoxStocks.Text = "";
             _russianStocks.Clear();
@@ -227,16 +223,20 @@ namespace StocksAnalyzer
             foreach (var st in _bestStocks)
                 _bestStocksNames.Add(st.Name);
             _bestStocks.Clear();
+
             await Task.Run(() =>
             {
+                Stopwatch stopwa = Stopwatch.StartNew();
                 MainClass.Stocks.Clear();
+
                 MainClass.GetStocksList();
+
                 FillStockLists();
+                stopwa.Stop();
+                MainClass.WriteLog("Операция заняла " + stopwa.Elapsed.TotalSeconds.ToString("F0") + " с");
+                SetButtonsMode(true);
+                MessageBox.Show(@"Список загружен");
             });
-            SetButtonsMode(true);
-            MainClass.WriteLog("Операция заняла " + stopwa.Elapsed.TotalSeconds.ToString("F0") + " с");
-            stopwa.Stop();
-            MessageBox.Show(@"Список загружен");
         }
 
         /// <summary>
@@ -250,9 +250,9 @@ namespace StocksAnalyzer
                     selectedStock.IsStarred = true;
                 ReferStock(selectedStock);
                 if (SelectedStockIsInSelectedList(selectedStock))
-                    comboBoxStocks.BeginInvoke((MethodInvoker)(delegate { comboBoxStocks.Items.Add(selectedStock.FullName); }));
+                    comboBoxStocks.BeginInvoke((MethodInvoker)delegate { comboBoxStocks.Items.Add(selectedStock.FullName); });
             }
-            labelStockCount.BeginInvoke((MethodInvoker)(delegate { labelStockCount.Text = @"Общее кол-во: " + comboBoxStocks.Items.Count; }));
+            labelStockCount.BeginInvoke((MethodInvoker)delegate { labelStockCount.Text = @"Общее кол-во: " + comboBoxStocks.Items.Count; });
         }
 
         /// <summary>
@@ -264,9 +264,9 @@ namespace StocksAnalyzer
             {
                 ReferStock(selectedStock);
                 if (SelectedStockIsInSelectedList(selectedStock))
-                    comboBoxStocks.Items.Add(selectedStock.FullName);
+                    comboBoxStocks.BeginInvoke((MethodInvoker)delegate { comboBoxStocks.Items.Add(selectedStock.FullName); });
             }
-            labelStockCount.Text = @"Общее кол-во: " + comboBoxStocks.Items.Count;
+            labelStockCount.BeginInvoke((MethodInvoker)delegate { labelStockCount.Text = @"Общее кол-во: " + comboBoxStocks.Items.Count; });
         }
 
         /// <summary>
@@ -413,21 +413,22 @@ namespace StocksAnalyzer
 
             SetButtonsMode(false);
             buttonOpenReport.Enabled = false;
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             //if (radioButton1.Checked)
             //   MainClass.loadStocksData(best);
             //MainClass.loadStocksData(selList);
 
             await Task.Factory.StartNew(
-                                                     () => MainClass.LoadStocksData(_selectedList, labelRemainingTime, progressBar),
-                                                     TaskCreationOptions.LongRunning);
-
-            stopwatch.Stop();
-            MainClass.WriteLog($"Операция заняла {stopwatch.Elapsed.TotalSeconds:F0} с");
-            SetButtonsMode(true);
-            MainClass.MakeReportAndSaveToFile(_selectedList);
-            buttonOpenReport.Enabled = true;
+                () =>
+                {
+                    Stopwatch stopwatch = Stopwatch.StartNew();
+                    MainClass.LoadStocksData(_selectedList, labelRemainingTime, progressBar);
+                    stopwatch.Stop();
+                    MainClass.WriteLog($"Операция заняла {stopwatch.Elapsed.TotalSeconds:F0} с");
+                    SetButtonsMode(true);
+                    MainClass.MakeReportAndSaveToFile(_selectedList);
+                    buttonOpenReport.Enabled = true;
+                },
+                TaskCreationOptions.LongRunning);
         }
 
         /// <summary>

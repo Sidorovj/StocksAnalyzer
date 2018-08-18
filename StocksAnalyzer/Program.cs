@@ -14,8 +14,7 @@ namespace StocksAnalyzer
         /// </summary>
         [STAThread]
         static void Main()
-        {
-            new Thread(MainClass.Initialize).Start();            
+        {            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(MyForm = new MainForm());

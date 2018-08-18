@@ -42,20 +42,9 @@ namespace StocksAnalyzer
         public static async void InitializeCurrencies()
         {
             string response = await Web.GeTtask(Web.ExchangeRatesUrl);
-            var currency = response.Split(',');
-            // Переделать распарсивание в JSON
-            for (int i = 0; i < currency.Length; i++)
-            {
-                if (currency[i].StartsWith("\"USD"))
-                {
-                    _exchangeRateRubToUsd = 1.0 / currency[i].Substring(currency[i].IndexOf(':') + 1).ParseCoefStrToDouble();
-                }
-                else if (currency[i].StartsWith("\"EUR"))
-                {
-                    _exchangeRateRubToEur = 1.0 / currency[i].Substring(currency[i].IndexOf(':') + 1).ParseCoefStrToDouble();
-                }
-
-            }
+            JObject rates = JObject.Parse(response);
+            _exchangeRateRubToEur = rates["rates"]["RUB"].Value<double>();
+            _exchangeRateRubToUsd = _exchangeRateRubToEur/rates["rates"]["USD"].Value<double>();
         }
 
         /// <summary>
