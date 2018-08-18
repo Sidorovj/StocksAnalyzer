@@ -151,6 +151,8 @@
             this.panel5 = new System.Windows.Forms.Panel();
             this.radioButtonFromTinkoff = new System.Windows.Forms.RadioButton();
             this.buttonGetTinkoffStocks = new System.Windows.Forms.Button();
+            this.webBrowser1 = new System.Windows.Forms.WebBrowser();
+            this.buttonCkechTinkoff = new System.Windows.Forms.Button();
             this.panelMain.SuspendLayout();
             this.panelRussiaCoefs.SuspendLayout();
             this.panelUSACoefs.SuspendLayout();
@@ -359,13 +361,13 @@
             this.textBoxStockLastUpdated.Size = new System.Drawing.Size(159, 22);
             this.textBoxStockLastUpdated.TabIndex = 18;
             // 
-            // checkIsStarred
+            // checkBoxIsStarred
             // 
             this.checkBoxIsStarred.AutoSize = true;
             this.checkBoxIsStarred.Enabled = false;
             this.checkBoxIsStarred.Location = new System.Drawing.Point(37, 41);
             this.checkBoxIsStarred.Margin = new System.Windows.Forms.Padding(4);
-            this.checkBoxIsStarred.Name = "checkIsStarred";
+            this.checkBoxIsStarred.Name = "checkBoxIsStarred";
             this.checkBoxIsStarred.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.checkBoxIsStarred.Size = new System.Drawing.Size(77, 21);
             this.checkBoxIsStarred.TabIndex = 20;
@@ -1442,11 +1444,32 @@
             this.buttonGetTinkoffStocks.Text = "Получить список с сайта Tinkoff";
             this.buttonGetTinkoffStocks.UseVisualStyleBackColor = false;
             // 
+            // webBrowser1
+            // 
+            this.webBrowser1.Location = new System.Drawing.Point(447, 87);
+            this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
+            this.webBrowser1.Name = "webBrowser1";
+            this.webBrowser1.Size = new System.Drawing.Size(72, 54);
+            this.webBrowser1.TabIndex = 56;
+            // 
+            // buttonCkechTinkoff
+            // 
+            this.buttonCkechTinkoff.Location = new System.Drawing.Point(254, 235);
+            this.buttonCkechTinkoff.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonCkechTinkoff.Name = "buttonCkechTinkoff";
+            this.buttonCkechTinkoff.Size = new System.Drawing.Size(204, 28);
+            this.buttonCkechTinkoff.TabIndex = 57;
+            this.buttonCkechTinkoff.Text = "Догрузить список тинькофф";
+            this.buttonCkechTinkoff.UseVisualStyleBackColor = true;
+            this.buttonCkechTinkoff.Click += new System.EventHandler(this.buttonCkechTinkoff_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1205, 613);
+            this.Controls.Add(this.buttonCkechTinkoff);
+            this.Controls.Add(this.webBrowser1);
             this.Controls.Add(this.buttonGetTinkoffStocks);
             this.Controls.Add(this.radioButtonFromTinkoff);
             this.Controls.Add(this.panel5);
@@ -1618,6 +1641,8 @@
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.RadioButton radioButtonFromTinkoff;
         private System.Windows.Forms.Button buttonGetTinkoffStocks;
+        private System.Windows.Forms.WebBrowser webBrowser1;
+        private System.Windows.Forms.Button buttonCkechTinkoff;
     }
 }
 

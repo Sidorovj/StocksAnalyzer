@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 namespace StocksAnalyzer
 {
     enum StockMarketLocation
     {
-        Russia=0,
-        Usa=10,
-        London=20,
-        Other=30
+        Russia = 0,
+        Usa = 10,
+        London = 20,
+        Other = 30
     }
     enum StockMarketCurrency //валюта, в которой торгуются акции
     {
-        Rub=0,
-        Usd=10,
-        Eur=20
+        Rub = 0,
+        Usd = 10,
+        Eur = 20
     }
 
     /// <summary>
@@ -25,10 +29,10 @@ namespace StocksAnalyzer
     class StockMarket
     {
         public StockMarketLocation Location { get; }
-        public StockMarketCurrency Currency        { get; }
+        public StockMarketCurrency Currency { get; }
         private static double _exchangeRateRubToUsd; // Переделать в словарь
         private static double _exchangeRateRubToEur;
-        
+
         public StockMarket(StockMarketLocation loc, StockMarketCurrency curr)
         {
             Location = loc;
@@ -44,7 +48,7 @@ namespace StocksAnalyzer
             string response = await Web.GeTtask(Web.ExchangeRatesUrl);
             JObject rates = JObject.Parse(response);
             _exchangeRateRubToEur = rates["rates"]["RUB"].Value<double>();
-            _exchangeRateRubToUsd = _exchangeRateRubToEur/rates["rates"]["USD"].Value<double>();
+            _exchangeRateRubToUsd = _exchangeRateRubToEur / rates["rates"]["USD"].Value<double>();
         }
 
         /// <summary>
@@ -78,7 +82,8 @@ namespace StocksAnalyzer
         public string Name { get; }
         public string Symbol { get; }
         public string FullName => $"{Name} [{Market.Location}]";
-        public bool IsOnTinkoff { get; }
+        public bool IsOnTinkoff { get; private set; }
+        public bool TinkoffScanned { get; private set; }
 
         #region Metrics
         public double MainPe { get; set; }
@@ -161,7 +166,7 @@ namespace StocksAnalyzer
                 throw new ArgumentException(@"Не могу найти параметр", ind);
             }
         }
-        
+
 
         public Stock(string name, double price, StockMarket mar, string symb = "")
         {
@@ -170,30 +175,88 @@ namespace StocksAnalyzer
             Market = mar;
             Symbol = symb;
             LastUpdate = DateTime.Now;
-            IsOnTinkoff = false;
+            IsOnTinkoff = TinkoffScanned = false;
+        }
 
-            // ЗДЕСЬ ЗАПРОС К ТИНЬКОФ
+        public async Task UnderstandIsItOnTinkoff()
+        {
+            if (TinkoffScanned)
+                return;
+
             string nameToSearch = "";
-            var splitted = name.Split(' ');
-            for (var i = 0; i < splitted.Length - 1; i++)
+            string[] suffixArray = { "", "ао", "ап", "деп.", "расп.", "inc", "inc.", "corp", "corp.", "ltd", "ltd.", "corporation", "incorporated", "plc" };
+            foreach (var s in Name.ToLower().Split(' '))
             {
-                nameToSearch += splitted[i].Replace(",", "");
+                if (!suffixArray.Contains(s))
+                    nameToSearch += s.Replace(",", "") + ' ';
             }
-            string respStr = Web.Get("https://api.tinkoff.ru/trading/stocks/list?country=All&sortType=ByName&orderType=Asc&start=0&end=20&filter=" + nameToSearch);
-            JObject jsonReponse = JObject.Parse(respStr);
-            nameToSearch = nameToSearch.ToLower();
-            for (var j = 0; j < (int)jsonReponse["payload"]["total"]; j++)
+            //nameToSearch = nameToSearch.Substring(0, nameToSearch.Length - 1);
+
+            JObject jsonReponse;
+
+            while (true)
             {
-                string descr = !string.IsNullOrEmpty(((string)jsonReponse["payload"]["values"][0]["symbol"]["showName"]))
-                    ? (string)jsonReponse["payload"]["values"][0]["symbol"]["showName"]
-                    : (string)jsonReponse["payload"]["values"][0]["symbol"]["description"];
-                if (descr.ToLower().Contains( nameToSearch))
-                {
-                    IsOnTinkoff = true;
+                var urlFilter = nameToSearch.Split(' ')[0];
+                var respStr = await Web.GeTtask("https://api.tinkoff.ru/trading/stocks/list?country=All&sortType=ByName&orderType=Asc&start=0&end=20&filter=" + urlFilter);
+                jsonReponse = JObject.Parse(respStr);
+                if (jsonReponse?["status"]?.Value<string>() != "Error")
                     break;
+                if (jsonReponse["payload"]?["code"]?.Value<string>() == "RequestRateLimitExceeded")
+                {
+                    await Task.Delay(60* 1000);
+
+                    //именно спим, чтобы блокировать остальные вызовы
+                    //Thread.Sleep(60 * 1000);
+                }
+                else
+                {
+                    lock (_locker)
+                    {
+                        File.AppendAllText(@"C:/temp/Errors.txt", nameToSearch + " :\r\n" + respStr + "\r\n\r\n");
+                    }
                 }
             }
-            //IsOnTinkoff = ((int) jsonReponse["payload"]["total"] > 0) && _respStr.Contains(_nameToSearch);
+
+            if (jsonReponse?["payload"]?["total"] != null && (int)jsonReponse["payload"]["total"] >= 0)
+                for (var j = 0; j < (int)jsonReponse["payload"]["total"]; j++)
+                {
+                    var symbol = jsonReponse["payload"]?["values"]?[j]?["symbol"];
+                    if (NameOrDescriptionContains(
+                        nameToSearch,
+                        (string)symbol?["showName"],
+                        (string)symbol?["description"],
+                        (string)symbol?["fullDescription"]))
+                    {
+                        IsOnTinkoff = true;
+                        break;
+                    }
+                }
+            TinkoffScanned = true;
+        }
+
+        private readonly object _locker = new object();
+
+        private bool NameOrDescriptionContains(string searchStr, params string[] arr)
+        {
+            var elems = searchStr.Split(' ');
+            foreach (var str in arr)
+            {
+                if (str == null)
+                    continue;
+                bool cont = false;
+                foreach (var elem in elems)
+                {
+                    if (!str.ToLower().Contains(elem))
+                    {
+                        cont = true;
+                        break;
+                    }
+                }
+                if (cont)
+                    continue;
+                return true;
+            }
+            return false;
         }
     }
 }

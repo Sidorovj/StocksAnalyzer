@@ -16,15 +16,27 @@ namespace StocksAnalyzer
     /// переделать распарс в InitializeCurrencies()
     /// Добавить лондонскую биржу
     /// 
+
+    class DoneEvent
+    {
+        public int Count = 1;
+
+        public int DoneEvents;
+    } 
+    
     internal static class MainClass
     {
         public const double Tolerance = 1e-7;
+
+        private static DoneEvent _doneEvents;
 
         public static string ReportFileName { get; private set; } = "";
         public static Dictionary<string, string> NamesToSymbolsRus { get; } = new Dictionary<string, string>();
         public static List<Stock> Stocks { get; set; } = new List<Stock>();
 
         private static string _report = "";
+
+        private static readonly object Locker = new object();
 
         private static readonly string[] ListToLogInReport =
         {
@@ -72,6 +84,8 @@ namespace StocksAnalyzer
             stringValue = stringValue.Contains(',') ? stringValue.Replace(',', '.') : stringValue.Replace('.', ',');
             if (double.TryParse(stringValue, out result))
                 return result * coefficient;
+            if (stringValue == "n/a"|| stringValue == "-")
+                return -1;
             throw new Exception($"Не удается распарсить строку {stringValue}");
         }
 
@@ -84,10 +98,7 @@ namespace StocksAnalyzer
             if (!File.Exists(path))
                 return;
             Serializer ser = new Serializer(path);
-            var temp = (List<Stock>)ser.Deserialize();
-
-            // TODO: чекнуть, что все ок
-            Stocks = temp.Where(st => st.Market != null).ToList();
+            Stocks = (List<Stock>)ser.Deserialize();
         }
 
         /// <summary>
@@ -326,28 +337,91 @@ namespace StocksAnalyzer
         /// <summary>
         /// Загрузить список всех акций
         /// </summary>
-        public static void GetStocksList()
+        public static async Task GetStocksList(Label lbl, ProgressBar bar, bool loadAllStocksAgain = true)
         {
-            var getRus = Task.Factory.StartNew(() => Parallel.For(0, 10, GetRussianStocks));
-            var getUsa = Task.Factory.StartNew(GetUsaStocks);
+            _doneEvents = new DoneEvent();
 
-            Task.WaitAll(getRus, getUsa);
-            Stocks = Stocks.Distinct().ToList();
-            //Отсортируем по алфавиту
-            for (var i = 0; i < Stocks.Count; i++)
-                for (var j = 0; j < Stocks.Count - i - 1; j++)
-                    if (string.CompareOrdinal(Stocks[j].Name, Stocks[j + 1].Name) > 0)
-                    {
-                        var st = Stocks[j];
-                        Stocks[j] = Stocks[j + 1];
-                        Stocks[j + 1] = st;
-                    }
+            if (loadAllStocksAgain)
+            {
+                var getRus = Task.Factory.StartNew(() => Parallel.For(0, 10, GetRussianStocks));
+                var getUsa = Task.Factory.StartNew(GetUsaStocks);
+
+                Task.WaitAll(getRus, getUsa);
+
+                CheckForRepeatsAndSort();
+            }
+            _doneEvents.Count = Stocks.Count;
+
+            Stopwatch stwatch = Stopwatch.StartNew();
+            var tinkoffCheck = Task.Factory.StartNew(CheckAllForTinkoff);
+            
+            while (true)
+            {
+                double mins = stwatch.Elapsed.TotalSeconds * (1.0 / ((double)_doneEvents.DoneEvents / _doneEvents.Count) - 1) / 60.0;
+                mins = Math.Floor(mins) + (mins - Math.Floor(mins)) * 0.6;
+
+                lbl.BeginInvoke((MethodInvoker)delegate
+                {
+                    lbl.Text =
+                        $@"Обработано {_doneEvents.DoneEvents} / {_doneEvents.Count}. Расчетное время: {
+                                (mins >= 1 ? Math.Floor(mins) + " мин " : "")
+                            }{Math.Floor((mins - Math.Floor(mins)) * 100)} с";
+                });
+                bar.BeginInvoke((MethodInvoker)delegate { bar.Value = _doneEvents.DoneEvents * 100 / _doneEvents.Count; });
+                if (tinkoffCheck.IsCompleted)
+                {
+                    break;
+                }
+                await Task.Delay(5 * 1000);
+                if (tinkoffCheck.IsCanceled || tinkoffCheck.IsFaulted)
+                    break;
+            }
+
+
+            //for (var i = 0; i < Stocks.Count; i++)
+            //    for (var j = 0; j < Stocks.Count - i - 1; j++)
+            //        if (string.CompareOrdinal(Stocks[j].Name, Stocks[j + 1].Name) > 0)
+            //        {
+            //            var st = Stocks[j];
+            //            Stocks[j] = Stocks[j + 1];
+            //            Stocks[j + 1] = st;
+            //        }
         }
+
 
         #endregion
 
         #region Methods:private
-        
+
+        private static void CheckForRepeatsAndSort()
+        {
+            var temp = Stocks;
+            Stocks = new List<Stock>(temp.Count / 3);
+            foreach (var st in temp)
+            {
+                if (GetStock(false, st.Name) == null)
+                    Stocks.Add(st);
+            }
+            //Отсортируем по алфавиту
+            Stocks.Sort((s1, s2) => string.CompareOrdinal(s1.Name, s2.Name));
+        }
+
+        private static void CheckAllForTinkoff()
+        {
+            _doneEvents.DoneEvents = 0;
+            List<Task> tinkoffTask = new List<Task>(3500);
+            foreach (var stock in Stocks)
+            {
+                tinkoffTask.Add(stock.UnderstandIsItOnTinkoff().ContinueWith(o =>
+                {
+                    lock (Locker)
+                        _doneEvents.DoneEvents++;
+                }));
+            }
+
+            Task.WaitAll(tinkoffTask.ToArray());
+
+        }
 
         /// <summary>
         /// Загрузить в Stocks акции с рус. биржы
@@ -386,9 +460,15 @@ namespace StocksAnalyzer
                     ? -1
                     : htmlCode.Substring(0, htmlCode.IndexOf("</td>", StringComparison.Ordinal)).ParseCoefStrToDouble();
                 if (price > 0)
-                    Stocks.Add(new Stock(name, price,
-                        new StockMarket(StockMarketLocation.Russia, StockMarketCurrency.Rub)));
+                {
+                    var newStock = new Stock(name, price,
+                        new StockMarket(StockMarketLocation.Russia, StockMarketCurrency.Rub));
+                    Stocks.Add(newStock);
+                }
             }
+
+            lock (Locker)
+                _doneEvents.Count = Stocks.Count;
 
 
             /*
@@ -418,9 +498,19 @@ namespace StocksAnalyzer
         /// </summary>
         private static void GetUsaStocks()
         {
-            string[] htmlCode = (Web.ReadDownloadedFile(Web.GetStocksListUrlUsaNasdaq).Replace("\",\"", "|").Replace("\"", "") + Web.ReadDownloadedFile(Web.GetStocksListUrlUsaNyse).Replace("\",\"", "|").Replace("\"", "")).Split('\n');
-            //htmlCode.Concat(Web.DownloadFile(Web.getStocksListUrl_USA_nyse).Replace("\",\"", "|").Replace("\"", "").Split('\n'));
-            foreach (string s in htmlCode)
+            string[] htmlCode =
+                (File.ReadAllText(@"C:/temp/companylist.csv") + File.ReadAllText(@"C:/temp/companylist1.csv"))
+                .Replace("\",\"", "|")
+                .Replace("\"", "")
+                .Split('\n');
+            // Данные код перестал работать, т.к. файл не удается скачать(((
+
+            //(Web.ReadDownloadedFile(Web.GetStocksListUrlUsaNasdaq) +
+            // Web.ReadDownloadedFile(Web.GetStocksListUrlUsaNyse)).Replace("\"", "")
+            //    .Replace("\",\"", "|")
+            //    .Split('\n');
+
+            foreach (var s in htmlCode)
             {
                 if (s.StartsWith("Symbol"))
                     continue;
@@ -429,9 +519,14 @@ namespace StocksAnalyzer
                     continue;
                 string name = parameters[1], symb = parameters[0];
                 double price = parameters[2].ParseCoefStrToDouble();
-                if (price > 0 && GetStock(false, name) == null)
-                    Stocks.Add(new Stock(name, price, new StockMarket(StockMarketLocation.Usa, StockMarketCurrency.Usd), symb));
+                if (price > 0)
+                {
+                    var newStock = new Stock(name, price, new StockMarket(StockMarketLocation.Usa, StockMarketCurrency.Usd), symb);
+                    Stocks.Add(newStock);
+                }
             }
+            lock (Locker)
+                _doneEvents.Count = Stocks.Count;
         }
 
 

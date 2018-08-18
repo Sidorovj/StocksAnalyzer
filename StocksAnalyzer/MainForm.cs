@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 
 namespace StocksAnalyzer
 {
@@ -28,6 +29,8 @@ namespace StocksAnalyzer
             Task.Run(() => InitializeMainClass());
 
             FormClosing += Form1_FormClosing;
+
+            webBrowser1.Hide();
 
             ToolTip t = new ToolTip();
             //Common
@@ -67,9 +70,12 @@ namespace StocksAnalyzer
         private void InitializeMainClass()
         {
             MainClass.Initialize();
-            MainClass.LoadStockListFromFile();
-            LoadStockListsOnInit();
-            _selectedList = MainClass.Stocks;
+            new Thread(() =>
+            {
+                MainClass.LoadStockListFromFile();
+                LoadStockListsOnInit();
+                _selectedList = MainClass.Stocks;
+            }).Start();
         }
 
         #region Methods:public
@@ -147,7 +153,7 @@ namespace StocksAnalyzer
                 textBoxQuickLiquidity.Text = _selectedStock.UrgentLiquidityCoef.ToCuteStr();
                 textBoxCurrLiquidity.Text = _selectedStock.CurrentLiquidityCoef.ToCuteStr();
             }
-            else if(_selectedStock.Market.Currency == StockMarketCurrency.Usd)
+            else if (_selectedStock.Market.Currency == StockMarketCurrency.Usd)
             {
                 textBoxEVEBITDA.Text = _selectedStock.EVtoEbitda.ToCuteStr();
                 textBoxMarketCap.Text = _selectedStock.MarketCap.ToCuteStr();
@@ -209,13 +215,24 @@ namespace StocksAnalyzer
             //if (!comboBoxStocks.Items.Contains(comboBoxStocks.Text) && comboBoxStocks.Items.Count > 0 && !comboBoxStocks.DroppedDown)
             //    comboBoxStocks.DroppedDown = true;
         }
-        
+
         private async void ButtonLoadAllStocksClick(object sender, EventArgs e)
         {
+            //webBrowser1.ScriptErrorsSuppressed = true;
+            //webBrowser1.Url =new Uri("http://www.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=nasdaq&render=download");
+
+            //Task tr = new Task(() =>
+            //{
+            //    Thread.Sleep(3000);
+            //    //SendKeys.SendWait("{Enter}");
+            //});
+            //tr.Start();
+
             comboBoxStocks.Items.Clear();
             labelRemainingTime.Text = @"Время загрузки порядка 15 с.";
             SetButtonsMode(false);
             comboBoxStocks.Text = "";
+            _tinkoffStocks.Clear();
             _russianStocks.Clear();
             _usaStocks.Clear();
             _londonStocks.Clear();
@@ -225,18 +242,24 @@ namespace StocksAnalyzer
             _bestStocks.Clear();
 
             await Task.Run(() =>
-            {
-                Stopwatch stopwa = Stopwatch.StartNew();
-                MainClass.Stocks.Clear();
+               {
+                   Stopwatch stopwa = Stopwatch.StartNew();
+                   MainClass.Stocks.Clear();
 
-                MainClass.GetStocksList();
-
-                FillStockLists();
-                stopwa.Stop();
-                MainClass.WriteLog("Операция заняла " + stopwa.Elapsed.TotalSeconds.ToString("F0") + " с");
-                SetButtonsMode(true);
-                MessageBox.Show(@"Список загружен");
-            });
+                   try
+                   {
+                       MainClass.GetStocksList(labelRemainingTime, progressBar).Wait();
+                   }
+                   finally
+                   {
+                       MainClass.WriteStockListToFile();
+                   }
+                   FillStockLists();
+                   stopwa.Stop();
+                   MainClass.WriteLog("Операция заняла " + stopwa.Elapsed.TotalSeconds.ToString("F0") + " с");
+               });
+            SetButtonsMode(true);
+            MessageBox.Show(@"Список загружен");
         }
 
         /// <summary>
@@ -421,14 +444,21 @@ namespace StocksAnalyzer
                 () =>
                 {
                     Stopwatch stopwatch = Stopwatch.StartNew();
-                    MainClass.LoadStocksData(_selectedList, labelRemainingTime, progressBar);
+                    try
+                    {
+                        MainClass.LoadStocksData(_selectedList, labelRemainingTime, progressBar);
+                    }
+                    finally
+                    {
+                        MainClass.WriteStockListToFile();
+                    }
                     stopwatch.Stop();
                     MainClass.WriteLog($"Операция заняла {stopwatch.Elapsed.TotalSeconds:F0} с");
-                    SetButtonsMode(true);
                     MainClass.MakeReportAndSaveToFile(_selectedList);
-                    buttonOpenReport.Enabled = true;
                 },
                 TaskCreationOptions.LongRunning);
+            SetButtonsMode(true);
+            buttonOpenReport.Enabled = true;
         }
 
         /// <summary>
@@ -437,15 +467,15 @@ namespace StocksAnalyzer
         /// <param name="enabled">Доступны</param>
         private void SetButtonsMode(bool enabled)
         {
-            buttonAnalyzeMultiplicators.Enabled = panelMain.Enabled = comboBoxStocks.Enabled = 
-                buttonGetInfo.Enabled = buttonLoadAllStocks.Enabled = buttonSaveHistory.Enabled = 
-                buttonLoadStocksMultiplicators.Enabled = buttonLoadHistoryFile.Enabled = 
-                radioButtonStarred.Enabled = radioButtonAllStocks.Enabled = radioButtonRusStocks.Enabled = 
-                radioButtonUSAStocks.Enabled = enabled;
+            buttonAnalyzeMultiplicators.Enabled = buttonCkechTinkoff.Enabled = panelMain.Enabled = comboBoxStocks.Enabled =
+                buttonGetInfo.Enabled = buttonLoadAllStocks.Enabled = buttonSaveHistory.Enabled =
+                buttonLoadStocksMultiplicators.Enabled = buttonLoadHistoryFile.Enabled =
+                radioButtonStarred.Enabled = radioButtonAllStocks.Enabled = radioButtonRusStocks.Enabled =
+                radioButtonUSAStocks.Enabled = radioButtonFromTinkoff.Enabled = enabled;
         }
 
         private void LinkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {           
+        {
             ProcessStartInfo sInfo = new ProcessStartInfo(linkLabel1.Text);
             Process.Start(sInfo);
         }
@@ -537,5 +567,10 @@ namespace StocksAnalyzer
         }
 
         #endregion
+
+        private async void  buttonCkechTinkoff_Click(object sender, EventArgs e)
+        {
+            await MainClass.GetStocksList(labelRemainingTime, progressBar, false);
+        }
     }
 }
