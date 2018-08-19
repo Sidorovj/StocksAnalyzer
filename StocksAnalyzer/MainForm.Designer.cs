@@ -229,13 +229,11 @@
             // radioButtonAllStocks
             // 
             this.radioButtonAllStocks.AutoSize = true;
-            this.radioButtonAllStocks.Checked = true;
             this.radioButtonAllStocks.Location = new System.Drawing.Point(20, 129);
             this.radioButtonAllStocks.Margin = new System.Windows.Forms.Padding(4);
             this.radioButtonAllStocks.Name = "radioButtonAllStocks";
             this.radioButtonAllStocks.Size = new System.Drawing.Size(53, 21);
             this.radioButtonAllStocks.TabIndex = 7;
-            this.radioButtonAllStocks.TabStop = true;
             this.radioButtonAllStocks.Text = "Все";
             this.radioButtonAllStocks.UseVisualStyleBackColor = true;
             this.radioButtonAllStocks.CheckedChanged += new System.EventHandler(this.RadioButtonAllStocks_CheckedChanged);
@@ -1422,11 +1420,13 @@
             // radioButtonFromTinkoff
             // 
             this.radioButtonFromTinkoff.AutoSize = true;
+            this.radioButtonFromTinkoff.Checked = true;
             this.radioButtonFromTinkoff.Location = new System.Drawing.Point(20, 108);
             this.radioButtonFromTinkoff.Margin = new System.Windows.Forms.Padding(4);
             this.radioButtonFromTinkoff.Name = "radioButtonFromTinkoff";
             this.radioButtonFromTinkoff.Size = new System.Drawing.Size(127, 21);
             this.radioButtonFromTinkoff.TabIndex = 54;
+            this.radioButtonFromTinkoff.TabStop = true;
             this.radioButtonFromTinkoff.Text = "С сайта Tinkoff";
             this.radioButtonFromTinkoff.UseVisualStyleBackColor = true;
             this.radioButtonFromTinkoff.CheckedChanged += new System.EventHandler(this.RadioButtonFromTinkoff_CheckedChanged);

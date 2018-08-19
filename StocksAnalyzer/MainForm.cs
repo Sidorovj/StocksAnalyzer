@@ -74,7 +74,7 @@ namespace StocksAnalyzer
             {
                 MainClass.LoadStockListFromFile();
                 LoadStockListsOnInit();
-                _selectedList = MainClass.Stocks;
+                _selectedList = _tinkoffStocks;
             }).Start();
         }
 
@@ -304,6 +304,8 @@ namespace StocksAnalyzer
                 return true;
             if (radioButtonRusStocks.Checked)
                 return st.Market.Location == StockMarketLocation.Russia;
+            if (radioButtonFromTinkoff.Checked)
+                return st.IsOnTinkoff;
             if (radioButtonUSAStocks.Checked)
                 return st.Market.Location == StockMarketLocation.Usa;
             if (radioButtonLondonStocks.Checked)
@@ -440,7 +442,7 @@ namespace StocksAnalyzer
             //   MainClass.loadStocksData(best);
             //MainClass.loadStocksData(selList);
 
-            await Task.Factory.StartNew(
+            await Task.Run(
                 () =>
                 {
                     Stopwatch stopwatch = Stopwatch.StartNew();
@@ -455,8 +457,7 @@ namespace StocksAnalyzer
                     stopwatch.Stop();
                     MainClass.WriteLog($"Операция заняла {stopwatch.Elapsed.TotalSeconds:F0} с");
                     MainClass.MakeReportAndSaveToFile(_selectedList);
-                },
-                TaskCreationOptions.LongRunning);
+                });
             SetButtonsMode(true);
             buttonOpenReport.Enabled = true;
         }
@@ -568,7 +569,7 @@ namespace StocksAnalyzer
 
         #endregion
 
-        private async void  buttonCkechTinkoff_Click(object sender, EventArgs e)
+        private async void buttonCkechTinkoff_Click(object sender, EventArgs e)
         {
             await MainClass.GetStocksList(labelRemainingTime, progressBar, false);
         }

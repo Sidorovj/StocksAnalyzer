@@ -175,7 +175,7 @@ namespace StocksAnalyzer
             Market = mar;
             Symbol = symb;
             LastUpdate = DateTime.Now;
-            IsOnTinkoff = TinkoffScanned = false;
+            IsOnTinkoff = TinkoffScanned = mar.Location == StockMarketLocation.Russia;
         }
 
         public async Task UnderstandIsItOnTinkoff()
@@ -184,11 +184,18 @@ namespace StocksAnalyzer
                 return;
 
             string nameToSearch = "";
-            string[] suffixArray = { "", "ао", "ап", "деп.", "расп.", "inc", "inc.", "corp", "corp.", "ltd", "ltd.", "corporation", "incorporated", "plc" };
+            string[] suffixArray = { "", "ао", "ап", "деп.", "расп.", "inc", "inc.", "corp", "corp.", "ltd", "ltd.", "corporation", "incorporated", "plc", "group", "company" };
             foreach (var s in Name.ToLower().Split(' '))
             {
                 if (!suffixArray.Contains(s))
-                    nameToSearch += s.Replace(",", "") + ' ';
+                {
+                    if (s != "and" && s != "&")
+                        nameToSearch += s.Replace(",", "") + ' ';
+                }
+                else
+                    break;
+                if (s.EndsWith(","))
+                    break;
             }
             //nameToSearch = nameToSearch.Substring(0, nameToSearch.Length - 1);
 
@@ -203,7 +210,7 @@ namespace StocksAnalyzer
                     break;
                 if (jsonReponse["payload"]?["code"]?.Value<string>() == "RequestRateLimitExceeded")
                 {
-                    await Task.Delay(60* 1000);
+                    await Task.Delay(60 * 1000);
 
                     //именно спим, чтобы блокировать остальные вызовы
                     //Thread.Sleep(60 * 1000);
