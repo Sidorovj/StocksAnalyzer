@@ -91,15 +91,8 @@ namespace StocksAnalyzer
             }
             if (stringValue.Contains(",") && stringValue.Contains("."))
             {
-                if (stringValue.IndexOf(",", StringComparison.Ordinal) <
-                    stringValue.IndexOf(".", StringComparison.Ordinal))
-                {
-                    stringValue = stringValue.Replace(",", "");
-                }
-                else
-                {
-                    stringValue = stringValue.Replace(".", "");
-                }
+                stringValue = stringValue.Replace(stringValue.IndexOf(",", StringComparison.Ordinal) <
+                                                  stringValue.IndexOf(".", StringComparison.Ordinal) ? "," : ".", "");
             }
             if (double.TryParse(stringValue, out result))
                 return result * coefficient;
@@ -249,6 +242,8 @@ namespace StocksAnalyzer
             return str;
         }
 
+        private static object RusStockLoaderLocker = new object();
+
         /// <summary>
         /// Получить данные по акции из интернета
         /// </summary>
@@ -296,10 +291,7 @@ namespace StocksAnalyzer
                     st.TotalShares = GettingYahooData("Shares Outstanding", ref htmlCode);
                     if (Math.Abs(st.Ebitda) > Tolerance)
                         st.DebtToEbitda = st.TotalDebt / st.Ebitda;
-
-                    //htmlCode = htmlCode.Substring(htmlCode.IndexOf("data-reactid=\"35\"")); // react-id каждый раз разный
-                    //htmlCode = htmlCode.Substring(htmlCode.IndexOf(">") + 1);
-                    //st.Price = htmlCode.Substring(0, htmlCode.IndexOf("<")).getDoubleNum();
+                    
                     st.LastUpdate = DateTime.Now;
                 }
                 else if (st.Market.Location == StockMarketLocation.Russia)
@@ -309,40 +301,49 @@ namespace StocksAnalyzer
                         WriteLog("Нет ссылки для получения инфы для " + st.Name);
                         return;
                     }
-                    string htmlCode = Web.Get(Web.GetStockDataUrlRussia + NamesToSymbolsRus[st.Name]);
-                    if (htmlCode == "")
-                        return;
-                    st.PriceToEquity = GettingInvestingComData("Коэффициент цена/прибыль", ref htmlCode);
-                    st.PriceToSales = GettingInvestingComData("Коэффициент цена/объем продаж", ref htmlCode);
-                    st.PriceToBook = GettingInvestingComData("Коэффициент цена/балансовая стоимость", ref htmlCode);
-                    st.Eps = GettingInvestingComData("Базовая прибыль на акцию", ref htmlCode);
-                    st.Roe = GettingInvestingComData("Прибыль на инвестиции", ref htmlCode);
+                    lock (RusStockLoaderLocker)
+                    {
+                        var htmlCode = Web.Get(Web.GetStockDataUrlRussia + NamesToSymbolsRus[st.Name]);
+                        if (htmlCode == "")
+                            return;
+                        st.PriceToEquity = GettingInvestingComData("Коэффициент цена/прибыль", ref htmlCode);
+                        st.PriceToSales = GettingInvestingComData("Коэффициент цена/объем продаж", ref htmlCode);
+                        st.PriceToBook = GettingInvestingComData("Коэффициент цена/балансовая стоимость", ref htmlCode);
+                        st.Eps = GettingInvestingComData("Базовая прибыль на акцию", ref htmlCode);
+                        st.Roe = GettingInvestingComData("Прибыль на инвестиции", ref htmlCode);
 
-                    st.Qeg = GettingInvestingComData("Прибыль на акцию за последний квартал к квартальной год назад",
-                        ref htmlCode);
-                    st.ProfitMarg = GettingInvestingComData("Маржа прибыли до налогообложения ", ref htmlCode, "TTM");
-                    st.OperMarg = GettingInvestingComData("Операционная маржа", ref htmlCode, "TTM");
-                    st.GrossProfit = GettingInvestingComData("Валовая прибыль", ref htmlCode, "TTM");
-                    st.GrossProfit5Ya = GettingInvestingComData("Валовая прибыль", ref htmlCode, "5YA");
-                    st.ProfitCoef = GettingInvestingComData("Коэффициент прибыльности", ref htmlCode, "TTM");
-                    st.ProfitCoef5Ya = GettingInvestingComData("Коэффициент прибыльности", ref htmlCode, "5YA");
-                    st.ProfitOn12MToAnalogYearAgo =
-                        GettingInvestingComData(
-                            "Прибыль на акцию за последние 12 месяцев к аналогичному периоду год назад", ref htmlCode);
-                    st.GrowProfitPerShare5Y = GettingInvestingComData("Рост прибыли на акцию за 5 лет", ref htmlCode);
-                    st.CapExpenseGrow5Y =
-                        GettingInvestingComData("Рост капитальных расходов за последние 5 лет", ref htmlCode);
-                    st.ProfitMarg5Ya =
-                        GettingInvestingComData("Маржа прибыли до налогообложения ", ref htmlCode, "5YA");
-                    st.OperMarg5Ya = GettingInvestingComData("Операционная маржа", ref htmlCode, "5YA");
-                    st.UrgentLiquidityCoef = GettingInvestingComData("Коэффициент срочной ликвидности", ref htmlCode);
-                    st.CurrentLiquidityCoef = GettingInvestingComData("Коэффициент текущей ликвидности", ref htmlCode);
+                        st.Qeg = GettingInvestingComData(
+                            "Прибыль на акцию за последний квартал к квартальной год назад",
+                            ref htmlCode);
+                        st.ProfitMarg =
+                            GettingInvestingComData("Маржа прибыли до налогообложения ", ref htmlCode, "TTM");
+                        st.OperMarg = GettingInvestingComData("Операционная маржа", ref htmlCode, "TTM");
+                        st.GrossProfit = GettingInvestingComData("Валовая прибыль", ref htmlCode, "TTM");
+                        st.GrossProfit5Ya = GettingInvestingComData("Валовая прибыль", ref htmlCode, "5YA");
+                        st.ProfitCoef = GettingInvestingComData("Коэффициент прибыльности", ref htmlCode, "TTM");
+                        st.ProfitCoef5Ya = GettingInvestingComData("Коэффициент прибыльности", ref htmlCode, "5YA");
+                        st.ProfitOn12MToAnalogYearAgo =
+                            GettingInvestingComData(
+                                "Прибыль на акцию за последние 12 месяцев к аналогичному периоду год назад",
+                                ref htmlCode);
+                        st.GrowProfitPerShare5Y =
+                            GettingInvestingComData("Рост прибыли на акцию за 5 лет", ref htmlCode);
+                        st.CapExpenseGrow5Y =
+                            GettingInvestingComData("Рост капитальных расходов за последние 5 лет", ref htmlCode);
+                        st.ProfitMarg5Ya =
+                            GettingInvestingComData("Маржа прибыли до налогообложения ", ref htmlCode, "5YA");
+                        st.OperMarg5Ya = GettingInvestingComData("Операционная маржа", ref htmlCode, "5YA");
+                        st.UrgentLiquidityCoef =
+                            GettingInvestingComData("Коэффициент срочной ликвидности", ref htmlCode);
+                        st.CurrentLiquidityCoef =
+                            GettingInvestingComData("Коэффициент текущей ликвидности", ref htmlCode);
 
-                    htmlCode = htmlCode.Substring(htmlCode.IndexOf("id=\"last_last\"", StringComparison.Ordinal));
-                    htmlCode = htmlCode.Substring(htmlCode.IndexOf(">", StringComparison.Ordinal) + 1);
-                    st.Price = htmlCode.Substring(0, htmlCode.IndexOf("<", StringComparison.Ordinal))
-                        .ParseCoefStrToDouble();
-                    st.LastUpdate = DateTime.Now;
+                        htmlCode = htmlCode.Substring(htmlCode.IndexOf("id=\"last_last\"", StringComparison.Ordinal));
+                        htmlCode = htmlCode.Substring(htmlCode.IndexOf(">", StringComparison.Ordinal) + 1);
+                        st.Price = htmlCode.Substring(0, htmlCode.IndexOf("<", StringComparison.Ordinal))
+                            .ParseCoefStrToDouble();
+                        st.LastUpdate = DateTime.Now;
+                    }
                 }
             }
             catch (Exception er)
@@ -676,7 +677,7 @@ namespace StocksAnalyzer
             NamesToSymbolsRus.Add("Группа Черкизово, ао", "gruppa-cherkizovo-ratios");
             NamesToSymbolsRus.Add("Дагестанская ЭСК, ао", "dagestan-sb-ratios");
             NamesToSymbolsRus.Add("ДВМП (FESCO), ао", "dvmp-oao-ratios");
-            NamesToSymbolsRus.Add("Детский мир", "detskiy-mir-pao-ratios");
+            NamesToSymbolsRus.Add("Детский Мир", "detskiy-mir-pao-ratios");
             NamesToSymbolsRus.Add("Детский мир, ао", "detskiy-mir-pao-ratios");
             NamesToSymbolsRus.Add("ДИКСИ", "dixy-group_rts-ratios");
             NamesToSymbolsRus.Add("Дикси Групп, ао", "dixy-group_rts-ratios");
