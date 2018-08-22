@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
@@ -26,12 +25,13 @@ namespace StocksAnalyzer
     /// Представляет собой рынок, на котором обращаются акции
     /// </summary>
     [Serializable]
-    class StockMarket
+    internal class StockMarket
     {
         public StockMarketLocation Location { get; }
         public StockMarketCurrency Currency { get; }
-        private static double _exchangeRateRubToUsd; // Переделать в словарь
-        private static double _exchangeRateRubToEur;
+		
+		private static double s_exchangeRateRubToUsd; // Переделать в словарь
+        private static double s_exchangeRateRubToEur;
 
         public StockMarket(StockMarketLocation loc, StockMarketCurrency curr)
         {
@@ -45,10 +45,10 @@ namespace StocksAnalyzer
         /// </summary>
         public static async void InitializeCurrencies()
         {
-            string response = await Web.GeTtask(Web.ExchangeRatesUrl);
+            string response = await Web.Get(Web.ExchangeRatesUrl);
             JObject rates = JObject.Parse(response);
-            _exchangeRateRubToEur = rates["rates"]["RUB"].Value<double>();
-            _exchangeRateRubToUsd = _exchangeRateRubToEur / rates["rates"]["USD"].Value<double>();
+            s_exchangeRateRubToEur = rates["rates"]["RUB"].Value<double>();
+            s_exchangeRateRubToUsd = s_exchangeRateRubToEur / rates["rates"]["USD"].Value<double>();
         }
 
         /// <summary>
@@ -61,9 +61,9 @@ namespace StocksAnalyzer
             switch (toCurr)
             {
                 case StockMarketCurrency.Usd:
-                    return _exchangeRateRubToUsd;
+                    return s_exchangeRateRubToUsd;
                 case StockMarketCurrency.Eur:
-                    return _exchangeRateRubToEur;
+                    return s_exchangeRateRubToEur;
             }
             throw new KeyNotFoundException();
         }
@@ -84,9 +84,11 @@ namespace StocksAnalyzer
         public string FullName => $"{Name} [{Market.Location}]";
         public bool IsOnTinkoff { get; private set; }
         public bool TinkoffScanned { get; private set; }
+		
+	    private readonly object _mLocker = new object();
 
-        #region Metrics
-        public double MainPe { get; set; }
+		#region Metrics
+		public double MainPe { get; set; }
         public double Main { get; set; }
         public double MainAll { get; set; }
         public int RateMainPe { get; set; }
@@ -204,7 +206,7 @@ namespace StocksAnalyzer
             while (true)
             {
                 var urlFilter = nameToSearch.Split(' ')[0];
-                var respStr = await Web.GeTtask("https://api.tinkoff.ru/trading/stocks/list?country=All&sortType=ByName&orderType=Asc&start=0&end=20&filter=" + urlFilter);
+                var respStr = await Web.Get("https://api.tinkoff.ru/trading/stocks/list?country=All&sortType=ByName&orderType=Asc&start=0&end=20&filter=" + urlFilter);
                 jsonReponse = JObject.Parse(respStr);
                 if (jsonReponse?["status"]?.Value<string>() != "Error")
                     break;
@@ -217,9 +219,9 @@ namespace StocksAnalyzer
                 }
                 else
                 {
-                    lock (_locker)
+                    lock (_mLocker)
                     {
-                        File.AppendAllText(@"C:/temp/Errors.txt", nameToSearch + " :\r\n" + respStr + "\r\n\r\n");
+                        File.AppendAllText(@"C:/temp/Errors.txt", nameToSearch + @" :\r\n" + respStr + @"\r\n\r\n");
                     }
                 }
             }
@@ -241,7 +243,6 @@ namespace StocksAnalyzer
             TinkoffScanned = true;
         }
 
-        private readonly object _locker = new object();
 
         private bool NameOrDescriptionContains(string searchStr, params string[] arr)
         {

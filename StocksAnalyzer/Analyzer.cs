@@ -54,8 +54,7 @@ namespace StocksAnalyzer
                     if (coefsName.Length == 0 || coefsName[0] == "")
                         continue;
                     funcs.Add(coefsName[0], new Dictionary<string, double>());
-                    Dictionary<string, double> coefVals;
-                    funcs.TryGetValue(coefsName[0], out coefVals);
+	                funcs.TryGetValue(coefsName[0], out var coefVals);
                     for (var i = 1; i < coefsName.Length; i++)
                         if (Math.Abs(coefsName[i].ParseCoefStrToDouble()) > MainClass.Tolerance)
                             coefVals?.Add(coefs[i - 1], coefsName[i].ParseCoefStrToDouble());

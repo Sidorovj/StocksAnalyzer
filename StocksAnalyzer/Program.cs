@@ -17,7 +17,18 @@ namespace StocksAnalyzer
         {            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(MyForm = new MainForm());
+	        try
+	        {
+		        Application.Run(MyForm = new MainForm());
+	        }
+	        catch (AggregateException ex)
+	        {
+		        Logger.Log.Fatal(ex.InnerExceptions);
+	        }
+	        catch (Exception ex)
+	        {
+				Logger.Log.Fatal(ex);
+	        }
         }
     }
 }
