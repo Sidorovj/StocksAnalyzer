@@ -28,24 +28,10 @@ namespace StocksAnalyzer
 
 		public static string GetStockDataUrlRussia => @"https://ru.investing.com/equities/";
 
-
-		public static string Post(string url, NameValueCollection values)
-		{
-			string resp = "";
-			using (var client = new WebClient())
-			{
-				client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.103 YaBrowser/18.7.0.2695 Yowser/2.5 Safari/537.36");
-				client.Encoding = Encoding.UTF8;
-				var response = client.UploadValues(url, values);
-				if (response != null)
-					resp = Encoding.Default.GetString(response);
-			}
-			return resp;
-		}
 		
 		public static async Task<string> Get(string url)
 		{
-			string resp;
+			string resp="";
 			using (var client = new WebClient())
 			{
 				client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.103 YaBrowser/18.7.0.2695 Yowser/2.5 Safari/537.36");
@@ -54,14 +40,23 @@ namespace StocksAnalyzer
 				{
 					resp = await client.DownloadStringTaskAsync(url);
 				}
+				catch (WebException wex)
+				{
+					using (var stream = wex.Response.GetResponseStream())
+					{
+						if (stream != null)
+							Logger.Log.Error(new StreamReader(stream).ReadToEnd());
+					}
+					MainClass.WriteLog(wex);
+				}
 				catch (Exception er)
 				{
 					MainClass.WriteLog(er);
-					resp = "";
 				}
 			}
 			return resp;
 		}
+
 		public static string ReadDownloadedFile(string url)
 		{
 			string fileName = "usa_Stocks.dat";

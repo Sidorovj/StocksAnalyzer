@@ -43,7 +43,7 @@ namespace StocksAnalyzer
         /// <summary>
         /// Получение текущих курсов обмена
         /// </summary>
-        public static async void InitializeCurrencies()
+        public static async Task InitializeCurrencies()
         {
             string response = await Web.Get(Web.ExchangeRatesUrl);
             JObject rates = JObject.Parse(response);
@@ -85,7 +85,7 @@ namespace StocksAnalyzer
         public bool IsOnTinkoff { get; private set; }
         public bool TinkoffScanned { get; private set; }
 		
-	    private readonly object _mLocker = new object();
+	    private readonly object m_mLocker = new object();
 
 		#region Metrics
 		public double MainPe { get; set; }
@@ -219,7 +219,7 @@ namespace StocksAnalyzer
                 }
                 else
                 {
-                    lock (_mLocker)
+                    lock (m_mLocker)
                     {
                         File.AppendAllText(@"C:/temp/Errors.txt", nameToSearch + @" :\r\n" + respStr + @"\r\n\r\n");
                     }

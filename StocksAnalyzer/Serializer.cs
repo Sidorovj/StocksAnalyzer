@@ -5,7 +5,7 @@ namespace StocksAnalyzer
 {
     class Serializer
     {
-        private readonly string _mCurrentFilePath;
+        private readonly string m_mCurrentFilePath;
 
         /// <summary>
         /// Инициализирует сериалайзер
@@ -13,7 +13,7 @@ namespace StocksAnalyzer
         /// <param name="path">Путь к файлу</param>
         public Serializer(string path)
         {
-            _mCurrentFilePath = path;
+            m_mCurrentFilePath = path;
         }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace StocksAnalyzer
         /// </summary>
         public void Serialize(object objectToSerialize)
         {
-            using (var fs = new FileStream(_mCurrentFilePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+            using (var fs = new FileStream(m_mCurrentFilePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
             {
                 BinaryFormatter bf = new BinaryFormatter();
                 bf.Serialize(fs, objectToSerialize);
@@ -34,7 +34,7 @@ namespace StocksAnalyzer
         /// <returns>Полученный объект</returns>
         public object Deserialize()
         {
-            using (var fs = new FileStream(_mCurrentFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var fs = new FileStream(m_mCurrentFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 BinaryFormatter bf = new BinaryFormatter();
                 var obj = bf.Deserialize(fs);
