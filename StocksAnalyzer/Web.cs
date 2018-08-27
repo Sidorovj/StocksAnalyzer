@@ -3,12 +3,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.IO;
-using System.Collections.Specialized;
 
 namespace StocksAnalyzer
 {
 	static class Web
 	{
+		private static readonly CookieContainer s_cookContainer= new CookieContainer();
+
 		public static string ExchangeRatesUrl => @"http://data.fixer.io/api/latest?access_key=d7b80760e664065395dc2db532327183&symbols=RUB,USD";
 
 		public static string GetStocksListUrlRussia =>
@@ -31,30 +32,32 @@ namespace StocksAnalyzer
 		
 		public static async Task<string> Get(string url)
 		{
-			string resp="";
-			using (var client = new WebClient())
+			var webReq = WebRequest.CreateHttp(url);
+			webReq.CookieContainer = s_cookContainer;
+		    webReq.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.103 YaBrowser/18.7.0.2695 Yowser/2.5 Safari/537.36";
+			try
 			{
-				client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.103 YaBrowser/18.7.0.2695 Yowser/2.5 Safari/537.36");
-				client.Encoding = Encoding.UTF8;
-				try
+				using (HttpWebResponse response = (HttpWebResponse)await webReq.GetResponseAsync())
+				using (Stream stream = response.GetResponseStream())
+				using (StreamReader reader = new StreamReader(stream ?? throw new InvalidOperationException($"Response stream is null, url={url}")))
 				{
-					resp = await client.DownloadStringTaskAsync(url);
-				}
-				catch (WebException wex)
-				{
-					using (var stream = wex.Response.GetResponseStream())
-					{
-						if (stream != null)
-							Logger.Log.Error(new StreamReader(stream).ReadToEnd());
-					}
-					MainClass.WriteLog(wex);
-				}
-				catch (Exception er)
-				{
-					MainClass.WriteLog(er);
+					return await reader.ReadToEndAsync();
 				}
 			}
-			return resp;
+			catch (WebException wex)
+			{
+				using (var stream = wex.Response.GetResponseStream())
+				{
+					if (stream != null)
+						Logger.Log.Error($"Requested url: {url}\r\n{new StreamReader(stream).ReadToEnd()}");
+				}
+				MainClass.WriteLog(wex);
+			}
+			catch (Exception er)
+			{
+				MainClass.WriteLog(er);
+			}
+			return "";
 		}
 
 		public static string ReadDownloadedFile(string url)

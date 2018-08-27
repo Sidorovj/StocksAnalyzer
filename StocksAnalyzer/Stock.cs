@@ -11,8 +11,7 @@ namespace StocksAnalyzer
     {
         Russia = 0,
         Usa = 10,
-        London = 20,
-        Other = 30
+        London = 20
     }
     enum StockMarketCurrency //валюта, в которой торгуются акции
     {

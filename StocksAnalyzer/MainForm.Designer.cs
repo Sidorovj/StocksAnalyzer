@@ -201,7 +201,7 @@
             this.comboBoxStocks.Name = "comboBoxStocks";
             this.comboBoxStocks.Size = new System.Drawing.Size(287, 24);
             this.comboBoxStocks.TabIndex = 3;
-            this.comboBoxStocks.DropDown += new System.EventHandler(this.comboBoxStocks_DropDown);
+            this.comboBoxStocks.DropDown += new System.EventHandler(this.ComboBoxStocks_DropDown);
             this.comboBoxStocks.SelectedIndexChanged += new System.EventHandler(this.ComboBoxStocks_SelectedIndexChanged);
             this.comboBoxStocks.TextChanged += new System.EventHandler(this.ComboBoxStocks_TextChanged);
             // 
@@ -577,7 +577,7 @@
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
+            this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenFileDialog1_FileOk);
             // 
             // panelMain
             // 
@@ -594,7 +594,6 @@
             this.panelMain.Name = "panelMain";
             this.panelMain.Size = new System.Drawing.Size(638, 537);
             this.panelMain.TabIndex = 42;
-            this.panelMain.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
             // panelRussiaCoefs
             // 
@@ -861,7 +860,6 @@
             this.panelUSACoefs.Name = "panelUSACoefs";
             this.panelUSACoefs.Size = new System.Drawing.Size(287, 457);
             this.panelUSACoefs.TabIndex = 57;
-            this.panelUSACoefs.Paint += new System.Windows.Forms.PaintEventHandler(this.panel3_Paint);
             // 
             // labelSharesCount
             // 
@@ -1060,7 +1058,6 @@
             this.textBoxRetOnAssets.Name = "textBoxRetOnAssets";
             this.textBoxRetOnAssets.Size = new System.Drawing.Size(89, 22);
             this.textBoxRetOnAssets.TabIndex = 62;
-            this.textBoxRetOnAssets.TextChanged += new System.EventHandler(this.textBoxRetOnAssets_TextChanged);
             // 
             // labelEVRev
             // 
@@ -1461,7 +1458,7 @@
             this.buttonCkechTinkoff.TabIndex = 57;
             this.buttonCkechTinkoff.Text = "Догрузить список тинькофф";
             this.buttonCkechTinkoff.UseVisualStyleBackColor = true;
-            this.buttonCkechTinkoff.Click += new System.EventHandler(this.buttonCkechTinkoff_Click);
+            this.buttonCkechTinkoff.Click += new System.EventHandler(this.ButtonCkechTinkoff_Click);
             // 
             // MainForm
             // 

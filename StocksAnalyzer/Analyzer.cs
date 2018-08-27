@@ -20,10 +20,10 @@ namespace StocksAnalyzer
     }
     static class Analyzer
     {
-        /// <summary>
-        /// TODO
-        /// </summary>
-        public static Dictionary<string, Dictionary<Stock, Rating>> Rating = new Dictionary<string, Dictionary<Stock, Rating>>();
+		/// <summary>
+		/// TODO Analyze сделать гибче
+		/// </summary>
+		public static Dictionary<string, Dictionary<Stock, Rating>> Rating = new Dictionary<string, Dictionary<Stock, Rating>>();
 
         #region Funcstions:public
 
@@ -34,8 +34,9 @@ namespace StocksAnalyzer
         /// <param name="label">Для отображения прогресса</param>
         public static void Analyze(List<Stock> list, Label label)
         {
-            StreamWriter sWrite = new StreamWriter($"Analyzed_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv", true, Encoding.UTF8);
             string data = "Название акции;Market;";
+
+			using (var sWrite = new StreamWriter($"Analyzed_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv", true, Encoding.UTF8))
             using (var streamCoefs = new StreamReader("analystSettings.csv"))
             {
                 string[] coefsName = streamCoefs.ReadLine()?.Split(';');
@@ -108,7 +109,6 @@ namespace StocksAnalyzer
                 }
 
                 sWrite.Write(data);
-                sWrite.Close();
                 SetRatings(list);
             }
         }
@@ -191,7 +191,7 @@ namespace StocksAnalyzer
         }
         private static double MarketCap(this double coef)
         {
-            return Math.Abs(coef) < MainClass.Tolerance ? 0 : coef < 5000 * 1000 ? -1 : coef < 1000 * 1000 * 1000 ? 0 : 1;
+	        return Math.Abs(coef) < MainClass.Tolerance ? 0 : coef < 5000*1000 ? -1 : coef < 1000*1000*1000 ? 0 : 1;
         }
         private static double Ps(this double coef)
         {
