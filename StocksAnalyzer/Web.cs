@@ -41,23 +41,27 @@ namespace StocksAnalyzer
 				using (Stream stream = response.GetResponseStream())
 				using (StreamReader reader = new StreamReader(stream ?? throw new InvalidOperationException($"Response stream is null, url={url}")))
 				{
-					return await reader.ReadToEndAsync();
+					try
+					{
+						return await reader.ReadToEndAsync();
+					}
+					catch (Exception ex)
+					{
+						Logger.Log.Error($"Requested url: {url}\r\nError: {ex.Message}");
+						throw;
+					}
 				}
 			}
 			catch (WebException wex)
 			{
-				using (var stream = wex.Response.GetResponseStream())
+				using (var stream = wex.Response?.GetResponseStream())
 				{
 					if (stream != null)
-						Logger.Log.Error($"Requested url: {url}\r\n{new StreamReader(stream).ReadToEnd()}");
+						Logger.Log.Error($"Requested url: {url}\r\nResponseStream: {new StreamReader(stream).ReadToEnd()}");
 				}
-				MainClass.WriteLog(wex);
+
+				throw;
 			}
-			catch (Exception er)
-			{
-				MainClass.WriteLog(er);
-			}
-			return "";
 		}
 
 		public static string ReadDownloadedFile(string url)

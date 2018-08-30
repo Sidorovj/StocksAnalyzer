@@ -35,9 +35,10 @@ namespace StocksAnalyzer
         public static void Analyze(List<Stock> list, Label label)
         {
             string data = "Название акции;Market;";
-
-			using (var sWrite = new StreamWriter($"Analyzed_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv", true, Encoding.UTF8))
-            using (var streamCoefs = new StreamReader("analystSettings.csv"))
+	        if (!Directory.Exists(Const.AnalysisDirName))
+		        Directory.CreateDirectory(Const.AnalysisDirName);
+			using (var sWrite = new StreamWriter($"{Const.AnalysisDirName}/Analyzed_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv", true, Encoding.UTF8))
+            using (var streamCoefs = new StreamReader($"{Const.SettingsDirName}/analystSettings.csv"))
             {
                 string[] coefsName = streamCoefs.ReadLine()?.Split(';');
                 List<string> coefs = new List<string>();

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 
 namespace StocksAnalyzer
 {
@@ -70,7 +71,6 @@ namespace StocksAnalyzer
 		private void InitializeMainClass()
 		{
 			MainClass.Initialize();
-			MainClass.LoadStockListFromFile();
 			LoadStockListsToViewOnInit();
 			m_selectedList = m_tinkoffStocks;
 		}
@@ -198,10 +198,18 @@ namespace StocksAnalyzer
 			Stopwatch stopwatch = new Stopwatch();
 			SetButtonsMode(false);
 			stopwatch.Start();
-			await FillStockForm();
+			try
+			{
+				await FillStockForm();
+			}
+			catch (Exception ex)
+			{
+				MainClass.WriteLog(ex);
+			}
+
 			stopwatch.Stop();
 
-			MainClass.WriteLog("Запрос занял " + stopwatch.Elapsed.TotalMilliseconds.ToString("F0") + " мс");
+			MainClass.WriteLog($"Загрузка инфы для акции {m_selectedStock} заняла {stopwatch.Elapsed.TotalMilliseconds:F2} мс");
 			SetButtonsMode(true);
 
 			await Task.Delay(2000);
@@ -246,7 +254,7 @@ namespace StocksAnalyzer
 			FillStockLists();
 			stopwa.Stop();
 
-			MainClass.WriteLog("Операция заняла " + stopwa.Elapsed.TotalSeconds.ToString("F0") + " с");
+			MainClass.WriteLog($"Загрузка списка акций заняла {stopwa.Elapsed.TotalSeconds:F0} с");
 			SetButtonsMode(true);
 
 			MessageBox.Show(@"Список загружен");
@@ -388,7 +396,9 @@ namespace StocksAnalyzer
 
 		private void ButtonSaveHistory_Click(object sender, EventArgs e)
 		{
-			MainClass.WriteStockListToFile($"History_file_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.dat");
+			if (!Directory.Exists(Const.HistoryDirName))
+				Directory.CreateDirectory(Const.HistoryDirName);
+			MainClass.WriteStockListToFile($"{Const.HistoryDirName}/History_file_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.dat");
 			MessageBox.Show(@"Сохранено");
 		}
 
@@ -396,9 +406,11 @@ namespace StocksAnalyzer
 		{
 			openFileDialog1.ShowDialog();
 			string filePath = openFileDialog1.FileName;
-			if (filePath != "")
+			if (filePath != "" && filePath != nameof(openFileDialog1))
+			{
 				MainClass.LoadStockListFromFile(filePath);
-			MainClass.WriteLog("Загружен файл " + filePath);
+				MainClass.WriteLog("Загружен файл " + filePath);
+			}
 		}
 
 		private void OpenFileDialog1_FileOk(object sender, CancelEventArgs e)
@@ -436,7 +448,7 @@ namespace StocksAnalyzer
 				MainClass.WriteStockListToFile();
 			}
 			stopwatch.Stop();
-			MainClass.WriteLog($"Операция заняла {stopwatch.Elapsed.TotalSeconds:F0} с");
+			MainClass.WriteLog($"Загрузка мультипл. из инета заняла {stopwatch.Elapsed.TotalSeconds:F0} с");
 			MainClass.MakeReportAndSaveToFile(m_selectedList);
 
 			SetButtonsMode(true);
@@ -482,7 +494,7 @@ namespace StocksAnalyzer
 			});
 
 			stopwatch.Stop();
-			MainClass.WriteLog($"Операция заняла {stopwatch.Elapsed.TotalSeconds:F0} с");
+			MainClass.WriteLog($"Анализ мультипликаторов занял {stopwatch.Elapsed.TotalSeconds:F0} с");
 			SetButtonsMode(true);
 		}
 

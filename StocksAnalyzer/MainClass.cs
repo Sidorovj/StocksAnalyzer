@@ -33,7 +33,6 @@ namespace StocksAnalyzer
 			"GrossProfit"
 		};
 
-		private const string c_stockListFilePath = "stockList.dat";
 
 		#region Methods:public
 
@@ -93,7 +92,7 @@ namespace StocksAnalyzer
 		/// Загружает список из файла
 		/// </summary>
 		/// <param name="path"></param>
-		public static void LoadStockListFromFile(string path = c_stockListFilePath)
+		public static void LoadStockListFromFile(string path = Const.StockListFilePath)
 		{
 			if (!File.Exists(path))
 				return;
@@ -105,12 +104,11 @@ namespace StocksAnalyzer
 		/// Сериализует список акций в файл
 		/// </summary>
 		/// <param name="path">Путь к файлу</param>
-		public static void WriteStockListToFile(string path = c_stockListFilePath)
+		public static void WriteStockListToFile(string path = Const.StockListFilePath)
 		{
-			string folderName = "History";
-			if (!Directory.Exists(folderName))
-				Directory.CreateDirectory(folderName);
-			Serializer ser = new Serializer(folderName + '/' + path);
+			if (!Directory.Exists(Const.HistoryDirName))
+				Directory.CreateDirectory(Const.HistoryDirName);
+			Serializer ser = new Serializer(Const.HistoryDirName + '/' + path);
 			ser.Serialize(Stocks);
 		}
 
@@ -123,8 +121,8 @@ namespace StocksAnalyzer
 			s_report += '\n';
 			foreach (string param in s_listToLogInReport)
 			{
-				string helpSt = "";
-				int numRes = 0;
+				var helpSt = "";
+				var numRes = 0;
 				foreach (var st in stockLst)
 				{
 					if (Math.Abs(st[param]) < Tolerance)
@@ -135,24 +133,29 @@ namespace StocksAnalyzer
 				}
 				s_report += $"{param};Заполнен в {stockLst.Count - numRes}/{stockLst.Count};{helpSt}\r\n";
 			}
-			ReportFileName = $"Report_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
-			StreamWriter sr = new StreamWriter(ReportFileName, true, Encoding.UTF8);
-			sr.Write(s_report);
-			sr.Close();
+
+			if (!Directory.Exists(Const.ReportDirName))
+				Directory.CreateDirectory(Const.ReportDirName);
+			ReportFileName = $"{Const.ReportDirName}/Report_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
+			using (var sr = new StreamWriter(ReportFileName, true, Encoding.UTF8))
+			{
+				sr.Write(s_report);
+			}
 		}
 
 		/// <summary>
 		/// Записать лог в текстБокс на форме
 		/// </summary>
 		/// <param name="text">Строки лога</param>
-		/// <param name="writeLog">Записывать лог</param>
-		public static async void WriteLog(string text, bool writeLog = true)
+		/// <param name="writeLogToFile">Записывать лог</param>
+		public static async void WriteLog(string text, bool writeLogToFile = true)
 		{
-			if (writeLog)
+			if (writeLogToFile)
 				Logger.Log.Info(text);
-		    while (Program.MyForm == null)
-		        await Task.Delay(100);
+			while (Program.MyForm == null)
+				await Task.Delay(100);
 
+			text = $"{DateTime.Now:HH-mm-ss}:  {text} {Environment.NewLine}";
 			if (Program.MyForm.richTextBoxLog.InvokeRequired)
 				Program.MyForm.richTextBoxLog.BeginInvoke(
 					(MethodInvoker)delegate
@@ -168,7 +171,7 @@ namespace StocksAnalyzer
 		public static void WriteLog(Exception ex)
 		{
 			Logger.Log.Error(ex);
-			WriteLog($"[Error]: {ex.Message}", false);
+			WriteLog($"Ошибка в {ex.TargetSite.Name}: {ex.Message.Substring(0, ex.Message.Length > 40 ? 40 : ex.Message.Length)}", false);
 		}
 
 		/// <summary>
@@ -246,7 +249,7 @@ namespace StocksAnalyzer
 			st = GetStock(false, st.Name);
 			if (st == null)
 			{
-				WriteLog("Не удалось найти акцию в getStockData: " + stockName);
+				WriteLog($"Не удалось найти акцию в getStockData: {stockName}");
 				return;
 			}
 
@@ -255,6 +258,12 @@ namespace StocksAnalyzer
 				if (st.Market.Location == StockMarketLocation.Usa)
 				{
 					htmlCode = await Web.Get(Web.GetStockDataUrlUsa.Replace("{}", st.Symbol) + st.Symbol);
+					if (htmlCode.IndexOf(">Trailing P/E</span>", StringComparison.Ordinal) < 0)
+					{
+						Logger.Log.Warn($"На сайте (USA) нет данных для {st.Symbol}");
+						return;
+					}
+
 					st.PriceToEquity = GettingYahooData("Trailing P/E", ref htmlCode);
 					st.PriceToSales = GettingYahooData("Price/Sales", ref htmlCode);
 					st.PriceToBook = GettingYahooData("Price/Book", ref htmlCode);
@@ -290,14 +299,19 @@ namespace StocksAnalyzer
 				{
 					if (!NamesToSymbolsRus.ContainsKey(st.Name))
 					{
-						WriteLog("Нет ссылки для получения инфы для " + st.Name);
+						WriteLog($"Нет ссылки для получения инфы для {st}");
 						return;
 					}
+
 					lock (s_rusStockLoaderLocker)
 					{
 						htmlCode = Web.Get(Web.GetStockDataUrlRussia + NamesToSymbolsRus[st.Name]).Result;
-						if (htmlCode == "")
+						if (htmlCode.IndexOf("<span class=\"\">Коэффициент цена/прибыль", StringComparison.Ordinal) < 0)
+						{
+							Logger.Log.Warn($"На сайте (RUS) нет данных для {st.Symbol}");
 							return;
+						}
+
 						st.PriceToEquity = GettingInvestingComData("Коэффициент цена/прибыль", ref htmlCode);
 						st.PriceToSales = GettingInvestingComData("Коэффициент цена/объем продаж", ref htmlCode);
 						st.PriceToBook = GettingInvestingComData("Коэффициент цена/балансовая стоимость", ref htmlCode);
@@ -340,7 +354,8 @@ namespace StocksAnalyzer
 			}
 			catch (Exception er)
 			{
-				WriteLog($"Не удалось получить инфу по {st.Name}: {er.Message}\r\n{htmlCode}\r\n{er.StackTrace}");
+				Logger.Log.Error(
+					$"Не удалось получить инфу по {st.Name}: {er.Message}\r\n{htmlCode}\r\n{er.StackTrace}");
 				s_report += st.Name + ';';
 			}
 
@@ -348,16 +363,17 @@ namespace StocksAnalyzer
 
 		public static async void Initialize()
 		{
+			LoadStockListFromFile();
 			try
 			{
 				await StockMarket.InitializeCurrencies();
+				WriteLog("USD: " + StockMarket.GetExchangeRates(StockMarketCurrency.Usd).ToString("F2") +
+						 "\r\nEUR: " + StockMarket.GetExchangeRates(StockMarketCurrency.Eur).ToString("F2"));
 			}
 			catch (Exception ex)
 			{
 				WriteLog(ex);
 			}
-			WriteLog("USD: " + StockMarket.GetExchangeRates(StockMarketCurrency.Usd).ToString("F2") +
-				"\r\nEUR: " + StockMarket.GetExchangeRates(StockMarketCurrency.Eur).ToString("F2"));
 			FillDict();
 		}
 
@@ -556,7 +572,7 @@ namespace StocksAnalyzer
 		/// </summary>
 		private static void FillDict()
 		{
-			using (var fs = new FileStream("NamesToSymbols.csv", FileMode.Open))
+			using (var fs = new FileStream($"{Const.SettingsDirName}/NamesToSymbols.csv", FileMode.Open))
 			{
 				using (var sr = new StreamReader(fs))
 				{
