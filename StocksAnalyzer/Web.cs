@@ -8,7 +8,7 @@ namespace StocksAnalyzer
 {
 	static class Web
 	{
-		private static readonly CookieContainer s_cookContainer= new CookieContainer();
+		private static readonly CookieContainer s_cookContainer = new CookieContainer();
 
 		public static string ExchangeRatesUrl => @"http://data.fixer.io/api/latest?access_key=d7b80760e664065395dc2db532327183&symbols=RUB,USD";
 
@@ -28,13 +28,14 @@ namespace StocksAnalyzer
 		public static string GetStockDataUrlUsa => @"https://finance.yahoo.com/quote/{}/key-statistics?p=";
 
 		public static string GetStockDataUrlRussia => @"https://ru.investing.com/equities/";
+		public static int MaxTriesCount => 3;
 
-		
-		public static async Task<string> Get(string url)
+
+		public static async Task<string> Get(string url, int triesCount = 0)
 		{
 			var webReq = WebRequest.CreateHttp(url);
 			webReq.CookieContainer = s_cookContainer;
-		    webReq.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.103 YaBrowser/18.7.0.2695 Yowser/2.5 Safari/537.36";
+			webReq.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.103 YaBrowser/18.7.0.2695 Yowser/2.5 Safari/537.36";
 			try
 			{
 				using (HttpWebResponse response = (HttpWebResponse)await webReq.GetResponseAsync())
@@ -52,14 +53,21 @@ namespace StocksAnalyzer
 					}
 				}
 			}
-			catch (WebException wex)
+			catch (Exception ex)
 			{
-				using (var stream = wex.Response?.GetResponseStream())
+				if (ex is WebException wex)
+					using (var stream = wex.Response?.GetResponseStream())
+					{
+						if (stream != null)
+							Logger.Log.Error($"Requested url: {url}\r\n{nameof(triesCount)}={triesCount}\r\nResponseStream: {new StreamReader(stream).ReadToEnd()}");
+					}
+				else
 				{
-					if (stream != null)
-						Logger.Log.Error($"Requested url: {url}\r\nResponseStream: {new StreamReader(stream).ReadToEnd()}");
+					Logger.Log.Error($"Requested url: {url}\r\n{nameof(triesCount)}={triesCount}\r\nMessage: {ex.Message}");
 				}
 
+				if (triesCount < MaxTriesCount)
+					return await Get(url, triesCount + 1);
 				throw;
 			}
 		}
