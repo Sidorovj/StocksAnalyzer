@@ -6,71 +6,6 @@ using Newtonsoft.Json.Linq;
 
 namespace StocksAnalyzer
 {
-	[Flags]
-	enum StockMarketLocation
-	{
-		Russia = 0,
-		Usa = 10,
-		London = 20
-	}
-
-	[Flags]
-	enum StockMarketCurrency //валюта, в которой торгуются акции
-	{
-		Rub = 0,
-		Usd = 10,
-		Eur = 20
-	}
-
-	/// <summary>
-	/// Представляет собой рынок, на котором обращаются акции
-	/// </summary>
-	[Serializable]
-	internal class StockMarket
-	{
-		public StockMarketLocation Location { get; }
-		public StockMarketCurrency Currency { get; }
-
-		private static double s_exchangeRateRubToUsd; // Переделать в словарь
-		private static double s_exchangeRateRubToEur;
-
-		public StockMarket(StockMarketLocation loc, StockMarketCurrency curr)
-		{
-			Location = loc;
-			Currency = curr;
-			//getExchangeRates();
-		}
-
-
-		/// <summary>
-		/// Получение текущих курсов обмена
-		/// </summary>
-		public static async Task InitializeCurrencies()
-		{
-			string response = await Web.Get(Web.ExchangeRatesUrl);
-			JObject rates = JObject.Parse(response);
-			s_exchangeRateRubToEur = rates["rates"]["RUB"].Value<double>();
-			s_exchangeRateRubToUsd = s_exchangeRateRubToEur / rates["rates"]["USD"].Value<double>();
-		}
-
-		/// <summary>
-		/// Получить текущий курс обмена рубля К валюте
-		/// </summary>
-		/// <param name="toCurr">Какая валюта</param>
-		/// <returns>Курс обмена</returns>
-		public static double GetExchangeRates(StockMarketCurrency toCurr) // Найдем курс рубля к запрошенной валюте
-		{
-			switch (toCurr)
-			{
-				case StockMarketCurrency.Usd:
-					return s_exchangeRateRubToUsd;
-				case StockMarketCurrency.Eur:
-					return s_exchangeRateRubToEur;
-			}
-			throw new KeyNotFoundException();
-		}
-	}
-
 
 	/// <summary>
 	/// Акция и ее характеристики
@@ -87,6 +22,7 @@ namespace StocksAnalyzer
 		public bool IsOnTinkoff { get; private set; }
 		public bool TinkoffScanned { get; private set; }
 
+
 		#region Metrics
 		public double MainPe { get; set; }
 		public double Main { get; set; }
@@ -98,7 +34,8 @@ namespace StocksAnalyzer
 
 		#region Main properties
 		public double Price { get; set; }
-		public double PriceToEquity { get; set; }
+	    public Dictionary<Coefficient, double> CoefficientValues { get; private set; } = new Dictionary<Coefficient, double>(Coefficient.CoefficientList.Count);
+        public double PriceToEquity { get; set; }
 		public double PriceToSales { get; set; }
 		public double PriceToBook { get; set; }
 		public double EVtoEbitda { get; set; }

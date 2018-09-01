@@ -35,6 +35,7 @@ namespace StocksAnalyzer
 
 			ToolTip t = new ToolTip();
 			//Common
+            Label lbl = new Label();
 			t.SetToolTip(labelSymbol, "Тикет");
 			t.SetToolTip(labelPE, "Цена/прибыль");
 			t.SetToolTip(labelPS, "Цена/объем продаж");
