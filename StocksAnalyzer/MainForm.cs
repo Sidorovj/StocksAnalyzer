@@ -110,7 +110,7 @@ namespace StocksAnalyzer
 				await MainClass.GetStockData(m_selectedStock);
 			if (m_selectedStock.Market.Location == StockMarketLocation.Usa)
 			{
-				linkLabel1.Text = Web.GetStockDataUrlUsa.Replace("{}", m_selectedStock.Symbol) + m_selectedStock.Symbol;
+				linkLabel1.Text = string.Format(Web.GetStockDataUrlUsa, m_selectedStock.Symbol);
 				panelUSACoefs.Visible = true;
 				panelRussiaCoefs.Visible = false;
 			}

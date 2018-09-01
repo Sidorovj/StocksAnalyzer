@@ -25,7 +25,7 @@ namespace StocksAnalyzer
 		public static string GetStocksListUrlUsaNasdaq => @"http://www.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=nasdaq&render=download";
 
 		//static public string getStocksListUrl_London { get { return "http://www.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=nasdaq&render=download"; } }
-		public static string GetStockDataUrlUsa => @"https://finance.yahoo.com/quote/{}/key-statistics?p=";
+		public static string GetStockDataUrlUsa => @"https://finance.yahoo.com/quote/{0}/key-statistics?p={0}";
 
 		public static string GetStockDataUrlRussia => @"https://ru.investing.com/equities/";
 		public static int MaxTriesCount => 3;

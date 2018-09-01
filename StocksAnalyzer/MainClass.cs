@@ -94,9 +94,14 @@ namespace StocksAnalyzer
 		/// <param name="path"></param>
 		public static void LoadStockListFromFile(string path = Const.StockListFilePath)
 		{
-			if (!File.Exists(path))
-				return;
-			Serializer ser = new Serializer(path);
+		    string fullPath = $"{Const.HistoryDirName}/{path}";
+            if (!Directory.Exists(Const.HistoryDirName)|| !File.Exists(fullPath) )
+		    {
+                WriteLog(@"Не могу найти файл для десериализации");
+		        return;
+		    }
+
+		    Serializer ser = new Serializer(fullPath);
 			Stocks = (List<Stock>)ser.Deserialize();
 		}
 
@@ -108,7 +113,7 @@ namespace StocksAnalyzer
 		{
 			if (!Directory.Exists(Const.HistoryDirName))
 				Directory.CreateDirectory(Const.HistoryDirName);
-			Serializer ser = new Serializer(Const.HistoryDirName + '/' + path);
+			Serializer ser = new Serializer($"{Const.HistoryDirName}/{path}");
 			ser.Serialize(Stocks);
 		}
 
@@ -257,7 +262,7 @@ namespace StocksAnalyzer
 			{
 				if (st.Market.Location == StockMarketLocation.Usa)
 				{
-					htmlCode = await Web.Get(Web.GetStockDataUrlUsa.Replace("{}", st.Symbol) + st.Symbol);
+					htmlCode = await Web.Get(string.Format(Web.GetStockDataUrlUsa, st.Symbol));
 					if (htmlCode.IndexOf(">Trailing P/E</span>", StringComparison.Ordinal) < 0)
 					{
 						Logger.Log.Warn($"На сайте (USA) нет данных для {st.Symbol}");
