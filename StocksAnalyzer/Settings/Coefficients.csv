@@ -1,38 +1,37 @@
-Name;Label;HelpDescription;SearchInHTML_Rus;SearchInHTML_USA
-Price;;;;
-PriceToEquity;;;;
-PriceToSales;;;;
-PriceToBook;;;;
-EVtoEbitda;;;;
-DebtToEbitda;;;;
-Roe;;;;
-Eps;;;;
-Qeg;;;;
-ProfitMarg;;;;
-ProfitMarg5Ya;;;;
-OperMarg;;;;
-OperMarg5Ya;;;;
-GrossProfit;;;;
-GrossProfit5Ya;;;;
-MarketCap;;;;
-Ev;;;;
-Peg;;;;
-EvRev;;;;
-RetOnAssets;;;;
-Revenue;;;;
-RevPerShare;;;;
-Ebitda;;;;
-TotalCash;;;;
-TotalCashPerShare;;;;
-TotalDebt;;;;
-BookValPerShare;;;;
-OperatingCashFlow;;;;
-LeveredFreeCashFlow;;;;
-TotalShares;;;;
-ProfitCoef;;;;
-ProfitCoef5Ya;;;;
-ProfitOn12MToAnalogYearAgo;;;;
-GrowProfitPerShare5Y;;;;
-CapExpenseGrow5Y;;;;
-UrgentLiquidityCoef;;;;
-CurrentLiquidityCoef;;;;
+Name;Label;Tooltip;HelpDescription;SearchInHTML_Rus;SearchInHTMLAppendix_Rus;SearchInHTML_USA;IsCommon;IsRus;IsUSA
+PriceToEquity;P/E;Цена/прибыль;;Коэффициент цена/прибыль;;Trailing P/E;1;;
+PriceToSales;P/S;;;Коэффициент цена/объем продаж;;Price/Sales;1;;
+PriceToBook;P/BV;;;Коэффициент цена/балансовая стоимость;;Price/Book;1;;
+EVtoEbitda;EV/EBITDA;;;;;Enterprise Value/EBITDA;;;1
+DebtToEbitda;Debt/EBITDA;;;;;;;;1
+Roe;ROE, %;;;Прибыль на инвестиции;;Return on Equity;1;;
+Eps;EPS;;;Базовая прибыль на акцию;;Diluted EPS;1;;
+Qeg;Quarterly Revenue Growth (yoy), %;;;Прибыль на акцию за последний квартал к квартальной год назад;;Quarterly Revenue Growth;1;;
+ProfitMarg;Profit margin, %;;;Маржа прибыли до налогообложения ;TTM;Profit Margin;1;;
+ProfitMarg5Ya;Маржа приб., 5YA, %;;;Маржа прибыли до налогообложения ;5YA;;;1;
+OperMarg;Operating margin, %;;;Операционная маржа;TTM;Operating Margin;1;;
+OperMarg5Ya;Опер маржа, 5YA, %;;;Операционная маржа;5YA;;;1;
+GrossProfit;Gross profit (for rus in %);;;Валовая прибыль;TTM;Gross Profit;1;;
+GrossProfit5Ya;Валовая прибыль 5YA, %;;;Валовая прибыль;5YA;;;1;
+MarketCap;Market capitalisation;Рыночная капитализация;;;;Market Cap (intraday);;;1
+Ev;Enterprise value;Справедливая стоимость компании = Market Cap + debt - cash;;;;Enterprise Value;;;1
+Peg;PEG ratio (5yr expected);P/E деленная на скорость роста прибыли;;;;PEG Ratio (5 yr expected);;;1
+EvRev;EV/Revenue;Стоим. предпр./доход;;;;Enterprise Value/Revenue;;;1
+RetOnAssets;Return on assets, %;Доходность/рентабельность активов;;;;Return on Assets;;;1
+Revenue;Revenue;Доход/прибыль;;;;Revenue;;;1
+RevPerShare;Revenue per share;Доход на акцию;;;;Revenue Per Share;;;1
+Ebitda;EBITDA;Прибыль компании до выплаты процентов, налогов и амортизации;;;;EBITDA;;;1
+TotalCash;Total cash (mrq);;;;;Total Cash;;;1
+TotalCashPerShare;Total cash/share (mrq);;;;;Total Cash Per Share;;;1
+TotalDebt;Total debt (mrq);;;;;Total Debt;;;1
+BookValPerShare;Book val p share (mrq);Балансовая стоимость на акцию;;;;Book Value Per Share;;;1
+OperatingCashFlow;Operating cash flow;Операционный денежный поток;;;;Operating Cash Flow;;;1
+LeveredFreeCashFlow;Levered free cash flow;Свободный денежный поток;;;;Levered Free Cash Flow;;;1
+TotalShares;Shares outstanding;Кол-во акций в обращении;;;;Shares Outstanding;;;1
+ProfitCoef;Коэф. прибыльности, %;;;Коэффициент прибыльности;TTM;;;1;
+ProfitCoef5Ya;Коэф. приб. 5YA, %;;;Коэффициент прибыльности;5YA;;;1;
+ProfitOn12MToAnalogYearAgo;Приб. на акц. за 12 м., %;Прибыль на акцию за последние 12 месяцев к аналогичному периоду год назад;;Прибыль на акцию за последние 12 месяцев к аналогичному периоду год назад;;;;1;
+GrowProfitPerShare5Y;Рост приб./акц., 5Y, %;;;Рост прибыли на акцию за 5 лет;;;;1;
+CapExpenseGrow5Y;Рост кап. расх., 5Y, %;;;Рост капитальных расходов за последние 5 лет;;;;1;
+UrgentLiquidityCoef;Коэф. срочн. ликв-ти;;;Коэффициент срочной ликвидности;;;;1;
+CurrentLiquidityCoef;Коэф. тек. ливкидности;;;Коэффициент текущей ликвидности;;;;1;

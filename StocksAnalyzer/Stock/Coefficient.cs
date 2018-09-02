@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+// ReSharper disable InconsistentNaming
 
 namespace StocksAnalyzer
 {
@@ -9,16 +10,21 @@ namespace StocksAnalyzer
     {
         public string Name { get; private set; }
         public string Label { get; private set; }
+        public string Tooltip { get; private set; }
         /// <summary>
         /// Справочная инфа (какое значение лучше, какое хуже)
         /// </summary>
         public string HelpDescription { get; private set; }
 
         public string SearchInHTML_Rus { get; private set; }
+        public string SearchInHTMLAppendix_Rus { get; private set; }
         public string SearchInHTML_USA { get; private set; }
+        public bool IsCommon { get; private set; }
+        public bool IsRus { get; private set; }
+        public bool IsUSA { get; private set; }
 
-        public static List<Coefficient> CoefficientList = new List<Coefficient>();
-
+        public static List<Coefficient> CoefficientList => new List<Coefficient>();
+        
         private Coefficient()
         {
 
@@ -40,7 +46,9 @@ namespace StocksAnalyzer
                     }
                     else
                     {
-                        CoefficientList.Add(ParseCoefficient(data, columnNumToName) ?? throw new ArgumentNullException($"Method {nameof(ParseCoefficient)} return null"));
+                        CoefficientList.Add(ParseCoefficient(data, columnNumToName) ??
+                                            throw new ArgumentNullException(
+                                                $"Method {nameof(ParseCoefficient)} return null"));
                     }
                 }
             }
@@ -62,8 +70,14 @@ namespace StocksAnalyzer
                     case "Label":
                         coef.Label = value;
                         break;
+                    case "Tooltip":
+                        coef.Tooltip = value;
+                        break;
                     case "SearchInHTML_Rus":
                         coef.SearchInHTML_Rus = value;
+                        break;
+                    case "SearchInHTMLAppendix_Rus":
+                        coef.SearchInHTMLAppendix_Rus = value;
                         break;
                     case "SearchInHTML_USA":
                         coef.SearchInHTML_USA = value;
@@ -71,6 +85,17 @@ namespace StocksAnalyzer
                     case "HelpDescription":
                         coef.HelpDescription = value;
                         break;
+                    case "IsCommon":
+                        coef.IsCommon = value == "1";
+                        break;
+                    case "IsRus":
+                        coef.IsRus = value == "1";
+                        break;
+                    case "IsUSA":
+                        coef.IsUSA = value == "1";
+                        break;
+                    default:
+                        throw new NotSupportedException($@"Ошибка при чтении файла коэффициентов. {columnNumToName[i]}");
                 }
             }
 

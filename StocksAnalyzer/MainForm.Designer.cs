@@ -71,28 +71,6 @@
             this.buttonLoadHistoryFile = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.panelMain = new System.Windows.Forms.Panel();
-            this.panelRussiaCoefs = new System.Windows.Forms.Panel();
-            this.labelCurrLiqudity = new System.Windows.Forms.Label();
-            this.textBoxCurrLiquidity = new System.Windows.Forms.TextBox();
-            this.labelQuickLiquidity = new System.Windows.Forms.Label();
-            this.textBoxQuickLiquidity = new System.Windows.Forms.TextBox();
-            this.labelOperMargin5Y = new System.Windows.Forms.Label();
-            this.textBoxOperMargin5Y = new System.Windows.Forms.TextBox();
-            this.labelProfitMargin5Y = new System.Windows.Forms.Label();
-            this.textBoxProfitMargin5Y = new System.Windows.Forms.TextBox();
-            this.labelGrowthCapCosts = new System.Windows.Forms.Label();
-            this.textBoxGrowthCapCosts = new System.Windows.Forms.TextBox();
-            this.labelGrowthPS5Y = new System.Windows.Forms.Label();
-            this.textBoxGrowthPS5Y = new System.Windows.Forms.TextBox();
-            this.labelProfitPerShare = new System.Windows.Forms.Label();
-            this.textBoxProfitPerShare = new System.Windows.Forms.TextBox();
-            this.label5YProfitCoef = new System.Windows.Forms.Label();
-            this.textBox5YProfitCoef = new System.Windows.Forms.TextBox();
-            this.labelProfitCoef = new System.Windows.Forms.Label();
-            this.textBoxProfitCoef = new System.Windows.Forms.TextBox();
-            this.label5YValProfit = new System.Windows.Forms.Label();
-            this.textBox5YValProfit = new System.Windows.Forms.TextBox();
-            this.labelRussiaPanel = new System.Windows.Forms.Label();
             this.panelUSACoefs = new System.Windows.Forms.Panel();
             this.labelSharesCount = new System.Windows.Forms.Label();
             this.textBoxSharesCount = new System.Windows.Forms.TextBox();
@@ -138,6 +116,28 @@
             this.labelQEG = new System.Windows.Forms.Label();
             this.textBoxQEG = new System.Windows.Forms.TextBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.panelRussiaCoefs = new System.Windows.Forms.Panel();
+            this.labelCurrLiqudity = new System.Windows.Forms.Label();
+            this.textBoxCurrLiquidity = new System.Windows.Forms.TextBox();
+            this.labelQuickLiquidity = new System.Windows.Forms.Label();
+            this.textBoxQuickLiquidity = new System.Windows.Forms.TextBox();
+            this.labelOperMargin5Y = new System.Windows.Forms.Label();
+            this.textBoxOperMargin5Y = new System.Windows.Forms.TextBox();
+            this.labelProfitMargin5Y = new System.Windows.Forms.Label();
+            this.textBoxProfitMargin5Y = new System.Windows.Forms.TextBox();
+            this.labelGrowthCapCosts = new System.Windows.Forms.Label();
+            this.textBoxGrowthCapCosts = new System.Windows.Forms.TextBox();
+            this.labelGrowthPS5Y = new System.Windows.Forms.Label();
+            this.textBoxGrowthPS5Y = new System.Windows.Forms.TextBox();
+            this.labelProfitPerShare = new System.Windows.Forms.Label();
+            this.textBoxProfitPerShare = new System.Windows.Forms.TextBox();
+            this.label5YProfitCoef = new System.Windows.Forms.Label();
+            this.textBox5YProfitCoef = new System.Windows.Forms.TextBox();
+            this.labelProfitCoef = new System.Windows.Forms.Label();
+            this.textBoxProfitCoef = new System.Windows.Forms.TextBox();
+            this.label5YValProfit = new System.Windows.Forms.Label();
+            this.textBox5YValProfit = new System.Windows.Forms.TextBox();
+            this.labelRussiaPanel = new System.Windows.Forms.Label();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.buttonOpenReport = new System.Windows.Forms.Button();
             this.buttonAnalyzeMultiplicators = new System.Windows.Forms.Button();
@@ -154,9 +154,9 @@
             this.webBrowser1 = new System.Windows.Forms.WebBrowser();
             this.buttonCkechTinkoff = new System.Windows.Forms.Button();
             this.panelMain.SuspendLayout();
-            this.panelRussiaCoefs.SuspendLayout();
             this.panelUSACoefs.SuspendLayout();
             this.panel2.SuspendLayout();
+            this.panelRussiaCoefs.SuspendLayout();
             this.panel5.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -210,7 +210,7 @@
             this.richTextBoxLog.Location = new System.Drawing.Point(20, 401);
             this.richTextBoxLog.Margin = new System.Windows.Forms.Padding(4);
             this.richTextBoxLog.Name = "richTextBoxLog";
-            this.richTextBoxLog.Size = new System.Drawing.Size(505, 176);
+            this.richTextBoxLog.Size = new System.Drawing.Size(505, 548);
             this.richTextBoxLog.TabIndex = 5;
             this.richTextBoxLog.Text = "";
             // 
@@ -323,7 +323,7 @@
             // textBoxStockSymbol
             // 
             this.textBoxStockSymbol.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.textBoxStockSymbol.Location = new System.Drawing.Point(163, 14);
+            this.textBoxStockSymbol.Location = new System.Drawing.Point(255, 13);
             this.textBoxStockSymbol.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxStockSymbol.Name = "textBoxStockSymbol";
             this.textBoxStockSymbol.Size = new System.Drawing.Size(89, 22);
@@ -376,7 +376,7 @@
             // labelPriceRub
             // 
             this.labelPriceRub.AutoSize = true;
-            this.labelPriceRub.Location = new System.Drawing.Point(60, 47);
+            this.labelPriceRub.Location = new System.Drawing.Point(152, 46);
             this.labelPriceRub.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPriceRub.Name = "labelPriceRub";
             this.labelPriceRub.Size = new System.Drawing.Size(75, 17);
@@ -385,7 +385,7 @@
             // 
             // textBoxStockPrice
             // 
-            this.textBoxStockPrice.Location = new System.Drawing.Point(52, 71);
+            this.textBoxStockPrice.Location = new System.Drawing.Point(144, 70);
             this.textBoxStockPrice.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxStockPrice.Name = "textBoxStockPrice";
             this.textBoxStockPrice.Size = new System.Drawing.Size(89, 22);
@@ -536,7 +536,7 @@
             // labelPriceUSD
             // 
             this.labelPriceUSD.AutoSize = true;
-            this.labelPriceUSD.Location = new System.Drawing.Point(171, 47);
+            this.labelPriceUSD.Location = new System.Drawing.Point(263, 46);
             this.labelPriceUSD.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPriceUSD.Name = "labelPriceUSD";
             this.labelPriceUSD.Size = new System.Drawing.Size(77, 17);
@@ -545,7 +545,7 @@
             // 
             // textBoxStockPriceUSD
             // 
-            this.textBoxStockPriceUSD.Location = new System.Drawing.Point(163, 71);
+            this.textBoxStockPriceUSD.Location = new System.Drawing.Point(255, 70);
             this.textBoxStockPriceUSD.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxStockPriceUSD.Name = "textBoxStockPriceUSD";
             this.textBoxStockPriceUSD.Size = new System.Drawing.Size(89, 22);
@@ -592,230 +592,8 @@
             this.panelMain.Location = new System.Drawing.Point(551, 65);
             this.panelMain.Margin = new System.Windows.Forms.Padding(4);
             this.panelMain.Name = "panelMain";
-            this.panelMain.Size = new System.Drawing.Size(638, 537);
+            this.panelMain.Size = new System.Drawing.Size(1139, 884);
             this.panelMain.TabIndex = 42;
-            // 
-            // panelRussiaCoefs
-            // 
-            this.panelRussiaCoefs.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelRussiaCoefs.Controls.Add(this.labelCurrLiqudity);
-            this.panelRussiaCoefs.Controls.Add(this.textBoxCurrLiquidity);
-            this.panelRussiaCoefs.Controls.Add(this.labelQuickLiquidity);
-            this.panelRussiaCoefs.Controls.Add(this.textBoxQuickLiquidity);
-            this.panelRussiaCoefs.Controls.Add(this.labelOperMargin5Y);
-            this.panelRussiaCoefs.Controls.Add(this.textBoxOperMargin5Y);
-            this.panelRussiaCoefs.Controls.Add(this.labelProfitMargin5Y);
-            this.panelRussiaCoefs.Controls.Add(this.textBoxProfitMargin5Y);
-            this.panelRussiaCoefs.Controls.Add(this.labelGrowthCapCosts);
-            this.panelRussiaCoefs.Controls.Add(this.textBoxGrowthCapCosts);
-            this.panelRussiaCoefs.Controls.Add(this.labelGrowthPS5Y);
-            this.panelRussiaCoefs.Controls.Add(this.textBoxGrowthPS5Y);
-            this.panelRussiaCoefs.Controls.Add(this.labelProfitPerShare);
-            this.panelRussiaCoefs.Controls.Add(this.textBoxProfitPerShare);
-            this.panelRussiaCoefs.Controls.Add(this.label5YProfitCoef);
-            this.panelRussiaCoefs.Controls.Add(this.textBox5YProfitCoef);
-            this.panelRussiaCoefs.Controls.Add(this.labelProfitCoef);
-            this.panelRussiaCoefs.Controls.Add(this.textBoxProfitCoef);
-            this.panelRussiaCoefs.Controls.Add(this.label5YValProfit);
-            this.panelRussiaCoefs.Controls.Add(this.textBox5YValProfit);
-            this.panelRussiaCoefs.Controls.Add(this.labelRussiaPanel);
-            this.panelRussiaCoefs.Location = new System.Drawing.Point(327, 69);
-            this.panelRussiaCoefs.Margin = new System.Windows.Forms.Padding(4);
-            this.panelRussiaCoefs.Name = "panelRussiaCoefs";
-            this.panelRussiaCoefs.Size = new System.Drawing.Size(286, 457);
-            this.panelRussiaCoefs.TabIndex = 58;
-            // 
-            // labelCurrLiqudity
-            // 
-            this.labelCurrLiqudity.AutoSize = true;
-            this.labelCurrLiqudity.Location = new System.Drawing.Point(7, 315);
-            this.labelCurrLiqudity.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelCurrLiqudity.Name = "labelCurrLiqudity";
-            this.labelCurrLiqudity.Size = new System.Drawing.Size(165, 17);
-            this.labelCurrLiqudity.TabIndex = 89;
-            this.labelCurrLiqudity.Text = "Коэф. тек. ливкидности";
-            // 
-            // textBoxCurrLiquidity
-            // 
-            this.textBoxCurrLiquidity.Location = new System.Drawing.Point(185, 311);
-            this.textBoxCurrLiquidity.Margin = new System.Windows.Forms.Padding(4);
-            this.textBoxCurrLiquidity.Name = "textBoxCurrLiquidity";
-            this.textBoxCurrLiquidity.Size = new System.Drawing.Size(89, 22);
-            this.textBoxCurrLiquidity.TabIndex = 88;
-            // 
-            // labelQuickLiquidity
-            // 
-            this.labelQuickLiquidity.AutoSize = true;
-            this.labelQuickLiquidity.Location = new System.Drawing.Point(27, 284);
-            this.labelQuickLiquidity.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelQuickLiquidity.Name = "labelQuickLiquidity";
-            this.labelQuickLiquidity.Size = new System.Drawing.Size(148, 17);
-            this.labelQuickLiquidity.TabIndex = 87;
-            this.labelQuickLiquidity.Text = "Коэф. срочн. ликв-ти";
-            // 
-            // textBoxQuickLiquidity
-            // 
-            this.textBoxQuickLiquidity.Location = new System.Drawing.Point(185, 281);
-            this.textBoxQuickLiquidity.Margin = new System.Windows.Forms.Padding(4);
-            this.textBoxQuickLiquidity.Name = "textBoxQuickLiquidity";
-            this.textBoxQuickLiquidity.Size = new System.Drawing.Size(89, 22);
-            this.textBoxQuickLiquidity.TabIndex = 86;
-            // 
-            // labelOperMargin5Y
-            // 
-            this.labelOperMargin5Y.AutoSize = true;
-            this.labelOperMargin5Y.Location = new System.Drawing.Point(31, 254);
-            this.labelOperMargin5Y.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelOperMargin5Y.Name = "labelOperMargin5Y";
-            this.labelOperMargin5Y.Size = new System.Drawing.Size(143, 17);
-            this.labelOperMargin5Y.TabIndex = 85;
-            this.labelOperMargin5Y.Text = "Опер маржа, 5YA, %";
-            // 
-            // textBoxOperMargin5Y
-            // 
-            this.textBoxOperMargin5Y.Location = new System.Drawing.Point(185, 250);
-            this.textBoxOperMargin5Y.Margin = new System.Windows.Forms.Padding(4);
-            this.textBoxOperMargin5Y.Name = "textBoxOperMargin5Y";
-            this.textBoxOperMargin5Y.Size = new System.Drawing.Size(89, 22);
-            this.textBoxOperMargin5Y.TabIndex = 84;
-            // 
-            // labelProfitMargin5Y
-            // 
-            this.labelProfitMargin5Y.AutoSize = true;
-            this.labelProfitMargin5Y.Location = new System.Drawing.Point(28, 223);
-            this.labelProfitMargin5Y.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelProfitMargin5Y.Name = "labelProfitMargin5Y";
-            this.labelProfitMargin5Y.Size = new System.Drawing.Size(146, 17);
-            this.labelProfitMargin5Y.TabIndex = 83;
-            this.labelProfitMargin5Y.Text = "Маржа приб., 5YA, %";
-            // 
-            // textBoxProfitMargin5Y
-            // 
-            this.textBoxProfitMargin5Y.Location = new System.Drawing.Point(185, 219);
-            this.textBoxProfitMargin5Y.Margin = new System.Windows.Forms.Padding(4);
-            this.textBoxProfitMargin5Y.Name = "textBoxProfitMargin5Y";
-            this.textBoxProfitMargin5Y.Size = new System.Drawing.Size(89, 22);
-            this.textBoxProfitMargin5Y.TabIndex = 82;
-            // 
-            // labelGrowthCapCosts
-            // 
-            this.labelGrowthCapCosts.AutoSize = true;
-            this.labelGrowthCapCosts.Location = new System.Drawing.Point(21, 192);
-            this.labelGrowthCapCosts.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelGrowthCapCosts.Name = "labelGrowthCapCosts";
-            this.labelGrowthCapCosts.Size = new System.Drawing.Size(152, 17);
-            this.labelGrowthCapCosts.TabIndex = 81;
-            this.labelGrowthCapCosts.Text = "Рост кап. расх., 5Y, %";
-            // 
-            // textBoxGrowthCapCosts
-            // 
-            this.textBoxGrowthCapCosts.Location = new System.Drawing.Point(185, 188);
-            this.textBoxGrowthCapCosts.Margin = new System.Windows.Forms.Padding(4);
-            this.textBoxGrowthCapCosts.Name = "textBoxGrowthCapCosts";
-            this.textBoxGrowthCapCosts.Size = new System.Drawing.Size(89, 22);
-            this.textBoxGrowthCapCosts.TabIndex = 80;
-            // 
-            // labelGrowthPS5Y
-            // 
-            this.labelGrowthPS5Y.AutoSize = true;
-            this.labelGrowthPS5Y.Location = new System.Drawing.Point(17, 161);
-            this.labelGrowthPS5Y.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelGrowthPS5Y.Name = "labelGrowthPS5Y";
-            this.labelGrowthPS5Y.Size = new System.Drawing.Size(155, 17);
-            this.labelGrowthPS5Y.TabIndex = 79;
-            this.labelGrowthPS5Y.Text = "Рост приб./акц., 5Y, %";
-            // 
-            // textBoxGrowthPS5Y
-            // 
-            this.textBoxGrowthPS5Y.Location = new System.Drawing.Point(185, 158);
-            this.textBoxGrowthPS5Y.Margin = new System.Windows.Forms.Padding(4);
-            this.textBoxGrowthPS5Y.Name = "textBoxGrowthPS5Y";
-            this.textBoxGrowthPS5Y.Size = new System.Drawing.Size(89, 22);
-            this.textBoxGrowthPS5Y.TabIndex = 78;
-            // 
-            // labelProfitPerShare
-            // 
-            this.labelProfitPerShare.AutoSize = true;
-            this.labelProfitPerShare.Location = new System.Drawing.Point(0, 130);
-            this.labelProfitPerShare.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelProfitPerShare.Name = "labelProfitPerShare";
-            this.labelProfitPerShare.Size = new System.Drawing.Size(173, 17);
-            this.labelProfitPerShare.TabIndex = 77;
-            this.labelProfitPerShare.Text = "Приб. на акц. за 12 м., %";
-            // 
-            // textBoxProfitPerShare
-            // 
-            this.textBoxProfitPerShare.Location = new System.Drawing.Point(185, 127);
-            this.textBoxProfitPerShare.Margin = new System.Windows.Forms.Padding(4);
-            this.textBoxProfitPerShare.Name = "textBoxProfitPerShare";
-            this.textBoxProfitPerShare.Size = new System.Drawing.Size(89, 22);
-            this.textBoxProfitPerShare.TabIndex = 76;
-            // 
-            // label5YProfitCoef
-            // 
-            this.label5YProfitCoef.AutoSize = true;
-            this.label5YProfitCoef.Location = new System.Drawing.Point(39, 100);
-            this.label5YProfitCoef.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label5YProfitCoef.Name = "label5YProfitCoef";
-            this.label5YProfitCoef.Size = new System.Drawing.Size(137, 17);
-            this.label5YProfitCoef.TabIndex = 75;
-            this.label5YProfitCoef.Text = "Коэф. приб. 5YA, %";
-            // 
-            // textBox5YProfitCoef
-            // 
-            this.textBox5YProfitCoef.Location = new System.Drawing.Point(185, 96);
-            this.textBox5YProfitCoef.Margin = new System.Windows.Forms.Padding(4);
-            this.textBox5YProfitCoef.Name = "textBox5YProfitCoef";
-            this.textBox5YProfitCoef.Size = new System.Drawing.Size(89, 22);
-            this.textBox5YProfitCoef.TabIndex = 74;
-            // 
-            // labelProfitCoef
-            // 
-            this.labelProfitCoef.AutoSize = true;
-            this.labelProfitCoef.Location = new System.Drawing.Point(8, 69);
-            this.labelProfitCoef.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelProfitCoef.Name = "labelProfitCoef";
-            this.labelProfitCoef.Size = new System.Drawing.Size(166, 17);
-            this.labelProfitCoef.TabIndex = 73;
-            this.labelProfitCoef.Text = "Коэф. прибыльности, %";
-            // 
-            // textBoxProfitCoef
-            // 
-            this.textBoxProfitCoef.Location = new System.Drawing.Point(185, 65);
-            this.textBoxProfitCoef.Margin = new System.Windows.Forms.Padding(4);
-            this.textBoxProfitCoef.Name = "textBoxProfitCoef";
-            this.textBoxProfitCoef.Size = new System.Drawing.Size(89, 22);
-            this.textBoxProfitCoef.TabIndex = 72;
-            // 
-            // label5YValProfit
-            // 
-            this.label5YValProfit.AutoSize = true;
-            this.label5YValProfit.Location = new System.Drawing.Point(-1, 38);
-            this.label5YValProfit.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label5YValProfit.Name = "label5YValProfit";
-            this.label5YValProfit.Size = new System.Drawing.Size(175, 17);
-            this.label5YValProfit.TabIndex = 71;
-            this.label5YValProfit.Text = "Валовая прибыль 5YA, %";
-            // 
-            // textBox5YValProfit
-            // 
-            this.textBox5YValProfit.Location = new System.Drawing.Point(185, 34);
-            this.textBox5YValProfit.Margin = new System.Windows.Forms.Padding(4);
-            this.textBox5YValProfit.Name = "textBox5YValProfit";
-            this.textBox5YValProfit.Size = new System.Drawing.Size(89, 22);
-            this.textBox5YValProfit.TabIndex = 70;
-            // 
-            // labelRussiaPanel
-            // 
-            this.labelRussiaPanel.AutoSize = true;
-            this.labelRussiaPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.labelRussiaPanel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.labelRussiaPanel.Location = new System.Drawing.Point(-1, -1);
-            this.labelRussiaPanel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelRussiaPanel.Name = "labelRussiaPanel";
-            this.labelRussiaPanel.Size = new System.Drawing.Size(69, 22);
-            this.labelRussiaPanel.TabIndex = 60;
-            this.labelRussiaPanel.Text = "Russia";
             // 
             // panelUSACoefs
             // 
@@ -855,10 +633,10 @@
             this.panelUSACoefs.Controls.Add(this.textBoxDebtEBITDA);
             this.panelUSACoefs.Controls.Add(this.labelEVEBITDA);
             this.panelUSACoefs.Controls.Add(this.textBoxEVEBITDA);
-            this.panelUSACoefs.Location = new System.Drawing.Point(327, 69);
+            this.panelUSACoefs.Location = new System.Drawing.Point(619, 69);
             this.panelUSACoefs.Margin = new System.Windows.Forms.Padding(4);
             this.panelUSACoefs.Name = "panelUSACoefs";
-            this.panelUSACoefs.Size = new System.Drawing.Size(287, 457);
+            this.panelUSACoefs.Size = new System.Drawing.Size(394, 567);
             this.panelUSACoefs.TabIndex = 57;
             // 
             // labelSharesCount
@@ -1175,7 +953,7 @@
             this.panel2.Location = new System.Drawing.Point(24, 69);
             this.panel2.Margin = new System.Windows.Forms.Padding(4);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(274, 457);
+            this.panel2.Size = new System.Drawing.Size(449, 567);
             this.panel2.TabIndex = 56;
             // 
             // labelGrossPerc
@@ -1191,7 +969,7 @@
             // labelSymbol
             // 
             this.labelSymbol.AutoSize = true;
-            this.labelSymbol.Location = new System.Drawing.Point(100, 17);
+            this.labelSymbol.Location = new System.Drawing.Point(192, 16);
             this.labelSymbol.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelSymbol.Name = "labelSymbol";
             this.labelSymbol.Size = new System.Drawing.Size(54, 17);
@@ -1291,6 +1069,228 @@
             this.linkLabel1.Size = new System.Drawing.Size(0, 17);
             this.linkLabel1.TabIndex = 41;
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel1_LinkClicked);
+            // 
+            // panelRussiaCoefs
+            // 
+            this.panelRussiaCoefs.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelRussiaCoefs.Controls.Add(this.labelCurrLiqudity);
+            this.panelRussiaCoefs.Controls.Add(this.textBoxCurrLiquidity);
+            this.panelRussiaCoefs.Controls.Add(this.labelQuickLiquidity);
+            this.panelRussiaCoefs.Controls.Add(this.textBoxQuickLiquidity);
+            this.panelRussiaCoefs.Controls.Add(this.labelOperMargin5Y);
+            this.panelRussiaCoefs.Controls.Add(this.textBoxOperMargin5Y);
+            this.panelRussiaCoefs.Controls.Add(this.labelProfitMargin5Y);
+            this.panelRussiaCoefs.Controls.Add(this.textBoxProfitMargin5Y);
+            this.panelRussiaCoefs.Controls.Add(this.labelGrowthCapCosts);
+            this.panelRussiaCoefs.Controls.Add(this.textBoxGrowthCapCosts);
+            this.panelRussiaCoefs.Controls.Add(this.labelGrowthPS5Y);
+            this.panelRussiaCoefs.Controls.Add(this.textBoxGrowthPS5Y);
+            this.panelRussiaCoefs.Controls.Add(this.labelProfitPerShare);
+            this.panelRussiaCoefs.Controls.Add(this.textBoxProfitPerShare);
+            this.panelRussiaCoefs.Controls.Add(this.label5YProfitCoef);
+            this.panelRussiaCoefs.Controls.Add(this.textBox5YProfitCoef);
+            this.panelRussiaCoefs.Controls.Add(this.labelProfitCoef);
+            this.panelRussiaCoefs.Controls.Add(this.textBoxProfitCoef);
+            this.panelRussiaCoefs.Controls.Add(this.label5YValProfit);
+            this.panelRussiaCoefs.Controls.Add(this.textBox5YValProfit);
+            this.panelRussiaCoefs.Controls.Add(this.labelRussiaPanel);
+            this.panelRussiaCoefs.Location = new System.Drawing.Point(944, 21);
+            this.panelRussiaCoefs.Margin = new System.Windows.Forms.Padding(4);
+            this.panelRussiaCoefs.Name = "panelRussiaCoefs";
+            this.panelRussiaCoefs.Size = new System.Drawing.Size(286, 457);
+            this.panelRussiaCoefs.TabIndex = 58;
+            // 
+            // labelCurrLiqudity
+            // 
+            this.labelCurrLiqudity.AutoSize = true;
+            this.labelCurrLiqudity.Location = new System.Drawing.Point(7, 315);
+            this.labelCurrLiqudity.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelCurrLiqudity.Name = "labelCurrLiqudity";
+            this.labelCurrLiqudity.Size = new System.Drawing.Size(165, 17);
+            this.labelCurrLiqudity.TabIndex = 89;
+            this.labelCurrLiqudity.Text = "Коэф. тек. ливкидности";
+            // 
+            // textBoxCurrLiquidity
+            // 
+            this.textBoxCurrLiquidity.Location = new System.Drawing.Point(185, 311);
+            this.textBoxCurrLiquidity.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxCurrLiquidity.Name = "textBoxCurrLiquidity";
+            this.textBoxCurrLiquidity.Size = new System.Drawing.Size(89, 22);
+            this.textBoxCurrLiquidity.TabIndex = 88;
+            // 
+            // labelQuickLiquidity
+            // 
+            this.labelQuickLiquidity.AutoSize = true;
+            this.labelQuickLiquidity.Location = new System.Drawing.Point(27, 284);
+            this.labelQuickLiquidity.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelQuickLiquidity.Name = "labelQuickLiquidity";
+            this.labelQuickLiquidity.Size = new System.Drawing.Size(148, 17);
+            this.labelQuickLiquidity.TabIndex = 87;
+            this.labelQuickLiquidity.Text = "Коэф. срочн. ликв-ти";
+            // 
+            // textBoxQuickLiquidity
+            // 
+            this.textBoxQuickLiquidity.Location = new System.Drawing.Point(185, 281);
+            this.textBoxQuickLiquidity.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxQuickLiquidity.Name = "textBoxQuickLiquidity";
+            this.textBoxQuickLiquidity.Size = new System.Drawing.Size(89, 22);
+            this.textBoxQuickLiquidity.TabIndex = 86;
+            // 
+            // labelOperMargin5Y
+            // 
+            this.labelOperMargin5Y.AutoSize = true;
+            this.labelOperMargin5Y.Location = new System.Drawing.Point(31, 254);
+            this.labelOperMargin5Y.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelOperMargin5Y.Name = "labelOperMargin5Y";
+            this.labelOperMargin5Y.Size = new System.Drawing.Size(143, 17);
+            this.labelOperMargin5Y.TabIndex = 85;
+            this.labelOperMargin5Y.Text = "Опер маржа, 5YA, %";
+            // 
+            // textBoxOperMargin5Y
+            // 
+            this.textBoxOperMargin5Y.Location = new System.Drawing.Point(185, 250);
+            this.textBoxOperMargin5Y.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxOperMargin5Y.Name = "textBoxOperMargin5Y";
+            this.textBoxOperMargin5Y.Size = new System.Drawing.Size(89, 22);
+            this.textBoxOperMargin5Y.TabIndex = 84;
+            // 
+            // labelProfitMargin5Y
+            // 
+            this.labelProfitMargin5Y.AutoSize = true;
+            this.labelProfitMargin5Y.Location = new System.Drawing.Point(28, 223);
+            this.labelProfitMargin5Y.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelProfitMargin5Y.Name = "labelProfitMargin5Y";
+            this.labelProfitMargin5Y.Size = new System.Drawing.Size(146, 17);
+            this.labelProfitMargin5Y.TabIndex = 83;
+            this.labelProfitMargin5Y.Text = "Маржа приб., 5YA, %";
+            // 
+            // textBoxProfitMargin5Y
+            // 
+            this.textBoxProfitMargin5Y.Location = new System.Drawing.Point(185, 219);
+            this.textBoxProfitMargin5Y.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxProfitMargin5Y.Name = "textBoxProfitMargin5Y";
+            this.textBoxProfitMargin5Y.Size = new System.Drawing.Size(89, 22);
+            this.textBoxProfitMargin5Y.TabIndex = 82;
+            // 
+            // labelGrowthCapCosts
+            // 
+            this.labelGrowthCapCosts.AutoSize = true;
+            this.labelGrowthCapCosts.Location = new System.Drawing.Point(21, 192);
+            this.labelGrowthCapCosts.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelGrowthCapCosts.Name = "labelGrowthCapCosts";
+            this.labelGrowthCapCosts.Size = new System.Drawing.Size(152, 17);
+            this.labelGrowthCapCosts.TabIndex = 81;
+            this.labelGrowthCapCosts.Text = "Рост кап. расх., 5Y, %";
+            // 
+            // textBoxGrowthCapCosts
+            // 
+            this.textBoxGrowthCapCosts.Location = new System.Drawing.Point(185, 188);
+            this.textBoxGrowthCapCosts.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxGrowthCapCosts.Name = "textBoxGrowthCapCosts";
+            this.textBoxGrowthCapCosts.Size = new System.Drawing.Size(89, 22);
+            this.textBoxGrowthCapCosts.TabIndex = 80;
+            // 
+            // labelGrowthPS5Y
+            // 
+            this.labelGrowthPS5Y.AutoSize = true;
+            this.labelGrowthPS5Y.Location = new System.Drawing.Point(17, 161);
+            this.labelGrowthPS5Y.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelGrowthPS5Y.Name = "labelGrowthPS5Y";
+            this.labelGrowthPS5Y.Size = new System.Drawing.Size(155, 17);
+            this.labelGrowthPS5Y.TabIndex = 79;
+            this.labelGrowthPS5Y.Text = "Рост приб./акц., 5Y, %";
+            // 
+            // textBoxGrowthPS5Y
+            // 
+            this.textBoxGrowthPS5Y.Location = new System.Drawing.Point(185, 158);
+            this.textBoxGrowthPS5Y.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxGrowthPS5Y.Name = "textBoxGrowthPS5Y";
+            this.textBoxGrowthPS5Y.Size = new System.Drawing.Size(89, 22);
+            this.textBoxGrowthPS5Y.TabIndex = 78;
+            // 
+            // labelProfitPerShare
+            // 
+            this.labelProfitPerShare.AutoSize = true;
+            this.labelProfitPerShare.Location = new System.Drawing.Point(0, 130);
+            this.labelProfitPerShare.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelProfitPerShare.Name = "labelProfitPerShare";
+            this.labelProfitPerShare.Size = new System.Drawing.Size(173, 17);
+            this.labelProfitPerShare.TabIndex = 77;
+            this.labelProfitPerShare.Text = "Приб. на акц. за 12 м., %";
+            // 
+            // textBoxProfitPerShare
+            // 
+            this.textBoxProfitPerShare.Location = new System.Drawing.Point(185, 127);
+            this.textBoxProfitPerShare.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxProfitPerShare.Name = "textBoxProfitPerShare";
+            this.textBoxProfitPerShare.Size = new System.Drawing.Size(89, 22);
+            this.textBoxProfitPerShare.TabIndex = 76;
+            // 
+            // label5YProfitCoef
+            // 
+            this.label5YProfitCoef.AutoSize = true;
+            this.label5YProfitCoef.Location = new System.Drawing.Point(39, 100);
+            this.label5YProfitCoef.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label5YProfitCoef.Name = "label5YProfitCoef";
+            this.label5YProfitCoef.Size = new System.Drawing.Size(137, 17);
+            this.label5YProfitCoef.TabIndex = 75;
+            this.label5YProfitCoef.Text = "Коэф. приб. 5YA, %";
+            // 
+            // textBox5YProfitCoef
+            // 
+            this.textBox5YProfitCoef.Location = new System.Drawing.Point(185, 96);
+            this.textBox5YProfitCoef.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox5YProfitCoef.Name = "textBox5YProfitCoef";
+            this.textBox5YProfitCoef.Size = new System.Drawing.Size(89, 22);
+            this.textBox5YProfitCoef.TabIndex = 74;
+            // 
+            // labelProfitCoef
+            // 
+            this.labelProfitCoef.AutoSize = true;
+            this.labelProfitCoef.Location = new System.Drawing.Point(8, 69);
+            this.labelProfitCoef.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelProfitCoef.Name = "labelProfitCoef";
+            this.labelProfitCoef.Size = new System.Drawing.Size(166, 17);
+            this.labelProfitCoef.TabIndex = 73;
+            this.labelProfitCoef.Text = "Коэф. прибыльности, %";
+            // 
+            // textBoxProfitCoef
+            // 
+            this.textBoxProfitCoef.Location = new System.Drawing.Point(185, 65);
+            this.textBoxProfitCoef.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxProfitCoef.Name = "textBoxProfitCoef";
+            this.textBoxProfitCoef.Size = new System.Drawing.Size(89, 22);
+            this.textBoxProfitCoef.TabIndex = 72;
+            // 
+            // label5YValProfit
+            // 
+            this.label5YValProfit.AutoSize = true;
+            this.label5YValProfit.Location = new System.Drawing.Point(-1, 38);
+            this.label5YValProfit.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label5YValProfit.Name = "label5YValProfit";
+            this.label5YValProfit.Size = new System.Drawing.Size(175, 17);
+            this.label5YValProfit.TabIndex = 71;
+            this.label5YValProfit.Text = "Валовая прибыль 5YA, %";
+            // 
+            // textBox5YValProfit
+            // 
+            this.textBox5YValProfit.Location = new System.Drawing.Point(185, 34);
+            this.textBox5YValProfit.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox5YValProfit.Name = "textBox5YValProfit";
+            this.textBox5YValProfit.Size = new System.Drawing.Size(89, 22);
+            this.textBox5YValProfit.TabIndex = 70;
+            // 
+            // labelRussiaPanel
+            // 
+            this.labelRussiaPanel.AutoSize = true;
+            this.labelRussiaPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.labelRussiaPanel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelRussiaPanel.Location = new System.Drawing.Point(-1, -1);
+            this.labelRussiaPanel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelRussiaPanel.Name = "labelRussiaPanel";
+            this.labelRussiaPanel.Size = new System.Drawing.Size(69, 22);
+            this.labelRussiaPanel.TabIndex = 60;
+            this.labelRussiaPanel.Text = "Russia";
             // 
             // progressBar
             // 
@@ -1464,7 +1464,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1205, 613);
+            this.ClientSize = new System.Drawing.Size(1712, 962);
             this.Controls.Add(this.buttonCkechTinkoff);
             this.Controls.Add(this.webBrowser1);
             this.Controls.Add(this.buttonGetTinkoffStocks);
@@ -1500,14 +1500,15 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
             this.Text = "Stocks Analyzer";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.panelMain.ResumeLayout(false);
             this.panelMain.PerformLayout();
-            this.panelRussiaCoefs.ResumeLayout(false);
-            this.panelRussiaCoefs.PerformLayout();
             this.panelUSACoefs.ResumeLayout(false);
             this.panelUSACoefs.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            this.panelRussiaCoefs.ResumeLayout(false);
+            this.panelRussiaCoefs.PerformLayout();
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
             this.ResumeLayout(false);

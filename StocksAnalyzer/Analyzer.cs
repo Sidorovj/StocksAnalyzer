@@ -208,37 +208,37 @@ namespace StocksAnalyzer
         }
         private static void AddAllStockData(Dictionary<string, double> values, Stock st)
         {
-            values.Add("PE", st.PriceToEquity.Pe());
-            values.Add("PS", st.PriceToSales.Ps());
-            values.Add("PBV", st.PriceToBook.Pbv());
-            values.Add("ROE", st.Roe.Roe());
-            values.Add("EPS", st.Eps.Eps());
-            values.Add("QEG", st.Qeg.SqrFromPercent());
-            values.Add("PRM", st.ProfitMarg.SqrFromPercent());
-            values.Add("OPM", st.OperMarg.SqrFromPercent());
+            values.Add("PE", st["PriceToEquity"].Pe());
+            values.Add("PS", st["PriceToSales"].Ps());
+            values.Add("PBV", st["PriceToBook"].Pbv());
+            values.Add("ROE", st["Roe"].Roe());
+            values.Add("EPS", st["Eps"].Eps());
+            values.Add("QEG", st["Qeg"].SqrFromPercent());
+            values.Add("PRM", st["ProfitMarg"].SqrFromPercent());
+            values.Add("OPM", st["OperMarg"].SqrFromPercent());
             if (st.Market.Location == StockMarketLocation.Usa)
-                values.Add("GRP", (Math.Abs(st.MarketCap) < MainClass.Tolerance ? 0 : st.ProfitMarg / st.MarketCap).SqrFromPercent());
+                values.Add("GRP", (Math.Abs(st["MarketCap"]) < MainClass.Tolerance ? 0 : st["ProfitMarg"] / st["MarketCap"]).SqrFromPercent());
             else if (st.Market.Location == StockMarketLocation.Russia)
-                values.Add("GRP", st.GrossProfit.SqrFromPercent());
+                values.Add("GRP", st["GrossProfit"].SqrFromPercent());
 
-            values.Add("GRP5", st.GrossProfit5Ya.SqrFromPercent());
-            values.Add("PRM5", st.ProfitMarg5Ya.SqrFromPercent());
-            values.Add("OPM5", st.OperMarg5Ya.SqrFromPercent());
-            values.Add("PRC", st.ProfitCoef.SqrFromPercent());
-            values.Add("PRC5", st.ProfitCoef5Ya.SqrFromPercent());
-            values.Add("PRpS", st.ProfitOn12MToAnalogYearAgo.SqrFromPercent());
-            values.Add("PGS", st.GrowProfitPerShare5Y.SqrFromPercent());
-            values.Add("GCC", st.CapExpenseGrow5Y.SqrFromPercent());
-            values.Add("URL", st.UrgentLiquidityCoef.UrgLiq());
-            values.Add("CUL", st.CurrentLiquidityCoef.CurrLiq());
+            values.Add("GRP5", st["GrossProfit5Ya"].SqrFromPercent());
+            values.Add("PRM5", st["ProfitMarg5Ya"].SqrFromPercent());
+            values.Add("OPM5", st["OperMarg5Ya"].SqrFromPercent());
+            values.Add("PRC", st["ProfitCoef"].SqrFromPercent());
+            values.Add("PRC5", st["ProfitCoef5Ya"].SqrFromPercent());
+            values.Add("PRpS", st["ProfitOn12MToAnalogYearAgo"].SqrFromPercent());
+            values.Add("PGS", st["GrowProfitPerShare5Y"].SqrFromPercent());
+            values.Add("GCC", st["CapExpenseGrow5Y"].SqrFromPercent());
+            values.Add("URL", st["UrgentLiquidityCoef"].UrgLiq());
+            values.Add("CUL", st["CurrentLiquidityCoef"].CurrLiq());
 
-            values.Add("EVEB", st.EVtoEbitda.EvEbitda());
-            values.Add("DBEB", st.DebtToEbitda.DebtEbitda());
-            values.Add("MC", st.MarketCap.MarketCap());
-            values.Add("PEG", st.Peg.Peg());
-            values.Add("RoA", st.RetOnAssets.RetOnAss());
-            values.Add("BVpS", st.BookValPerShare.BVpShare());
-            values.Add("LFMC", (Math.Abs(st.MarketCap) < MainClass.Tolerance ? 0 : st.LeveredFreeCashFlow / st.MarketCap).LvpMc());
+            values.Add("EVEB", st["EVtoEbitda"].EvEbitda());
+            values.Add("DBEB", st["DebtToEbitda"].DebtEbitda());
+            values.Add("MC", st["MarketCap"].MarketCap());
+            values.Add("PEG", st["Peg"].Peg());
+            values.Add("RoA", st["RetOnAssets"].RetOnAss());
+            values.Add("BVpS", st["BookValPerShare"].BVpShare());
+            values.Add("LFMC", (Math.Abs(st["MarketCap"]) < MainClass.Tolerance ? 0 : st["LeveredFreeCashFlow"] / st["MarketCap"]).LvpMc());
 
         }
 

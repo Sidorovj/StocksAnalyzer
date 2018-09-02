@@ -138,55 +138,55 @@ namespace StocksAnalyzer
 			}
 			textBoxStockSymbol.Text = m_selectedStock.Symbol;
 			textBoxStockLastUpdated.Text = m_selectedStock.LastUpdate.ToString(CultureInfo.InvariantCulture);
-			textBoxPE.Text = m_selectedStock.PriceToEquity.ToCuteStr();
-			textBoxPS.Text = m_selectedStock.PriceToSales.ToCuteStr();
-			textBoxPBV.Text = m_selectedStock.PriceToBook.ToCuteStr();
-			textBoxEVEBITDA.Text = m_selectedStock.EVtoEbitda.ToCuteStr();
-			textBoxDebtEBITDA.Text = m_selectedStock.DebtToEbitda.ToCuteStr();
-			textBoxROE.Text = m_selectedStock.Roe.ToCuteStr();
-			textBoxEPS.Text = m_selectedStock.Eps.ToCuteStr();
-			if (m_selectedStock.Market.Currency == StockMarketCurrency.Rub)
-			{
-				textBoxQEG.Text = m_selectedStock.Qeg.ToCuteStr();
-				textBoxProfitMargin.Text = m_selectedStock.ProfitMarg.ToCuteStr();
-				textBoxOperatingMargin.Text = m_selectedStock.OperMarg.ToCuteStr();
-				textBoxGrossProfit.Text = m_selectedStock.GrossProfit.ToCuteStr();
-				textBox5YValProfit.Text = m_selectedStock.GrossProfit5Ya.ToCuteStr();
-				textBoxProfitCoef.Text = m_selectedStock.ProfitCoef.ToCuteStr();
-				textBox5YProfitCoef.Text = m_selectedStock.ProfitCoef5Ya.ToCuteStr();
-				textBoxProfitPerShare.Text = m_selectedStock.ProfitOn12MToAnalogYearAgo.ToCuteStr();
-				textBoxGrowthPS5Y.Text = m_selectedStock.GrowProfitPerShare5Y.ToCuteStr();
-				textBoxGrowthCapCosts.Text = m_selectedStock.CapExpenseGrow5Y.ToCuteStr();
-				textBoxProfitMargin5Y.Text = m_selectedStock.ProfitMarg5Ya.ToCuteStr();
-				textBoxOperMargin5Y.Text = m_selectedStock.OperMarg5Ya.ToCuteStr();
-				textBoxQuickLiquidity.Text = m_selectedStock.UrgentLiquidityCoef.ToCuteStr();
-				textBoxCurrLiquidity.Text = m_selectedStock.CurrentLiquidityCoef.ToCuteStr();
-			}
-			else if (m_selectedStock.Market.Currency == StockMarketCurrency.Usd)
-			{
-				textBoxEVEBITDA.Text = m_selectedStock.EVtoEbitda.ToCuteStr();
-				textBoxMarketCap.Text = m_selectedStock.MarketCap.ToCuteStr();
-				textBoxQEG.Text = m_selectedStock.Qeg.ToCuteStr();
-				textBoxProfitMargin.Text = m_selectedStock.ProfitMarg.ToCuteStr();
-				textBoxOperatingMargin.Text = m_selectedStock.OperMarg.ToCuteStr();
-				textBoxGrossProfit.Text = m_selectedStock.GrossProfit.ToCuteStr();
-				textBoxEntVal.Text = m_selectedStock.Ev.ToCuteStr();
-				textBoxPEG.Text = m_selectedStock.Peg.ToCuteStr();
-				textBoxEVRev.Text = m_selectedStock.EvRev.ToCuteStr();
-				textBoxRetOnAssets.Text = m_selectedStock.RetOnAssets.ToCuteStr();
-				textBoxRevenue.Text = m_selectedStock.Revenue.ToCuteStr();
-				textBoxRevPerShape.Text = m_selectedStock.RevPerShare.ToCuteStr();
-				textBoxEBITDA.Text = m_selectedStock.Ebitda.ToCuteStr();
-				textBoxTotCash.Text = m_selectedStock.TotalCash.ToCuteStr();
-				textBoxTotCashPShape.Text = m_selectedStock.TotalCashPerShare.ToCuteStr();
-				textBoxTotDebt.Text = m_selectedStock.TotalDebt.ToCuteStr();
-				textBoxBookValPShape.Text = m_selectedStock.BookValPerShare.ToCuteStr();
-				textBoxOperCashFlow.Text = m_selectedStock.OperatingCashFlow.ToCuteStr();
-				textBoxLeveredFreeCF.Text = m_selectedStock.LeveredFreeCashFlow.ToCuteStr();
-				textBoxSharesCount.Text = m_selectedStock.TotalShares.ToCuteStr();
-				textBoxDebtEBITDA.Text = m_selectedStock.DebtToEbitda.ToCuteStr();
-			}
-			if (getNewInfo)
+            textBoxPE.Text = m_selectedStock.PriceToEquity.ToCuteStr();
+            textBoxPS.Text = m_selectedStock.PriceToSales.ToCuteStr();
+            textBoxPBV.Text = m_selectedStock.PriceToBook.ToCuteStr();
+            textBoxEVEBITDA.Text = m_selectedStock.EVtoEbitda.ToCuteStr();
+            textBoxDebtEBITDA.Text = m_selectedStock.DebtToEbitda.ToCuteStr();
+            textBoxROE.Text = m_selectedStock.Roe.ToCuteStr();
+            textBoxEPS.Text = m_selectedStock.Eps.ToCuteStr();
+            if (m_selectedStock.Market.Currency == StockMarketCurrency.Rub)
+            {
+                textBoxQEG.Text = m_selectedStock.Qeg.ToCuteStr();
+                textBoxProfitMargin.Text = m_selectedStock.ProfitMarg.ToCuteStr();
+                textBoxOperatingMargin.Text = m_selectedStock.OperMarg.ToCuteStr();
+                textBoxGrossProfit.Text = m_selectedStock.GrossProfit.ToCuteStr();
+                textBox5YValProfit.Text = m_selectedStock.GrossProfit5Ya.ToCuteStr();
+                textBoxProfitCoef.Text = m_selectedStock.ProfitCoef.ToCuteStr();
+                textBox5YProfitCoef.Text = m_selectedStock.ProfitCoef5Ya.ToCuteStr();
+                textBoxProfitPerShare.Text = m_selectedStock.ProfitOn12MToAnalogYearAgo.ToCuteStr();
+                textBoxGrowthPS5Y.Text = m_selectedStock.GrowProfitPerShare5Y.ToCuteStr();
+                textBoxGrowthCapCosts.Text = m_selectedStock.CapExpenseGrow5Y.ToCuteStr();
+                textBoxProfitMargin5Y.Text = m_selectedStock.ProfitMarg5Ya.ToCuteStr();
+                textBoxOperMargin5Y.Text = m_selectedStock.OperMarg5Ya.ToCuteStr();
+                textBoxQuickLiquidity.Text = m_selectedStock.UrgentLiquidityCoef.ToCuteStr();
+                textBoxCurrLiquidity.Text = m_selectedStock.CurrentLiquidityCoef.ToCuteStr();
+            }
+            else if (m_selectedStock.Market.Currency == StockMarketCurrency.Usd)
+            {
+                textBoxEVEBITDA.Text = m_selectedStock.EVtoEbitda.ToCuteStr();
+                textBoxMarketCap.Text = m_selectedStock.MarketCap.ToCuteStr();
+                textBoxQEG.Text = m_selectedStock.Qeg.ToCuteStr();
+                textBoxProfitMargin.Text = m_selectedStock.ProfitMarg.ToCuteStr();
+                textBoxOperatingMargin.Text = m_selectedStock.OperMarg.ToCuteStr();
+                textBoxGrossProfit.Text = m_selectedStock.GrossProfit.ToCuteStr();
+                textBoxEntVal.Text = m_selectedStock.Ev.ToCuteStr();
+                textBoxPEG.Text = m_selectedStock.Peg.ToCuteStr();
+                textBoxEVRev.Text = m_selectedStock.EvRev.ToCuteStr();
+                textBoxRetOnAssets.Text = m_selectedStock.RetOnAssets.ToCuteStr();
+                textBoxRevenue.Text = m_selectedStock.Revenue.ToCuteStr();
+                textBoxRevPerShape.Text = m_selectedStock.RevPerShare.ToCuteStr();
+                textBoxEBITDA.Text = m_selectedStock.Ebitda.ToCuteStr();
+                textBoxTotCash.Text = m_selectedStock.TotalCash.ToCuteStr();
+                textBoxTotCashPShape.Text = m_selectedStock.TotalCashPerShare.ToCuteStr();
+                textBoxTotDebt.Text = m_selectedStock.TotalDebt.ToCuteStr();
+                textBoxBookValPShape.Text = m_selectedStock.BookValPerShare.ToCuteStr();
+                textBoxOperCashFlow.Text = m_selectedStock.OperatingCashFlow.ToCuteStr();
+                textBoxLeveredFreeCF.Text = m_selectedStock.LeveredFreeCashFlow.ToCuteStr();
+                textBoxSharesCount.Text = m_selectedStock.TotalShares.ToCuteStr();
+                textBoxDebtEBITDA.Text = m_selectedStock.DebtToEbitda.ToCuteStr();
+            }
+            if (getNewInfo)
 				labelDone.Visible = true;
 			labelMainPE.Text = @"MainPE: " + m_selectedStock.RateMainPe;
 			labelMain.Text = @"Main: " + m_selectedStock.RateMain;
