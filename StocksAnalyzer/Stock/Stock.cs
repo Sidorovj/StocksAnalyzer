@@ -34,7 +34,7 @@ namespace StocksAnalyzer
 
         #region Main properties
         public double Price { get; set; }
-        public Dictionary<Coefficient, double> CoefficientsValues => new Dictionary<Coefficient, double>(Coefficient.CoefficientList.Count);
+        public Dictionary<Coefficient, double> CoefficientsValues { get; } = new Dictionary<Coefficient, double>(Coefficient.CoefficientList.Count);
         //      public double PriceToEquity { get; set; }
         //public double PriceToSales { get; set; }
         //public double PriceToBook { get; set; }
@@ -80,7 +80,7 @@ namespace StocksAnalyzer
         {
             return Name;
         }
-        
+
         public double this[string ind]
         {
             get
@@ -95,6 +95,11 @@ namespace StocksAnalyzer
             }
         }
 
+        public double this[Coefficient coef]
+        {
+            get => CoefficientsValues[coef];
+            set => CoefficientsValues[coef] = value;
+        }
 
         public Stock(string name, double price, StockMarket mar, string symb = "")
         {

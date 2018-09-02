@@ -23,8 +23,8 @@ namespace StocksAnalyzer
         public bool IsRus { get; private set; }
         public bool IsUSA { get; private set; }
 
-        public static List<Coefficient> CoefficientList => new List<Coefficient>();
-        
+        public static List<Coefficient> CoefficientList { get; } = new List<Coefficient>();
+
         private Coefficient()
         {
 

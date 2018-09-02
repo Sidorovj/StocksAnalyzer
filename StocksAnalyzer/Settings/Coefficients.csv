@@ -1,37 +1,37 @@
-Name;Label;Tooltip;HelpDescription;SearchInHTML_Rus;SearchInHTMLAppendix_Rus;SearchInHTML_USA;IsCommon;IsRus;IsUSA
-PriceToEquity;P/E;Цена/прибыль;;Коэффициент цена/прибыль;;Trailing P/E;1;;
-PriceToSales;P/S;;;Коэффициент цена/объем продаж;;Price/Sales;1;;
-PriceToBook;P/BV;;;Коэффициент цена/балансовая стоимость;;Price/Book;1;;
+п»їName;Label;Tooltip;HelpDescription;SearchInHTML_Rus;SearchInHTMLAppendix_Rus;SearchInHTML_USA;IsCommon;IsRus;IsUSA
+PriceToEquity;P/E;Р¦РµРЅР°/РїСЂРёР±С‹Р»СЊ;;РљРѕСЌС„С„РёС†РёРµРЅС‚ С†РµРЅР°/РїСЂРёР±С‹Р»СЊ;;Trailing P/E;1;;
+PriceToSales;P/S;;;РљРѕСЌС„С„РёС†РёРµРЅС‚ С†РµРЅР°/РѕР±СЉРµРј РїСЂРѕРґР°Р¶;;Price/Sales;1;;
+PriceToBook;P/BV;;;РљРѕСЌС„С„РёС†РёРµРЅС‚ С†РµРЅР°/Р±Р°Р»Р°РЅСЃРѕРІР°СЏ СЃС‚РѕРёРјРѕСЃС‚СЊ;;Price/Book;1;;
 EVtoEbitda;EV/EBITDA;;;;;Enterprise Value/EBITDA;;;1
 DebtToEbitda;Debt/EBITDA;;;;;;;;1
-Roe;ROE, %;;;Прибыль на инвестиции;;Return on Equity;1;;
-Eps;EPS;;;Базовая прибыль на акцию;;Diluted EPS;1;;
-Qeg;Quarterly Revenue Growth (yoy), %;;;Прибыль на акцию за последний квартал к квартальной год назад;;Quarterly Revenue Growth;1;;
-ProfitMarg;Profit margin, %;;;Маржа прибыли до налогообложения ;TTM;Profit Margin;1;;
-ProfitMarg5Ya;Маржа приб., 5YA, %;;;Маржа прибыли до налогообложения ;5YA;;;1;
-OperMarg;Operating margin, %;;;Операционная маржа;TTM;Operating Margin;1;;
-OperMarg5Ya;Опер маржа, 5YA, %;;;Операционная маржа;5YA;;;1;
-GrossProfit;Gross profit (for rus in %);;;Валовая прибыль;TTM;Gross Profit;1;;
-GrossProfit5Ya;Валовая прибыль 5YA, %;;;Валовая прибыль;5YA;;;1;
-MarketCap;Market capitalisation;Рыночная капитализация;;;;Market Cap (intraday);;;1
-Ev;Enterprise value;Справедливая стоимость компании = Market Cap + debt - cash;;;;Enterprise Value;;;1
-Peg;PEG ratio (5yr expected);P/E деленная на скорость роста прибыли;;;;PEG Ratio (5 yr expected);;;1
-EvRev;EV/Revenue;Стоим. предпр./доход;;;;Enterprise Value/Revenue;;;1
-RetOnAssets;Return on assets, %;Доходность/рентабельность активов;;;;Return on Assets;;;1
-Revenue;Revenue;Доход/прибыль;;;;Revenue;;;1
-RevPerShare;Revenue per share;Доход на акцию;;;;Revenue Per Share;;;1
-Ebitda;EBITDA;Прибыль компании до выплаты процентов, налогов и амортизации;;;;EBITDA;;;1
+Roe;ROE, %;;;РџСЂРёР±С‹Р»СЊ РЅР° РёРЅРІРµСЃС‚РёС†РёРё;;Return on Equity;1;;
+Eps;EPS;;;Р‘Р°Р·РѕРІР°СЏ РїСЂРёР±С‹Р»СЊ РЅР° Р°РєС†РёСЋ;;Diluted EPS;1;;
+Qeg;Quarterly Revenue GrowthВ (yoy), %;;;РџСЂРёР±С‹Р»СЊ РЅР° Р°РєС†РёСЋ Р·Р° РїРѕСЃР»РµРґРЅРёР№ РєРІР°СЂС‚Р°Р» Рє РєРІР°СЂС‚Р°Р»СЊРЅРѕР№ РіРѕРґ РЅР°Р·Р°Рґ;;Quarterly Revenue Growth;1;;
+ProfitMarg;Profit margin, %;;;РњР°СЂР¶Р° РїСЂРёР±С‹Р»Рё РґРѕ РЅР°Р»РѕРіРѕРѕР±Р»РѕР¶РµРЅРёСЏ ;TTM;Profit Margin;1;;
+ProfitMarg5Ya;РњР°СЂР¶Р° РїСЂРёР±., 5YA, %;;;РњР°СЂР¶Р° РїСЂРёР±С‹Р»Рё РґРѕ РЅР°Р»РѕРіРѕРѕР±Р»РѕР¶РµРЅРёСЏ ;5YA;;;1;
+OperMarg;Operating margin, %;;;РћРїРµСЂР°С†РёРѕРЅРЅР°СЏ РјР°СЂР¶Р°;TTM;Operating Margin;1;;
+OperMarg5Ya;РћРїРµСЂ РјР°СЂР¶Р°, 5YA, %;;;РћРїРµСЂР°С†РёРѕРЅРЅР°СЏ РјР°СЂР¶Р°;5YA;;;1;
+GrossProfit;Gross profit (for rus in %);;;Р’Р°Р»РѕРІР°СЏ РїСЂРёР±С‹Р»СЊ;TTM;Gross Profit;1;;
+GrossProfit5Ya;Р’Р°Р»РѕРІР°СЏ РїСЂРёР±С‹Р»СЊ 5YA, %;;;Р’Р°Р»РѕРІР°СЏ РїСЂРёР±С‹Р»СЊ;5YA;;;1;
+MarketCap;Market capitalisation;Р С‹РЅРѕС‡РЅР°СЏ РєР°РїРёС‚Р°Р»РёР·Р°С†РёСЏ;;;;Market Cap (intraday);;;1
+Ev;Enterprise value;РЎРїСЂР°РІРµРґР»РёРІР°СЏ СЃС‚РѕРёРјРѕСЃС‚СЊ РєРѕРјРїР°РЅРёРё = Market Cap + debt - cash;;;;Enterprise Value;;;1
+Peg;PEG ratio (5yr expected);P/E РґРµР»РµРЅРЅР°СЏ РЅР° СЃРєРѕСЂРѕСЃС‚СЊ СЂРѕСЃС‚Р° РїСЂРёР±С‹Р»Рё;;;;PEG Ratio (5 yr expected);;;1
+EvRev;EV/Revenue;РЎС‚РѕРёРј. РїСЂРµРґРїСЂ./РґРѕС…РѕРґ;;;;Enterprise Value/Revenue;;;1
+RetOnAssets;Return on assets, %;Р”РѕС…РѕРґРЅРѕСЃС‚СЊ/СЂРµРЅС‚Р°Р±РµР»СЊРЅРѕСЃС‚СЊ Р°РєС‚РёРІРѕРІ;;;;Return on Assets;;;1
+Revenue;Revenue;Р”РѕС…РѕРґ/РїСЂРёР±С‹Р»СЊ;;;;Revenue;;;1
+RevPerShare;Revenue per share;Р”РѕС…РѕРґ РЅР° Р°РєС†РёСЋ;;;;Revenue Per Share;;;1
+Ebitda;EBITDA;РџСЂРёР±С‹Р»СЊ РєРѕРјРїР°РЅРёРё РґРѕ РІС‹РїР»Р°С‚С‹ РїСЂРѕС†РµРЅС‚РѕРІ, РЅР°Р»РѕРіРѕРІ Рё Р°РјРѕСЂС‚РёР·Р°С†РёРё;;;;EBITDA;;;1
 TotalCash;Total cash (mrq);;;;;Total Cash;;;1
 TotalCashPerShare;Total cash/share (mrq);;;;;Total Cash Per Share;;;1
 TotalDebt;Total debt (mrq);;;;;Total Debt;;;1
-BookValPerShare;Book val p share (mrq);Балансовая стоимость на акцию;;;;Book Value Per Share;;;1
-OperatingCashFlow;Operating cash flow;Операционный денежный поток;;;;Operating Cash Flow;;;1
-LeveredFreeCashFlow;Levered free cash flow;Свободный денежный поток;;;;Levered Free Cash Flow;;;1
-TotalShares;Shares outstanding;Кол-во акций в обращении;;;;Shares Outstanding;;;1
-ProfitCoef;Коэф. прибыльности, %;;;Коэффициент прибыльности;TTM;;;1;
-ProfitCoef5Ya;Коэф. приб. 5YA, %;;;Коэффициент прибыльности;5YA;;;1;
-ProfitOn12MToAnalogYearAgo;Приб. на акц. за 12 м., %;Прибыль на акцию за последние 12 месяцев к аналогичному периоду год назад;;Прибыль на акцию за последние 12 месяцев к аналогичному периоду год назад;;;;1;
-GrowProfitPerShare5Y;Рост приб./акц., 5Y, %;;;Рост прибыли на акцию за 5 лет;;;;1;
-CapExpenseGrow5Y;Рост кап. расх., 5Y, %;;;Рост капитальных расходов за последние 5 лет;;;;1;
-UrgentLiquidityCoef;Коэф. срочн. ликв-ти;;;Коэффициент срочной ликвидности;;;;1;
-CurrentLiquidityCoef;Коэф. тек. ливкидности;;;Коэффициент текущей ликвидности;;;;1;
+BookValPerShare;Book val p share (mrq);Р‘Р°Р»Р°РЅСЃРѕРІР°СЏ СЃС‚РѕРёРјРѕСЃС‚СЊ РЅР° Р°РєС†РёСЋ;;;;Book Value Per Share;;;1
+OperatingCashFlow;Operating cash flow;РћРїРµСЂР°С†РёРѕРЅРЅС‹Р№ РґРµРЅРµР¶РЅС‹Р№ РїРѕС‚РѕРє;;;;Operating Cash Flow;;;1
+LeveredFreeCashFlow;Levered free cash flow;РЎРІРѕР±РѕРґРЅС‹Р№ РґРµРЅРµР¶РЅС‹Р№ РїРѕС‚РѕРє;;;;Levered Free Cash Flow;;;1
+TotalShares;Shares outstanding;РљРѕР»-РІРѕ Р°РєС†РёР№ РІ РѕР±СЂР°С‰РµРЅРёРё;;;;Shares Outstanding;;;1
+ProfitCoef;РљРѕСЌС„. РїСЂРёР±С‹Р»СЊРЅРѕСЃС‚Рё, %;;;РљРѕСЌС„С„РёС†РёРµРЅС‚ РїСЂРёР±С‹Р»СЊРЅРѕСЃС‚Рё;TTM;;;1;
+ProfitCoef5Ya;РљРѕСЌС„. РїСЂРёР±. 5YA, %;;;РљРѕСЌС„С„РёС†РёРµРЅС‚ РїСЂРёР±С‹Р»СЊРЅРѕСЃС‚Рё;5YA;;;1;
+ProfitOn12MToAnalogYearAgo;РџСЂРёР±. РЅР° Р°РєС†. Р·Р° 12 Рј., %;РџСЂРёР±С‹Р»СЊ РЅР° Р°РєС†РёСЋ Р·Р° РїРѕСЃР»РµРґРЅРёРµ 12 РјРµСЃСЏС†РµРІ Рє Р°РЅР°Р»РѕРіРёС‡РЅРѕРјСѓ РїРµСЂРёРѕРґСѓ РіРѕРґ РЅР°Р·Р°Рґ;;РџСЂРёР±С‹Р»СЊ РЅР° Р°РєС†РёСЋ Р·Р° РїРѕСЃР»РµРґРЅРёРµ 12 РјРµСЃСЏС†РµРІ Рє Р°РЅР°Р»РѕРіРёС‡РЅРѕРјСѓ РїРµСЂРёРѕРґСѓ РіРѕРґ РЅР°Р·Р°Рґ;;;;1;
+GrowProfitPerShare5Y;Р РѕСЃС‚ РїСЂРёР±./Р°РєС†., 5Y, %;;;Р РѕСЃС‚ РїСЂРёР±С‹Р»Рё РЅР° Р°РєС†РёСЋ Р·Р° 5 Р»РµС‚;;;;1;
+CapExpenseGrow5Y;Р РѕСЃС‚ РєР°Рї. СЂР°СЃС…., 5Y, %;;;Р РѕСЃС‚ РєР°РїРёС‚Р°Р»СЊРЅС‹С… СЂР°СЃС…РѕРґРѕРІ Р·Р° РїРѕСЃР»РµРґРЅРёРµ 5 Р»РµС‚;;;;1;
+UrgentLiquidityCoef;РљРѕСЌС„. СЃСЂРѕС‡РЅ. Р»РёРєРІ-С‚Рё;;;РљРѕСЌС„С„РёС†РёРµРЅС‚ СЃСЂРѕС‡РЅРѕР№ Р»РёРєРІРёРґРЅРѕСЃС‚Рё;;;;1;
+CurrentLiquidityCoef;РљРѕСЌС„. С‚РµРє. Р»РёРІРєРёРґРЅРѕСЃС‚Рё;;;РљРѕСЌС„С„РёС†РёРµРЅС‚ С‚РµРєСѓС‰РµР№ Р»РёРєРІРёРґРЅРѕСЃС‚Рё;;;;1;

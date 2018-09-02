@@ -50,8 +50,6 @@
             this.checkBoxIsStarred = new System.Windows.Forms.CheckBox();
             this.labelPriceRub = new System.Windows.Forms.Label();
             this.textBoxStockPrice = new System.Windows.Forms.TextBox();
-            this.labelPE = new System.Windows.Forms.Label();
-            this.textBoxPE = new System.Windows.Forms.TextBox();
             this.labelPS = new System.Windows.Forms.Label();
             this.textBoxPS = new System.Windows.Forms.TextBox();
             this.labelPBV = new System.Windows.Forms.Label();
@@ -103,7 +101,7 @@
             this.textBoxEntVal = new System.Windows.Forms.TextBox();
             this.labelMarketCap = new System.Windows.Forms.Label();
             this.textBoxMarketCap = new System.Windows.Forms.TextBox();
-            this.panel2 = new System.Windows.Forms.Panel();
+            this.panelCommon = new System.Windows.Forms.Panel();
             this.labelGrossPerc = new System.Windows.Forms.Label();
             this.labelSymbol = new System.Windows.Forms.Label();
             this.labelCommonCoefs = new System.Windows.Forms.Label();
@@ -155,7 +153,7 @@
             this.buttonCkechTinkoff = new System.Windows.Forms.Button();
             this.panelMain.SuspendLayout();
             this.panelUSACoefs.SuspendLayout();
-            this.panel2.SuspendLayout();
+            this.panelCommon.SuspendLayout();
             this.panelRussiaCoefs.SuspendLayout();
             this.panel5.SuspendLayout();
             this.SuspendLayout();
@@ -392,28 +390,10 @@
             this.textBoxStockPrice.TabIndex = 21;
             this.textBoxStockPrice.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // labelPE
-            // 
-            this.labelPE.AutoSize = true;
-            this.labelPE.Location = new System.Drawing.Point(107, 111);
-            this.labelPE.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelPE.Name = "labelPE";
-            this.labelPE.Size = new System.Drawing.Size(30, 17);
-            this.labelPE.TabIndex = 24;
-            this.labelPE.Text = "P/E";
-            // 
-            // textBoxPE
-            // 
-            this.textBoxPE.Location = new System.Drawing.Point(163, 107);
-            this.textBoxPE.Margin = new System.Windows.Forms.Padding(4);
-            this.textBoxPE.Name = "textBoxPE";
-            this.textBoxPE.Size = new System.Drawing.Size(89, 22);
-            this.textBoxPE.TabIndex = 23;
-            // 
             // labelPS
             // 
             this.labelPS.AutoSize = true;
-            this.labelPS.Location = new System.Drawing.Point(108, 146);
+            this.labelPS.Location = new System.Drawing.Point(100, 281);
             this.labelPS.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPS.Name = "labelPS";
             this.labelPS.Size = new System.Drawing.Size(30, 17);
@@ -422,7 +402,7 @@
             // 
             // textBoxPS
             // 
-            this.textBoxPS.Location = new System.Drawing.Point(163, 143);
+            this.textBoxPS.Location = new System.Drawing.Point(155, 278);
             this.textBoxPS.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxPS.Name = "textBoxPS";
             this.textBoxPS.Size = new System.Drawing.Size(89, 22);
@@ -431,7 +411,7 @@
             // labelPBV
             // 
             this.labelPBV.AutoSize = true;
-            this.labelPBV.Location = new System.Drawing.Point(100, 182);
+            this.labelPBV.Location = new System.Drawing.Point(92, 317);
             this.labelPBV.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPBV.Name = "labelPBV";
             this.labelPBV.Size = new System.Drawing.Size(39, 17);
@@ -440,7 +420,7 @@
             // 
             // textBoxPBV
             // 
-            this.textBoxPBV.Location = new System.Drawing.Point(163, 178);
+            this.textBoxPBV.Location = new System.Drawing.Point(155, 313);
             this.textBoxPBV.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxPBV.Name = "textBoxPBV";
             this.textBoxPBV.Size = new System.Drawing.Size(89, 22);
@@ -449,7 +429,7 @@
             // labelEVEBITDA
             // 
             this.labelEVEBITDA.AutoSize = true;
-            this.labelEVEBITDA.Location = new System.Drawing.Point(71, 12);
+            this.labelEVEBITDA.Location = new System.Drawing.Point(75, 138);
             this.labelEVEBITDA.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelEVEBITDA.Name = "labelEVEBITDA";
             this.labelEVEBITDA.Size = new System.Drawing.Size(79, 17);
@@ -458,7 +438,7 @@
             // 
             // textBoxEVEBITDA
             // 
-            this.textBoxEVEBITDA.Location = new System.Drawing.Point(179, 9);
+            this.textBoxEVEBITDA.Location = new System.Drawing.Point(183, 135);
             this.textBoxEVEBITDA.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxEVEBITDA.Name = "textBoxEVEBITDA";
             this.textBoxEVEBITDA.Size = new System.Drawing.Size(89, 22);
@@ -467,7 +447,7 @@
             // labelDebtEBITDA
             // 
             this.labelDebtEBITDA.AutoSize = true;
-            this.labelDebtEBITDA.Location = new System.Drawing.Point(59, 38);
+            this.labelDebtEBITDA.Location = new System.Drawing.Point(63, 164);
             this.labelDebtEBITDA.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelDebtEBITDA.Name = "labelDebtEBITDA";
             this.labelDebtEBITDA.Size = new System.Drawing.Size(91, 17);
@@ -476,7 +456,7 @@
             // 
             // textBoxDebtEBITDA
             // 
-            this.textBoxDebtEBITDA.Location = new System.Drawing.Point(179, 34);
+            this.textBoxDebtEBITDA.Location = new System.Drawing.Point(183, 160);
             this.textBoxDebtEBITDA.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxDebtEBITDA.Name = "textBoxDebtEBITDA";
             this.textBoxDebtEBITDA.Size = new System.Drawing.Size(89, 22);
@@ -485,7 +465,7 @@
             // labelROE
             // 
             this.labelROE.AutoSize = true;
-            this.labelROE.Location = new System.Drawing.Point(84, 218);
+            this.labelROE.Location = new System.Drawing.Point(76, 353);
             this.labelROE.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelROE.Name = "labelROE";
             this.labelROE.Size = new System.Drawing.Size(58, 17);
@@ -494,7 +474,7 @@
             // 
             // textBoxROE
             // 
-            this.textBoxROE.Location = new System.Drawing.Point(163, 214);
+            this.textBoxROE.Location = new System.Drawing.Point(155, 349);
             this.textBoxROE.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxROE.Name = "textBoxROE";
             this.textBoxROE.Size = new System.Drawing.Size(89, 22);
@@ -503,7 +483,7 @@
             // labelEPS
             // 
             this.labelEPS.AutoSize = true;
-            this.labelEPS.Location = new System.Drawing.Point(104, 254);
+            this.labelEPS.Location = new System.Drawing.Point(96, 389);
             this.labelEPS.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelEPS.Name = "labelEPS";
             this.labelEPS.Size = new System.Drawing.Size(35, 17);
@@ -512,7 +492,7 @@
             // 
             // textBoxEPS
             // 
-            this.textBoxEPS.Location = new System.Drawing.Point(163, 250);
+            this.textBoxEPS.Location = new System.Drawing.Point(155, 385);
             this.textBoxEPS.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxEPS.Name = "textBoxEPS";
             this.textBoxEPS.Size = new System.Drawing.Size(89, 22);
@@ -585,7 +565,7 @@
             this.panelMain.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelMain.Controls.Add(this.panelRussiaCoefs);
             this.panelMain.Controls.Add(this.panelUSACoefs);
-            this.panelMain.Controls.Add(this.panel2);
+            this.panelMain.Controls.Add(this.panelCommon);
             this.panelMain.Controls.Add(this.linkLabel1);
             this.panelMain.Controls.Add(this.checkBoxIsStarred);
             this.panelMain.Controls.Add(this.labelStockName);
@@ -642,7 +622,7 @@
             // labelSharesCount
             // 
             this.labelSharesCount.AutoSize = true;
-            this.labelSharesCount.Location = new System.Drawing.Point(27, 426);
+            this.labelSharesCount.Location = new System.Drawing.Point(31, 552);
             this.labelSharesCount.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelSharesCount.Name = "labelSharesCount";
             this.labelSharesCount.Size = new System.Drawing.Size(131, 17);
@@ -651,7 +631,7 @@
             // 
             // textBoxSharesCount
             // 
-            this.textBoxSharesCount.Location = new System.Drawing.Point(179, 422);
+            this.textBoxSharesCount.Location = new System.Drawing.Point(183, 548);
             this.textBoxSharesCount.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxSharesCount.Name = "textBoxSharesCount";
             this.textBoxSharesCount.Size = new System.Drawing.Size(89, 22);
@@ -660,7 +640,7 @@
             // labelLeveredFreeCF
             // 
             this.labelLeveredFreeCF.AutoSize = true;
-            this.labelLeveredFreeCF.Location = new System.Drawing.Point(4, 400);
+            this.labelLeveredFreeCF.Location = new System.Drawing.Point(8, 526);
             this.labelLeveredFreeCF.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelLeveredFreeCF.Name = "labelLeveredFreeCF";
             this.labelLeveredFreeCF.Size = new System.Drawing.Size(151, 17);
@@ -669,7 +649,7 @@
             // 
             // textBoxLeveredFreeCF
             // 
-            this.textBoxLeveredFreeCF.Location = new System.Drawing.Point(179, 396);
+            this.textBoxLeveredFreeCF.Location = new System.Drawing.Point(183, 522);
             this.textBoxLeveredFreeCF.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxLeveredFreeCF.Name = "textBoxLeveredFreeCF";
             this.textBoxLeveredFreeCF.Size = new System.Drawing.Size(89, 22);
@@ -678,7 +658,7 @@
             // labelOperCashFlow
             // 
             this.labelOperCashFlow.AutoSize = true;
-            this.labelOperCashFlow.Location = new System.Drawing.Point(23, 374);
+            this.labelOperCashFlow.Location = new System.Drawing.Point(27, 500);
             this.labelOperCashFlow.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelOperCashFlow.Name = "labelOperCashFlow";
             this.labelOperCashFlow.Size = new System.Drawing.Size(133, 17);
@@ -687,7 +667,7 @@
             // 
             // textBoxOperCashFlow
             // 
-            this.textBoxOperCashFlow.Location = new System.Drawing.Point(179, 370);
+            this.textBoxOperCashFlow.Location = new System.Drawing.Point(183, 496);
             this.textBoxOperCashFlow.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxOperCashFlow.Name = "textBoxOperCashFlow";
             this.textBoxOperCashFlow.Size = new System.Drawing.Size(89, 22);
@@ -696,7 +676,7 @@
             // labelBookValPShape
             // 
             this.labelBookValPShape.AutoSize = true;
-            this.labelBookValPShape.Location = new System.Drawing.Point(7, 348);
+            this.labelBookValPShape.Location = new System.Drawing.Point(11, 474);
             this.labelBookValPShape.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelBookValPShape.Name = "labelBookValPShape";
             this.labelBookValPShape.Size = new System.Drawing.Size(152, 17);
@@ -705,7 +685,7 @@
             // 
             // textBoxBookValPShape
             // 
-            this.textBoxBookValPShape.Location = new System.Drawing.Point(179, 345);
+            this.textBoxBookValPShape.Location = new System.Drawing.Point(183, 471);
             this.textBoxBookValPShape.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxBookValPShape.Name = "textBoxBookValPShape";
             this.textBoxBookValPShape.Size = new System.Drawing.Size(89, 22);
@@ -714,7 +694,7 @@
             // labelTotDebt
             // 
             this.labelTotDebt.AutoSize = true;
-            this.labelTotDebt.Location = new System.Drawing.Point(49, 325);
+            this.labelTotDebt.Location = new System.Drawing.Point(53, 451);
             this.labelTotDebt.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelTotDebt.Name = "labelTotDebt";
             this.labelTotDebt.Size = new System.Drawing.Size(110, 17);
@@ -723,7 +703,7 @@
             // 
             // textBoxTotDebt
             // 
-            this.textBoxTotDebt.Location = new System.Drawing.Point(179, 319);
+            this.textBoxTotDebt.Location = new System.Drawing.Point(183, 445);
             this.textBoxTotDebt.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxTotDebt.Name = "textBoxTotDebt";
             this.textBoxTotDebt.Size = new System.Drawing.Size(89, 22);
@@ -732,7 +712,7 @@
             // labelTotCashPShape
             // 
             this.labelTotCashPShape.AutoSize = true;
-            this.labelTotCashPShape.Location = new System.Drawing.Point(5, 297);
+            this.labelTotCashPShape.Location = new System.Drawing.Point(9, 423);
             this.labelTotCashPShape.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelTotCashPShape.Name = "labelTotCashPShape";
             this.labelTotCashPShape.Size = new System.Drawing.Size(152, 17);
@@ -741,7 +721,7 @@
             // 
             // textBoxTotCashPShape
             // 
-            this.textBoxTotCashPShape.Location = new System.Drawing.Point(179, 293);
+            this.textBoxTotCashPShape.Location = new System.Drawing.Point(183, 419);
             this.textBoxTotCashPShape.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxTotCashPShape.Name = "textBoxTotCashPShape";
             this.textBoxTotCashPShape.Size = new System.Drawing.Size(89, 22);
@@ -750,7 +730,7 @@
             // labelTotCash
             // 
             this.labelTotCash.AutoSize = true;
-            this.labelTotCash.Location = new System.Drawing.Point(47, 271);
+            this.labelTotCash.Location = new System.Drawing.Point(51, 397);
             this.labelTotCash.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelTotCash.Name = "labelTotCash";
             this.labelTotCash.Size = new System.Drawing.Size(112, 17);
@@ -759,7 +739,7 @@
             // 
             // textBoxTotCash
             // 
-            this.textBoxTotCash.Location = new System.Drawing.Point(179, 267);
+            this.textBoxTotCash.Location = new System.Drawing.Point(183, 393);
             this.textBoxTotCash.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxTotCash.Name = "textBoxTotCash";
             this.textBoxTotCash.Size = new System.Drawing.Size(89, 22);
@@ -768,7 +748,7 @@
             // labelEBITDA
             // 
             this.labelEBITDA.AutoSize = true;
-            this.labelEBITDA.Location = new System.Drawing.Point(96, 245);
+            this.labelEBITDA.Location = new System.Drawing.Point(100, 371);
             this.labelEBITDA.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelEBITDA.Name = "labelEBITDA";
             this.labelEBITDA.Size = new System.Drawing.Size(57, 17);
@@ -777,7 +757,7 @@
             // 
             // textBoxEBITDA
             // 
-            this.textBoxEBITDA.Location = new System.Drawing.Point(179, 241);
+            this.textBoxEBITDA.Location = new System.Drawing.Point(183, 367);
             this.textBoxEBITDA.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxEBITDA.Name = "textBoxEBITDA";
             this.textBoxEBITDA.Size = new System.Drawing.Size(89, 22);
@@ -786,7 +766,7 @@
             // labelRevenuePerShape
             // 
             this.labelRevenuePerShape.AutoSize = true;
-            this.labelRevenuePerShape.Location = new System.Drawing.Point(27, 219);
+            this.labelRevenuePerShape.Location = new System.Drawing.Point(31, 345);
             this.labelRevenuePerShape.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelRevenuePerShape.Name = "labelRevenuePerShape";
             this.labelRevenuePerShape.Size = new System.Drawing.Size(130, 17);
@@ -795,7 +775,7 @@
             // 
             // textBoxRevPerShape
             // 
-            this.textBoxRevPerShape.Location = new System.Drawing.Point(179, 215);
+            this.textBoxRevPerShape.Location = new System.Drawing.Point(183, 341);
             this.textBoxRevPerShape.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxRevPerShape.Name = "textBoxRevPerShape";
             this.textBoxRevPerShape.Size = new System.Drawing.Size(89, 22);
@@ -804,7 +784,7 @@
             // labelRevenue
             // 
             this.labelRevenue.AutoSize = true;
-            this.labelRevenue.Location = new System.Drawing.Point(89, 193);
+            this.labelRevenue.Location = new System.Drawing.Point(93, 319);
             this.labelRevenue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelRevenue.Name = "labelRevenue";
             this.labelRevenue.Size = new System.Drawing.Size(65, 17);
@@ -813,7 +793,7 @@
             // 
             // textBoxRevenue
             // 
-            this.textBoxRevenue.Location = new System.Drawing.Point(179, 190);
+            this.textBoxRevenue.Location = new System.Drawing.Point(183, 316);
             this.textBoxRevenue.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxRevenue.Name = "textBoxRevenue";
             this.textBoxRevenue.Size = new System.Drawing.Size(89, 22);
@@ -822,7 +802,7 @@
             // labelRetOnAssests
             // 
             this.labelRetOnAssests.AutoSize = true;
-            this.labelRetOnAssests.Location = new System.Drawing.Point(23, 167);
+            this.labelRetOnAssests.Location = new System.Drawing.Point(27, 293);
             this.labelRetOnAssests.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelRetOnAssests.Name = "labelRetOnAssests";
             this.labelRetOnAssests.Size = new System.Drawing.Size(136, 17);
@@ -831,7 +811,7 @@
             // 
             // textBoxRetOnAssets
             // 
-            this.textBoxRetOnAssets.Location = new System.Drawing.Point(179, 164);
+            this.textBoxRetOnAssets.Location = new System.Drawing.Point(183, 290);
             this.textBoxRetOnAssets.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxRetOnAssets.Name = "textBoxRetOnAssets";
             this.textBoxRetOnAssets.Size = new System.Drawing.Size(89, 22);
@@ -840,7 +820,7 @@
             // labelEVRev
             // 
             this.labelEVRev.AutoSize = true;
-            this.labelEVRev.Location = new System.Drawing.Point(96, 142);
+            this.labelEVRev.Location = new System.Drawing.Point(100, 268);
             this.labelEVRev.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelEVRev.Name = "labelEVRev";
             this.labelEVRev.Size = new System.Drawing.Size(55, 17);
@@ -849,7 +829,7 @@
             // 
             // textBoxEVRev
             // 
-            this.textBoxEVRev.Location = new System.Drawing.Point(179, 138);
+            this.textBoxEVRev.Location = new System.Drawing.Point(183, 264);
             this.textBoxEVRev.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxEVRev.Name = "textBoxEVRev";
             this.textBoxEVRev.Size = new System.Drawing.Size(89, 22);
@@ -870,7 +850,7 @@
             // labelPEG
             // 
             this.labelPEG.AutoSize = true;
-            this.labelPEG.Location = new System.Drawing.Point(-4, 116);
+            this.labelPEG.Location = new System.Drawing.Point(0, 242);
             this.labelPEG.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPEG.Name = "labelPEG";
             this.labelPEG.Size = new System.Drawing.Size(164, 17);
@@ -879,7 +859,7 @@
             // 
             // textBoxPEG
             // 
-            this.textBoxPEG.Location = new System.Drawing.Point(179, 112);
+            this.textBoxPEG.Location = new System.Drawing.Point(183, 238);
             this.textBoxPEG.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxPEG.Name = "textBoxPEG";
             this.textBoxPEG.Size = new System.Drawing.Size(89, 22);
@@ -888,7 +868,7 @@
             // labelEntVal
             // 
             this.labelEntVal.AutoSize = true;
-            this.labelEntVal.Location = new System.Drawing.Point(47, 90);
+            this.labelEntVal.Location = new System.Drawing.Point(51, 216);
             this.labelEntVal.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelEntVal.Name = "labelEntVal";
             this.labelEntVal.Size = new System.Drawing.Size(111, 17);
@@ -897,7 +877,7 @@
             // 
             // textBoxEntVal
             // 
-            this.textBoxEntVal.Location = new System.Drawing.Point(179, 86);
+            this.textBoxEntVal.Location = new System.Drawing.Point(183, 212);
             this.textBoxEntVal.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxEntVal.Name = "textBoxEntVal";
             this.textBoxEntVal.Size = new System.Drawing.Size(89, 22);
@@ -906,7 +886,7 @@
             // labelMarketCap
             // 
             this.labelMarketCap.AutoSize = true;
-            this.labelMarketCap.Location = new System.Drawing.Point(76, 64);
+            this.labelMarketCap.Location = new System.Drawing.Point(80, 190);
             this.labelMarketCap.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelMarketCap.Name = "labelMarketCap";
             this.labelMarketCap.Size = new System.Drawing.Size(78, 17);
@@ -915,51 +895,49 @@
             // 
             // textBoxMarketCap
             // 
-            this.textBoxMarketCap.Location = new System.Drawing.Point(179, 60);
+            this.textBoxMarketCap.Location = new System.Drawing.Point(183, 186);
             this.textBoxMarketCap.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxMarketCap.Name = "textBoxMarketCap";
             this.textBoxMarketCap.Size = new System.Drawing.Size(89, 22);
             this.textBoxMarketCap.TabIndex = 50;
             // 
-            // panel2
+            // panelCommon
             // 
-            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel2.Controls.Add(this.labelGrossPerc);
-            this.panel2.Controls.Add(this.labelSymbol);
-            this.panel2.Controls.Add(this.labelCommonCoefs);
-            this.panel2.Controls.Add(this.labelGrossProfit);
-            this.panel2.Controls.Add(this.textBoxGrossProfit);
-            this.panel2.Controls.Add(this.labelOperMargin);
-            this.panel2.Controls.Add(this.textBoxOperatingMargin);
-            this.panel2.Controls.Add(this.labelProfitMargin);
-            this.panel2.Controls.Add(this.textBoxProfitMargin);
-            this.panel2.Controls.Add(this.labelQEG);
-            this.panel2.Controls.Add(this.textBoxQEG);
-            this.panel2.Controls.Add(this.labelPriceUSD);
-            this.panel2.Controls.Add(this.textBoxStockPriceUSD);
-            this.panel2.Controls.Add(this.labelEPS);
-            this.panel2.Controls.Add(this.textBoxEPS);
-            this.panel2.Controls.Add(this.labelROE);
-            this.panel2.Controls.Add(this.textBoxROE);
-            this.panel2.Controls.Add(this.labelPBV);
-            this.panel2.Controls.Add(this.textBoxPBV);
-            this.panel2.Controls.Add(this.labelPS);
-            this.panel2.Controls.Add(this.textBoxPS);
-            this.panel2.Controls.Add(this.labelPE);
-            this.panel2.Controls.Add(this.textBoxPE);
-            this.panel2.Controls.Add(this.labelPriceRub);
-            this.panel2.Controls.Add(this.textBoxStockPrice);
-            this.panel2.Controls.Add(this.textBoxStockSymbol);
-            this.panel2.Location = new System.Drawing.Point(24, 69);
-            this.panel2.Margin = new System.Windows.Forms.Padding(4);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(449, 567);
-            this.panel2.TabIndex = 56;
+            this.panelCommon.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelCommon.Controls.Add(this.labelGrossPerc);
+            this.panelCommon.Controls.Add(this.labelSymbol);
+            this.panelCommon.Controls.Add(this.labelCommonCoefs);
+            this.panelCommon.Controls.Add(this.labelGrossProfit);
+            this.panelCommon.Controls.Add(this.textBoxGrossProfit);
+            this.panelCommon.Controls.Add(this.labelOperMargin);
+            this.panelCommon.Controls.Add(this.textBoxOperatingMargin);
+            this.panelCommon.Controls.Add(this.labelProfitMargin);
+            this.panelCommon.Controls.Add(this.textBoxProfitMargin);
+            this.panelCommon.Controls.Add(this.labelQEG);
+            this.panelCommon.Controls.Add(this.textBoxQEG);
+            this.panelCommon.Controls.Add(this.labelPriceUSD);
+            this.panelCommon.Controls.Add(this.textBoxStockPriceUSD);
+            this.panelCommon.Controls.Add(this.labelEPS);
+            this.panelCommon.Controls.Add(this.textBoxEPS);
+            this.panelCommon.Controls.Add(this.labelROE);
+            this.panelCommon.Controls.Add(this.textBoxROE);
+            this.panelCommon.Controls.Add(this.labelPBV);
+            this.panelCommon.Controls.Add(this.textBoxPBV);
+            this.panelCommon.Controls.Add(this.labelPS);
+            this.panelCommon.Controls.Add(this.textBoxPS);
+            this.panelCommon.Controls.Add(this.labelPriceRub);
+            this.panelCommon.Controls.Add(this.textBoxStockPrice);
+            this.panelCommon.Controls.Add(this.textBoxStockSymbol);
+            this.panelCommon.Location = new System.Drawing.Point(24, 69);
+            this.panelCommon.Margin = new System.Windows.Forms.Padding(4);
+            this.panelCommon.Name = "panelCommon";
+            this.panelCommon.Size = new System.Drawing.Size(449, 567);
+            this.panelCommon.TabIndex = 56;
             // 
             // labelGrossPerc
             // 
             this.labelGrossPerc.AutoSize = true;
-            this.labelGrossPerc.Location = new System.Drawing.Point(53, 412);
+            this.labelGrossPerc.Location = new System.Drawing.Point(45, 547);
             this.labelGrossPerc.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelGrossPerc.Name = "labelGrossPerc";
             this.labelGrossPerc.Size = new System.Drawing.Size(95, 17);
@@ -991,7 +969,7 @@
             // labelGrossProfit
             // 
             this.labelGrossProfit.AutoSize = true;
-            this.labelGrossProfit.Location = new System.Drawing.Point(61, 396);
+            this.labelGrossProfit.Location = new System.Drawing.Point(53, 531);
             this.labelGrossProfit.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelGrossProfit.Name = "labelGrossProfit";
             this.labelGrossProfit.Size = new System.Drawing.Size(82, 17);
@@ -1000,7 +978,7 @@
             // 
             // textBoxGrossProfit
             // 
-            this.textBoxGrossProfit.Location = new System.Drawing.Point(163, 393);
+            this.textBoxGrossProfit.Location = new System.Drawing.Point(155, 528);
             this.textBoxGrossProfit.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxGrossProfit.Name = "textBoxGrossProfit";
             this.textBoxGrossProfit.Size = new System.Drawing.Size(89, 22);
@@ -1009,7 +987,7 @@
             // labelOperMargin
             // 
             this.labelOperMargin.AutoSize = true;
-            this.labelOperMargin.Location = new System.Drawing.Point(7, 361);
+            this.labelOperMargin.Location = new System.Drawing.Point(-1, 496);
             this.labelOperMargin.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelOperMargin.Name = "labelOperMargin";
             this.labelOperMargin.Size = new System.Drawing.Size(138, 17);
@@ -1018,7 +996,7 @@
             // 
             // textBoxOperatingMargin
             // 
-            this.textBoxOperatingMargin.Location = new System.Drawing.Point(163, 357);
+            this.textBoxOperatingMargin.Location = new System.Drawing.Point(155, 492);
             this.textBoxOperatingMargin.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxOperatingMargin.Name = "textBoxOperatingMargin";
             this.textBoxOperatingMargin.Size = new System.Drawing.Size(89, 22);
@@ -1027,7 +1005,7 @@
             // labelProfitMargin
             // 
             this.labelProfitMargin.AutoSize = true;
-            this.labelProfitMargin.Location = new System.Drawing.Point(36, 325);
+            this.labelProfitMargin.Location = new System.Drawing.Point(28, 460);
             this.labelProfitMargin.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelProfitMargin.Name = "labelProfitMargin";
             this.labelProfitMargin.Size = new System.Drawing.Size(108, 17);
@@ -1036,7 +1014,7 @@
             // 
             // textBoxProfitMargin
             // 
-            this.textBoxProfitMargin.Location = new System.Drawing.Point(163, 321);
+            this.textBoxProfitMargin.Location = new System.Drawing.Point(155, 456);
             this.textBoxProfitMargin.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxProfitMargin.Name = "textBoxProfitMargin";
             this.textBoxProfitMargin.Size = new System.Drawing.Size(89, 22);
@@ -1045,7 +1023,7 @@
             // labelQEG
             // 
             this.labelQEG.AutoSize = true;
-            this.labelQEG.Location = new System.Drawing.Point(-3, 289);
+            this.labelQEG.Location = new System.Drawing.Point(-11, 424);
             this.labelQEG.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelQEG.Name = "labelQEG";
             this.labelQEG.Size = new System.Drawing.Size(149, 17);
@@ -1054,7 +1032,7 @@
             // 
             // textBoxQEG
             // 
-            this.textBoxQEG.Location = new System.Drawing.Point(163, 286);
+            this.textBoxQEG.Location = new System.Drawing.Point(155, 421);
             this.textBoxQEG.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxQEG.Name = "textBoxQEG";
             this.textBoxQEG.Size = new System.Drawing.Size(89, 22);
@@ -1505,8 +1483,8 @@
             this.panelMain.PerformLayout();
             this.panelUSACoefs.ResumeLayout(false);
             this.panelUSACoefs.PerformLayout();
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
+            this.panelCommon.ResumeLayout(false);
+            this.panelCommon.PerformLayout();
             this.panelRussiaCoefs.ResumeLayout(false);
             this.panelRussiaCoefs.PerformLayout();
             this.panel5.ResumeLayout(false);
@@ -1537,8 +1515,6 @@
         private System.Windows.Forms.CheckBox checkBoxIsStarred;
         private System.Windows.Forms.Label labelPriceRub;
         private System.Windows.Forms.TextBox textBoxStockPrice;
-        private System.Windows.Forms.Label labelPE;
-        private System.Windows.Forms.TextBox textBoxPE;
         private System.Windows.Forms.Label labelPS;
         private System.Windows.Forms.TextBox textBoxPS;
         private System.Windows.Forms.Label labelPBV;
@@ -1575,7 +1551,7 @@
         private System.Windows.Forms.TextBox textBoxProfitMargin;
         private System.Windows.Forms.Label labelQEG;
         private System.Windows.Forms.TextBox textBoxQEG;
-        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Panel panelCommon;
         private System.Windows.Forms.Label labelCommonCoefs;
         private System.Windows.Forms.Label labelSymbol;
         private System.Windows.Forms.Panel panelRussiaCoefs;
