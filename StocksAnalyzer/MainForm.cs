@@ -36,8 +36,8 @@ namespace StocksAnalyzer
             ToolTip t = new ToolTip();
             var yStep = 25;
             var positionCommon = new Point(textBoxStockPriceUSD.Location.X, textBoxStockPriceUSD.Location.Y + yStep);
-            var positionUsa = labelUSAPanel.Location;
-            var positionRus = labelRussiaPanel.Location;
+            var positionUsa = new Point(labelUSAPanel.Location.X + 200, labelUSAPanel.Location.Y + yStep);
+            var positionRus = new Point(labelRussiaPanel.Location.X + 200, labelRussiaPanel.Location.Y + yStep);
             foreach (var coef in Coefficient.CoefficientList)
             {
                 Point position;
@@ -82,7 +82,7 @@ namespace StocksAnalyzer
                 Text = text
             };// maybe add TabIndex?
             AddControlToPanel(lbl, isUsa, isRus);
-            lbl.Location = new Point(position.X - lbl.Size.Width - 14, position.Y+3);
+            lbl.Location = new Point(position.X - lbl.Size.Width - 14, position.Y + 3);
             return lbl;
         }
 
@@ -485,7 +485,7 @@ namespace StocksAnalyzer
             stopwatch.Start();
             await Task.Run(() =>
             {
-                Analyzer.Analyze(MainClass.Stocks, labelRemainingTime);
+                Analyzer.Analyze(MainClass.Stocks);
             });
 
             stopwatch.Stop();

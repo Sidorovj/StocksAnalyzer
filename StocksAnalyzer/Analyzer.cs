@@ -24,6 +24,18 @@ namespace StocksAnalyzer
 		/// </summary>
 		public static Dictionary<string, Dictionary<Stock, Rating>> Rating = new Dictionary<string, Dictionary<Stock, Rating>>();
 
+		private static string OutputFileName
+		{
+			get
+			{
+				if (!Directory.Exists(Const.AnalysisDirName))
+					Directory.CreateDirectory(Const.AnalysisDirName);
+				return $"{Const.AnalysisDirName}/Analyzed_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
+			}
+		}
+
+		private static string InputFileName => $"{Const.SettingsDirName}/analystSettings.csv";
+
 		#region Funcstions:public
 
 		/// <summary>
@@ -35,34 +47,31 @@ namespace StocksAnalyzer
 			string data = "Название акции;Market;";
 			if (!Directory.Exists(Const.AnalysisDirName))
 				Directory.CreateDirectory(Const.AnalysisDirName);
-			using (var sWrite = new StreamWriter($"{Const.AnalysisDirName}/Analyzed_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv", true, Encoding.UTF8))
-			using (var streamCoefs = new StreamReader($"{Const.SettingsDirName}/analystSettings.csv"))
+			using (var sWrite = new StreamWriter(OutputFileName, true, Encoding.UTF8))
+			using (var streamCoefs = new StreamReader(InputFileName))
 			{
-				string[] coefsName = streamCoefs.ReadLine()?.Split(';');
-				List<string> coefs = new List<string>();
-				Dictionary<string, Dictionary<string, double>> funcs =
-					new Dictionary<string, Dictionary<string, double>>();
+				string[] coefsName =
+					streamCoefs.ReadLine()?.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries) ??
+					throw new ArgumentNullException(nameof(coefsName));
+				Dictionary<string, Dictionary<string, double?>> funcs =
+					new Dictionary<string, Dictionary<string, double?>>();
 
-				Debug.Assert(coefsName != null, "coefsName == null");
-				foreach (var coef in coefsName)
-					if (coef != "")
-						coefs.Add(coef);
 				while (!streamCoefs.EndOfStream)
 				{
-					coefsName = streamCoefs.ReadLine()?.Split(';');
-					Debug.Assert(coefsName != null, "coefsName == null");
-					if (coefsName.Length == 0 || coefsName[0] == "")
+					string[] coefs = streamCoefs.ReadLine()?.Split(';') ??
+									 throw new ArgumentNullException(nameof(coefs));
+					if (coefs.Length == 0 || coefs[0] == "")
 						continue;
-					funcs.Add(coefsName[0], new Dictionary<string, double>());
-					funcs.TryGetValue(coefsName[0], out var coefVals);
-					for (var i = 1; i < coefsName.Length; i++)
-						if (Math.Abs(coefsName[i].ParseCoefStrToDouble() ?? 0) > MainClass.Tolerance)
-							coefVals?.Add(coefs[i - 1], coefsName[i].ParseCoefStrToDouble() ?? throw new ArgumentNullException());
+					funcs.Add(coefs[0], new Dictionary<string, double?>());
+					funcs.TryGetValue(coefs[0], out var coefVals);
+					for (var i = 1; i < coefs.Length; i++)
+						if (Math.Abs(coefs[i].ParseCoefStrToDouble() ?? 0) > MainClass.Tolerance)
+							coefVals?.Add(coefsName[i - 1], coefs[i].ParseCoefStrToDouble());
 				}
 				foreach (var str in funcs.Keys)
 					data += str + ';';
 				data += "1;";
-				foreach (var str in coefs)
+				foreach (var str in coefsName)
 					data += str + ';';
 				sWrite.WriteLine(data);
 				data = "";
@@ -83,7 +92,7 @@ namespace StocksAnalyzer
 						}
 						foreach (string param in funcs[func].Keys)
 						{
-							res += values[param] * funcs[func][param];
+							res += values[param] * funcs[func][param] ?? 0;
 						}
 						if (func == "MainPE")
 							st.MainPe = res;
@@ -100,7 +109,6 @@ namespace StocksAnalyzer
 					data = "";
 				}
 
-				sWrite.Write(data);
 				SetRatings(list);
 			}
 		}
@@ -170,7 +178,6 @@ namespace StocksAnalyzer
 		}
 		private static double CurrLiq(this double coef)
 		{
-
 			return Math.Abs(coef) < MainClass.Tolerance ? 0 : 1 - (Math.Abs(coef - 2.5));
 		}
 		private static double DebtEbitda(this double coef, bool b = false)
@@ -199,6 +206,12 @@ namespace StocksAnalyzer
 		}
 		private static void AddAllStockData(Dictionary<string, double> values, Stock st)
 		{
+			//if (st.Market.Location == StockMarketLocation.Usa)
+			//	values.Add("GRP", (Math.Abs(st["MarketCap"]) < MainClass.Tolerance ? 0 : st["ProfitMarg"] / st["MarketCap"]).SqrFromPercent());
+			//else if (st.Market.Location == StockMarketLocation.Russia)
+			//	values.Add("GRP", st["GrossProfit"].SqrFromPercent());
+
+
 			//values.Add("PE", st["PriceToEquity"].Pe());
 			//values.Add("PS", st["PriceToSales"].Ps());
 			//values.Add("PBV", st["PriceToBook"].Pbv());
@@ -207,10 +220,6 @@ namespace StocksAnalyzer
 			//values.Add("QEG", st["Qeg"].SqrFromPercent());
 			//values.Add("PRM", st["ProfitMarg"].SqrFromPercent());
 			//values.Add("OPM", st["OperMarg"].SqrFromPercent());
-			//if (st.Market.Location == StockMarketLocation.Usa)
-			//	values.Add("GRP", (Math.Abs(st["MarketCap"]) < MainClass.Tolerance ? 0 : st["ProfitMarg"] / st["MarketCap"]).SqrFromPercent());
-			//else if (st.Market.Location == StockMarketLocation.Russia)
-			//	values.Add("GRP", st["GrossProfit"].SqrFromPercent());
 
 			//values.Add("GRP5", st["GrossProfit5Ya"].SqrFromPercent());
 			//values.Add("PRM5", st["ProfitMarg5Ya"].SqrFromPercent());

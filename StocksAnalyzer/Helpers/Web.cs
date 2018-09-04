@@ -38,17 +38,17 @@ namespace StocksAnalyzer
 			webReq.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.103 YaBrowser/18.7.0.2695 Yowser/2.5 Safari/537.36";
 			try
 			{
-				using (HttpWebResponse response = (HttpWebResponse)await webReq.GetResponseAsync())
+				using (HttpWebResponse response = (HttpWebResponse)await webReq.GetResponseAsync().ConfigureAwait(false))
 				using (Stream stream = response.GetResponseStream())
 				using (StreamReader reader = new StreamReader(stream ?? throw new InvalidOperationException($"Response stream is null, url={url}")))
 				{
-				    return await reader.ReadToEndAsync();
+				    return await reader.ReadToEndAsync().ConfigureAwait(false);
 				}
 			}
 			catch (Exception ex)
 			{
 			    if (triesCount < MaxTriesCount)
-			        return await Get(url, triesCount + 1);
+			        return await Get(url, triesCount + 1).ConfigureAwait(false);
                 if (ex is WebException wex)
 					using (var stream = wex.Response?.GetResponseStream())
 					{

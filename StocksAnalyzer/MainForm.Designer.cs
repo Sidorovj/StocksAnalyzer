@@ -425,7 +425,7 @@
             this.panelUSACoefs.Location = new System.Drawing.Point(619, 69);
             this.panelUSACoefs.Margin = new System.Windows.Forms.Padding(4);
             this.panelUSACoefs.Name = "panelUSACoefs";
-            this.panelUSACoefs.Size = new System.Drawing.Size(394, 567);
+            this.panelUSACoefs.Size = new System.Drawing.Size(482, 787);
             this.panelUSACoefs.TabIndex = 57;
             // 
             // labelUSAPanel
@@ -453,7 +453,7 @@
             this.panelCommon.Location = new System.Drawing.Point(24, 69);
             this.panelCommon.Margin = new System.Windows.Forms.Padding(4);
             this.panelCommon.Name = "panelCommon";
-            this.panelCommon.Size = new System.Drawing.Size(449, 567);
+            this.panelCommon.Size = new System.Drawing.Size(466, 787);
             this.panelCommon.TabIndex = 56;
             // 
             // labelSymbol
