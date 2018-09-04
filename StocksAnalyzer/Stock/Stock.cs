@@ -21,84 +21,36 @@ namespace StocksAnalyzer
         public string FullName => $"{Name} [{Market.Location}]";
         public bool IsOnTinkoff { get; private set; }
         public bool TinkoffScanned { get; private set; }
+		public double Price { get; set; }
 
+	    private Dictionary<string, double?> CoefficientsValues { get; } = new Dictionary<string, double?>(Coefficient.CoefficientList.Count);
 
-        #region Metrics
-        public double MainPe { get; set; }
+		#region Metrics
+		public double MainPe { get; set; }
         public double Main { get; set; }
         public double MainAll { get; set; }
         public int RateMainPe { get; set; }
         public int RateMain { get; set; }
         public int RateMainAll { get; set; }
         #endregion
-
-        #region Main properties
-        public double Price { get; set; }
-        public Dictionary<Coefficient, double> CoefficientsValues { get; } = new Dictionary<Coefficient, double>(Coefficient.CoefficientList.Count);
-        //      public double PriceToEquity { get; set; }
-        //public double PriceToSales { get; set; }
-        //public double PriceToBook { get; set; }
-        //public double EVtoEbitda { get; set; }
-        //public double DebtToEbitda { get; set; }
-        //public double Roe { get; set; }
-        //public double Eps { get; set; }
-        //#endregion
-
-        //#region Other properties
-        //public double Qeg { get; set; }
-        //public double ProfitMarg { get; set; }
-        //public double ProfitMarg5Ya { get; set; }
-        //public double OperMarg { get; set; }
-        //public double OperMarg5Ya { get; set; }
-        //public double GrossProfit { get; set; }
-        //public double GrossProfit5Ya { get; set; }
-        //public double MarketCap { get; set; }
-        //public double Ev { get; set; }
-        //public double Peg { get; set; }
-        //public double EvRev { get; set; }
-        //public double RetOnAssets { get; set; }
-        //public double Revenue { get; set; }
-        //public double RevPerShare { get; set; }
-        //public double Ebitda { get; set; }
-        //public double TotalCash { get; set; }
-        //public double TotalCashPerShare { get; set; }
-        //public double TotalDebt { get; set; }
-        //public double BookValPerShare { get; set; }
-        //public double OperatingCashFlow { get; set; }
-        //public double LeveredFreeCashFlow { get; set; }
-        //public double TotalShares { get; set; }
-        //public double ProfitCoef { get; set; }
-        //public double ProfitCoef5Ya { get; set; }
-        //public double ProfitOn12MToAnalogYearAgo { get; set; }
-        //public double GrowProfitPerShare5Y { get; set; }
-        //public double CapExpenseGrow5Y { get; set; }
-        //public double UrgentLiquidityCoef { get; set; }
-        //public double CurrentLiquidityCoef { get; set; }
-        #endregion
+		
 
         public override string ToString()
         {
             return Name;
         }
 
-        public double this[string ind]
+        //TODO:make it private
+        public double? this[string ind]
         {
-            get
-            {
-                var coef = Coefficient.CoefficientList.FirstOrDefault(c => c.Name == ind) ?? throw new ArgumentNullException($"Нету такого коэф. с именем = {ind}");
-                return CoefficientsValues[coef];
-            }
-            set
-            {
-                var coef = Coefficient.CoefficientList.FirstOrDefault(c => c.Name == ind) ?? throw new ArgumentNullException($"Нету такого коэф. с именем = {ind}");
-                CoefficientsValues[coef] = value;
-            }
+            get => CoefficientsValues[ind];
+            set => CoefficientsValues[ind] = value;
         }
 
-        public double this[Coefficient coef]
+        public double? this[Coefficient coef]
         {
-            get => CoefficientsValues[coef];
-            set => CoefficientsValues[coef] = value;
+            get => this[coef.Name];
+            set => this[coef.Name] = value;
         }
 
         public Stock(string name, double price, StockMarket mar, string symb = "")
@@ -111,7 +63,7 @@ namespace StocksAnalyzer
             IsOnTinkoff = TinkoffScanned = mar.Location == StockMarketLocation.Russia;
             foreach (var coef in Coefficient.CoefficientList)
             {
-                CoefficientsValues[coef] = -1;
+                CoefficientsValues[coef.Name] = null;
 
             }
         }
@@ -148,9 +100,6 @@ namespace StocksAnalyzer
                 if (jsonReponse["payload"]?["code"]?.Value<string>() == "RequestRateLimitExceeded")
                 {
                     await Task.Delay(60 * 1000);
-
-                    //именно спим, чтобы блокировать остальные вызовы
-                    //Thread.Sleep(60 * 1000);
                 }
                 else
                 {

@@ -42,20 +42,14 @@ namespace StocksAnalyzer
 				using (Stream stream = response.GetResponseStream())
 				using (StreamReader reader = new StreamReader(stream ?? throw new InvalidOperationException($"Response stream is null, url={url}")))
 				{
-					try
-					{
-						return await reader.ReadToEndAsync();
-					}
-					catch (Exception ex)
-					{
-						Logger.Log.Error($"Requested url: {url}\r\nError: {ex.Message}");
-						throw;
-					}
+				    return await reader.ReadToEndAsync();
 				}
 			}
 			catch (Exception ex)
 			{
-				if (ex is WebException wex)
+			    if (triesCount < MaxTriesCount)
+			        return await Get(url, triesCount + 1);
+                if (ex is WebException wex)
 					using (var stream = wex.Response?.GetResponseStream())
 					{
 						if (stream != null)
@@ -66,8 +60,6 @@ namespace StocksAnalyzer
 					Logger.Log.Error($"Requested url: {url}\r\n{nameof(triesCount)}={triesCount}\r\nMessage: {ex.Message}");
 				}
 
-				if (triesCount < MaxTriesCount)
-					return await Get(url, triesCount + 1);
 				throw;
 			}
 		}

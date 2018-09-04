@@ -30,6 +30,11 @@ namespace StocksAnalyzer
 
         }
 
+	    public override string ToString()
+	    {
+		    return Name;
+	    }
+
         static Coefficient()
         {
             using (var reader = new StreamReader($"{Const.SettingsDirName}/{Const.CoefficientsSettings}"))

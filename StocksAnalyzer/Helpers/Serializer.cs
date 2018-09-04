@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace StocksAnalyzer
@@ -37,8 +39,15 @@ namespace StocksAnalyzer
             using (var fs = new FileStream(m_mCurrentFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 BinaryFormatter bf = new BinaryFormatter();
-                var obj = bf.Deserialize(fs);
-                return obj;
+                try
+                {
+                    return bf.Deserialize(fs);
+                }
+                catch (ArgumentException ser)
+                {
+                    MainClass.WriteLog(ser);
+                    return null;
+                }
             }
         }
     }

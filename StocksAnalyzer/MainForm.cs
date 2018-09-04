@@ -21,8 +21,8 @@ namespace StocksAnalyzer
         private readonly List<string> m_bestStocksNames = new List<string>();
         private List<Stock> m_selectedList;
         private Stock m_selectedStock;
-        private Dictionary<Coefficient, Label> CoefsLabels { get; } = new Dictionary<Coefficient, Label>(Coefficient.CoefficientList.Count);
-        private Dictionary<Coefficient, TextBox> CoefsTextboxes { get; } = new Dictionary<Coefficient, TextBox>(Coefficient.CoefficientList.Count);
+        private Dictionary<string, Label> CoefsLabels { get; } = new Dictionary<string, Label>(Coefficient.CoefficientList.Count);
+        private Dictionary<string, TextBox> CoefsTextboxes { get; } = new Dictionary<string, TextBox>(Coefficient.CoefficientList.Count);
 
         public MainForm()
         {
@@ -34,14 +34,32 @@ namespace StocksAnalyzer
             FormClosing += Form1_FormClosing;
 
             ToolTip t = new ToolTip();
-            var position = textBoxStockPriceUSD.Location;
+            var yStep = 25;
+            var positionCommon = new Point(textBoxStockPriceUSD.Location.X, textBoxStockPriceUSD.Location.Y + yStep);
+            var positionUsa = labelUSAPanel.Location;
+            var positionRus = labelRussiaPanel.Location;
             foreach (var coef in Coefficient.CoefficientList)
             {
-                position.Y += 15;
-                CoefsTextboxes[coef] = CreateTextbox(coef.Name, coef.IsUSA, coef.IsRus, position);
+                Point position;
+                if (coef.IsCommon)
+                {
+                    position = positionCommon;
+                    positionCommon.Y += yStep;
+                }
+                else if (coef.IsUSA)
+                {
+                    position = positionUsa;
+                    positionUsa.Y += yStep;
+                }
+                else
+                {
+                    position = positionRus;
+                    positionRus.Y += yStep;
+                }
+                CoefsTextboxes[coef.Name] = CreateTextbox(coef.Name, coef.IsUSA, coef.IsRus, position);
 
-                var label = CreateLabel(coef.Name, coef.Label, coef.IsUSA, coef.IsRus);
-                CoefsLabels[coef] = label;
+                var label = CreateLabel(coef.Name, coef.Label, coef.IsUSA, coef.IsRus, position);
+                CoefsLabels[coef.Name] = label;
                 if (!string.IsNullOrEmpty(coef.Tooltip))
                     t.SetToolTip(label, coef.Tooltip);
             }
@@ -54,18 +72,17 @@ namespace StocksAnalyzer
         }
 
 
-        private Label CreateLabel(string name, string text, bool isUsa, bool isRus)
+        private Label CreateLabel(string name, string text, bool isUsa, bool isRus, Point position)
         {
             Label lbl = new Label
             {
                 AutoSize = true,
-                Location = new System.Drawing.Point(98, 156),
                 Margin = new Padding(4, 0, 4, 0),
                 Name = $"label{name}",
-                Size = new System.Drawing.Size(30, 17),
                 Text = text
             };// maybe add TabIndex?
             AddControlToPanel(lbl, isUsa, isRus);
+            lbl.Location = new Point(position.X - lbl.Size.Width - 14, position.Y+3);
             return lbl;
         }
 
@@ -76,7 +93,7 @@ namespace StocksAnalyzer
                 Location = position,
                 Margin = new Padding(4),
                 Name = $"textBox{name}",
-                Size = new System.Drawing.Size(100, 22)
+                Size = new Size(100, 22)
             };
             AddControlToPanel(tb, isUsa, isRus);
             return tb;
@@ -161,7 +178,7 @@ namespace StocksAnalyzer
             textBoxStockLastUpdated.Text = m_selectedStock.LastUpdate.ToString(CultureInfo.InvariantCulture);
             foreach (var coef in Coefficient.CoefficientList)
             {
-                CoefsTextboxes[coef].Text = m_selectedStock[coef].ToCuteStr();
+                CoefsTextboxes[coef.Name].Text = m_selectedStock[coef].ToCuteStr();
             }
             if (getNewInfo)
                 labelDone.Visible = true;
