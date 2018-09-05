@@ -23,7 +23,7 @@ namespace StocksAnalyzer
         public bool TinkoffScanned { get; private set; }
 		public double Price { get; set; }
 
-	    public Dictionary<string, double?> CoefficientsValues { get; } = new Dictionary<string, double?>(Coefficient.CoefficientList.Count);
+	    private Dictionary<string, double?> CoefficientsValues { get; } = new Dictionary<string, double?>(Coefficient.CoefficientList.Count);
 
 		#region Metrics
 		public double MainPe { get; set; }
@@ -40,12 +40,9 @@ namespace StocksAnalyzer
             return Name;
         }
 
-        public void CalculateCoefs()
+        public void CalculateCoef(Coefficient coef)
         {
-            foreach (var coef in CoefficientsValues.Keys)
-            {
-                
-            }
+	        this[coef] = coef.CalculateCoef(CoefficientsValues);
         }
 
 

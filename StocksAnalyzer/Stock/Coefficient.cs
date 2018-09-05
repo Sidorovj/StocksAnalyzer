@@ -83,6 +83,8 @@ namespace StocksAnalyzer
 		{
 			// TODO: http://mathparser.org/mxparser-math-collection/unary-functions/
 			// Заполнить соответствующие формулы в эксельнике
+			// Построить метрику по кубической функции (мб брать из нее корень)
+			// 10% = -1, 90% = 1 
 			var formula = m_analyzerFormula;
 			return 0;
 		}

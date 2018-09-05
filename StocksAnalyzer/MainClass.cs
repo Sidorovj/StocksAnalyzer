@@ -268,17 +268,13 @@ namespace StocksAnalyzer
                     {
                         if (coef.IsUSA || coef.IsCommon)
                         {
-                            if (!string.IsNullOrEmpty(coef.SearchInHTML_USA))
-                                st[coef] = GettingYahooData(coef.SearchInHTML_USA, ref htmlCode);
-                            else
-                                st[coef] = coef.CalculateCoef(st.CoefficientsValues);
+	                        if (!string.IsNullOrEmpty(coef.SearchInHTML_USA))
+		                        st[coef] = GettingYahooData(coef.SearchInHTML_USA, ref htmlCode);
+	                        else
+		                        st.CalculateCoef(coef);
                         }
                     }
-
-                    st.CalculateCoefs();
-                    //if (Math.Abs(st["Ebitda"] ?? 0) > Tolerance)
-                    //	st["DebtToEbitda"] = st["TotalDebt"] / st["Ebitda"];
-
+					
                     st.LastUpdate = DateTime.Now;
                 }
                 else if (st.Market.Location == StockMarketLocation.Russia)
