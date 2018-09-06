@@ -94,8 +94,8 @@ namespace StocksAnalyzer
 		/// <param name="path"></param>
 		public static void LoadStockListFromFile(string path = Const.StockListFilePath)
 		{
-			string fullPath = $"{Const.HistoryDirName}/{path}";
-			if (!Directory.Exists(Const.HistoryDirName) || !File.Exists(fullPath))
+			string fullPath = $"{Const.ToRestoreDirName}/{path}";
+			if (!Directory.Exists(Const.ToRestoreDirName) || !File.Exists(fullPath))
 			{
 				WriteLog(@"Не могу найти файл для десериализации");
 				return;
@@ -124,9 +124,9 @@ namespace StocksAnalyzer
 		/// <param name="path">Путь к файлу</param>
 		public static void WriteStockListToFile(string path = Const.StockListFilePath)
 		{
-			if (!Directory.Exists(Const.HistoryDirName))
-				Directory.CreateDirectory(Const.HistoryDirName);
-			Serializer ser = new Serializer($"{Const.HistoryDirName}/{path}");
+			if (!Directory.Exists(Const.ToRestoreDirName))
+				Directory.CreateDirectory(Const.ToRestoreDirName);
+			Serializer ser = new Serializer($"{Const.ToRestoreDirName}/{path}");
 			ser.Serialize(Stocks);
 		}
 
