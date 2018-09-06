@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace StocksAnalyzer
@@ -46,9 +45,18 @@ namespace StocksAnalyzer
                 catch (ArgumentException ser)
                 {
                     MainClass.WriteLog(ser);
-                    return null;
                 }
-            }
-        }
+			}
+			RenameFileIfError(m_mCurrentFilePath);
+			return null;
+		}
+
+	    private void RenameFileIfError(string oldFileName)
+	    {
+		    var i = 1;
+		    while (File.Exists($"{i}_{oldFileName}"))
+			    i++;
+			File.Move(oldFileName, $"{i}_{oldFileName}");
+		}
     }
 }

@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analyzer.cs" />
+    <Compile Include="Helpers\StringParser.cs" />
     <Compile Include="Helpers\Enums.cs" />
     <Compile Include="Settings\Const.cs" />
     <Compile Include="MainForm.cs">

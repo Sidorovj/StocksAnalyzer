@@ -2,6 +2,9 @@
 
 namespace StocksAnalyzer
 {
+	/// <summary>
+	/// На каком рынке торгуется акция
+	/// </summary>
 	[Flags]
 	enum StockMarketLocation
 	{
@@ -10,8 +13,11 @@ namespace StocksAnalyzer
 		London = 20
 	}
 
+	/// <summary>
+	/// Валюта, в которой торгуются акции
+	/// </summary>
 	[Flags]
-	enum StockMarketCurrency //валюта, в которой торгуются акции
+	enum StockMarketCurrency 
 	{
 		Rub = 0,
 		Usd = 10,

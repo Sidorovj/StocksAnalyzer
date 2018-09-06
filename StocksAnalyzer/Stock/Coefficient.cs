@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using org.mariuszgromada.math.mxparser;
+using StocksAnalyzer.Helpers;
 
 // ReSharper disable InconsistentNaming
 
@@ -42,7 +43,7 @@ namespace StocksAnalyzer
 		public bool IsCommon { get; private set; }
 		public bool IsRus { get; private set; }
 		public bool IsUSA { get; private set; }
-		
+
 
 		private string m_analyzerFormula { get; set; }
 		private string m_calculateFormula { get; set; }
@@ -66,6 +67,7 @@ namespace StocksAnalyzer
 		{
 			return Name == coef.Name;
 		}
+
 		public override bool Equals(object coef)
 		{
 			if (coef is Coefficient coefficient)
@@ -83,16 +85,12 @@ namespace StocksAnalyzer
 		public double? CalculateCoef(Dictionary<Coefficient, double?> coefValues)
 		{
 			var formula = m_calculateFormula;
-			foreach (var coef in coefValues.Keys)
+			foreach (var coef in coefValues.Keys.Where(c => m_calculateFormula.Contains($"${{{c}}}")))
 			{
-				string searchStr = $"${{{coef}}}";
-				if (m_calculateFormula.Contains(searchStr))
-				{
-					if (!coefValues[coef].HasValue)
-						return null;
-					formula = formula.Replace(searchStr,
-						coefValues[coef].Value.ToString(CultureInfo.InvariantCulture));
-				}
+				if (!coefValues[coef].HasValue)
+					return null;
+				formula = formula.Replace($"${{{coef}}}",
+					coefValues[coef].Value.ToString(CultureInfo.InvariantCulture));
 			}
 			return ParseAlgebraicFormula(formula);
 		}
@@ -112,13 +110,9 @@ namespace StocksAnalyzer
 			string customFunc = "ssqrt";
 			while (formula.Contains(customFunc))
 			{
-				var index = formula.IndexOf(customFunc, StringComparison.Ordinal);
-				string funct = formula.Substring(index,
-					formula.IndexOf(")", index + 1, StringComparison.Ordinal) - index + 1);
-				var scobeIndex = funct.IndexOf("(", StringComparison.Ordinal) + 1;
-				double? val = funct.Substring(scobeIndex,
-					funct.IndexOf(")", StringComparison.Ordinal) - scobeIndex).ParseCoefStrToDouble();
-				formula = formula.Replace(funct, SignedSqr(val ?? 0).ToString(CultureInfo.InvariantCulture));
+				string valStr = StringParser.GetNumInBracketsForFunction(formula, customFunc);
+				double? val = valStr.ParseCoefStrToDouble();
+				formula = formula.Replace($"{customFunc}({valStr})", SignedSqr(val ?? 0).ToString(CultureInfo.InvariantCulture));
 			}
 			return ParseAlgebraicFormula(formula);
 		}

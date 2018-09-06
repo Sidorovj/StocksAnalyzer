@@ -420,11 +420,9 @@ namespace StocksAnalyzer
 				if (m_selectedStock.PositionInMetricAndCoef.ContainsKey(coef.Name) && Stock.AllStocksInListAnalyzed)
 				{
 					var pos = m_selectedStock.PositionInMetricAndCoef[coef.Name];
-					if (pos != null)
-						PositionLabels[coef.Name].Text =
-							$@"{100 * (Stock.CoefHasValueCount[coef] - (double)pos) / Stock.CoefHasValueCount[coef]:F2}%";
-					else
-						PositionLabels[coef.Name].Text = @" ";
+					PositionLabels[coef.Name].Text = pos != null
+						? $@"{100 * (Stock.CoefHasValueCount[coef] - (double) pos + 1) / Stock.CoefHasValueCount[coef]:F2}%"
+						: @" ";
 				}
 			}
 
@@ -435,11 +433,9 @@ namespace StocksAnalyzer
 				if (m_selectedStock.PositionInMetricAndCoef.ContainsKey(metric) && Stock.AllStocksInListAnalyzed)
 				{
 					var pos = m_selectedStock.PositionInMetricAndCoef[metric];
-					if (pos != null)
-						PositionLabels[metric].Text =
-							$@"{100*(m_selectedList.Count - (double) pos)/m_selectedList.Count:F2}%";
-					else
-						PositionLabels[metric].Text = @" ";
+					PositionLabels[metric].Text = pos != null
+						? $@"{100 * (m_selectedList.Count - (double) pos + 1) / m_selectedList.Count:F2}%"
+						: @" ";
 				}
 			}
 
