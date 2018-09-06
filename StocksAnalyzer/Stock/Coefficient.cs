@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using org.mariuszgromada.math.mxparser;
 
 // ReSharper disable InconsistentNaming
@@ -21,7 +22,12 @@ namespace StocksAnalyzer
 		public static List<string> MetricsList { get; } = new List<string>();
 
 
-		public string Name { get; private set; }
+		/// <summary>
+		/// Значение веса коэффициентов для соответствующих метрик
+		/// </summary>
+		public Dictionary<string, double> MetricWeight { get; } = new Dictionary<string, double>();
+
+		public string Name { get; }
 		public string Label { get; private set; }
 		public string Tooltip { get; private set; }
 
@@ -36,20 +42,14 @@ namespace StocksAnalyzer
 		public bool IsCommon { get; private set; }
 		public bool IsRus { get; private set; }
 		public bool IsUSA { get; private set; }
-
-		/// <summary>
-		/// Значение коэффициентов для соответствующих метрик
-		/// </summary>
-		public Dictionary<string, double> MetricCoefs { get; } = new Dictionary<string, double>();
-
-
+		
 
 		private string m_analyzerFormula { get; set; }
 		private string m_calculateFormula { get; set; }
 
-		private Coefficient()
+		private Coefficient(string name)
 		{
-
+			Name = name;
 		}
 
 		public override string ToString()
@@ -57,19 +57,42 @@ namespace StocksAnalyzer
 			return Name;
 		}
 
+		public override int GetHashCode()
+		{
+			return Name.GetHashCode();
+		}
+
+		public bool Equals(Coefficient coef)
+		{
+			return Name == coef.Name;
+		}
+		public override bool Equals(object coef)
+		{
+			if (coef is Coefficient coefficient)
+			{
+				return Equals(coefficient);
+			}
+			return false;
+		}
+
 		/// <summary>
 		/// Рассчет значения коэффициента 
 		/// </summary>
 		/// <param name="coefValues">Словарь имя параметра-значение</param>
 		/// <returns>Значение коэффициента</returns>
-		public double? CalculateCoef(Dictionary<string, double?> coefValues)
+		public double? CalculateCoef(Dictionary<Coefficient, double?> coefValues)
 		{
 			var formula = m_calculateFormula;
 			foreach (var coef in coefValues.Keys)
 			{
 				string searchStr = $"${{{coef}}}";
 				if (m_calculateFormula.Contains(searchStr))
-					formula = formula.Replace(searchStr, (coefValues[coef] ?? 0).ToString(CultureInfo.InvariantCulture));
+				{
+					if (!coefValues[coef].HasValue)
+						return null;
+					formula = formula.Replace(searchStr,
+						coefValues[coef].Value.ToString(CultureInfo.InvariantCulture));
+				}
 			}
 			return ParseAlgebraicFormula(formula);
 		}
@@ -81,12 +104,23 @@ namespace StocksAnalyzer
 		/// <returns>Нормализованное значение</returns>
 		public double? Normalize(double? value)
 		{
-			// TODO: http://mathparser.org/mxparser-math-collection/unary-functions/
-			// Заполнить соответствующие формулы в эксельнике
-			// Построить метрику по кубической функции (мб брать из нее корень)
-			// 10% = -1, 90% = 1 
-			var formula = m_analyzerFormula;
-			return 0;
+			if (!value.HasValue)
+				return null;
+			if (string.IsNullOrEmpty(m_analyzerFormula))
+				return value;
+			var formula = m_analyzerFormula.Replace("{val}", value.Value.ToString(CultureInfo.InvariantCulture));
+			string customFunc = "ssqrt";
+			while (formula.Contains(customFunc))
+			{
+				var index = formula.IndexOf(customFunc, StringComparison.Ordinal);
+				string funct = formula.Substring(index,
+					formula.IndexOf(")", index + 1, StringComparison.Ordinal) - index + 1);
+				var scobeIndex = funct.IndexOf("(", StringComparison.Ordinal) + 1;
+				double? val = funct.Substring(scobeIndex,
+					funct.IndexOf(")", StringComparison.Ordinal) - scobeIndex).ParseCoefStrToDouble();
+				formula = formula.Replace(funct, SignedSqr(val ?? 0).ToString(CultureInfo.InvariantCulture));
+			}
+			return ParseAlgebraicFormula(formula);
 		}
 
 
@@ -99,9 +133,20 @@ namespace StocksAnalyzer
 			}
 			catch (DivideByZeroException ex)
 			{
-				Logger.Log.Warn(ex);
+				Logger.Log.Warn($"Formula is {formula}", ex);
 				return null;
 			}
+		}
+
+		/// <summary>
+		/// Вычисляет число в заданной степени, если число меньше 0, вернет отрицательный число
+		/// </summary>
+		/// <param name="d">Число, от которого взять корень</param>
+		/// <param name="pow">Степень</param>
+		/// <returns>Итоговое число</returns>
+		private static double SignedSqr(double d, double pow = 0.5)
+		{
+			return d >= 0 ? Math.Pow(d, pow) : -Math.Pow(-d, pow);
 		}
 
 		#region Static (loader)
@@ -120,12 +165,12 @@ namespace StocksAnalyzer
 						bool isMetric = false;
 						for (var i = 0; i < data.Length; i++)
 						{
-						    if (data[i] == "#Metrics")
-						    {
-						        isMetric = true;
-						        columnNumToName.Add(i, ("", false));
-                            }
-						    else
+							if (data[i] == "#Metrics")
+							{
+								isMetric = true;
+								columnNumToName.Add(i, ("", false));
+							}
+							else
 							{
 								columnNumToName.Add(i, (data[i], isMetric));
 								if (isMetric)
@@ -147,23 +192,24 @@ namespace StocksAnalyzer
 		{
 			if (data == null || columnNumToName == null)
 				throw new ArgumentNullException(data == null ? nameof(data) : nameof(columnNumToName));
-			Coefficient coef = new Coefficient();
+			int nameIndex = columnNumToName.FirstOrDefault(c => c.Value.Item1 == "Name").Key;
+			Coefficient coef = new Coefficient(data[nameIndex]);
 			for (var i = 0; i < columnNumToName.Count; i++)
 			{
-			    if (string.IsNullOrEmpty(columnNumToName[i].Item1))
-			        continue;
+				if (string.IsNullOrEmpty(columnNumToName[i].Item1))
+					continue;
 
-			    string value = data[i];
+				string value = data[i];
+				// if is metric
 				if (columnNumToName[i].Item2)
 				{
-					coef.MetricCoefs[columnNumToName[i].Item1] = value.ParseCoefStrToDouble() ?? 0;
+					coef.MetricWeight[columnNumToName[i].Item1] = value.ParseCoefStrToDouble() ?? 0;
 				}
 				else
 				{
 					switch (columnNumToName[i].Item1)
 					{
 						case "Name":
-							coef.Name = value;
 							break;
 						case "Label":
 							coef.Label = value;

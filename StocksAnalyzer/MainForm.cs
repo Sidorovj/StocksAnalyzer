@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using StocksAnalyzer.Helpers;
 
 namespace StocksAnalyzer
 {
@@ -23,16 +24,22 @@ namespace StocksAnalyzer
 		private Stock m_selectedStock;
 		// ReSharper disable once CollectionNeverQueried.Local
 		private Dictionary<string, Label> CoefsLabels { get; } = new Dictionary<string, Label>(Coefficient.CoefficientList.Count);
-		private Dictionary<string, TextBox> CoefsTextboxes { get; } = new Dictionary<string, TextBox>(Coefficient.CoefficientList.Count);
+		private Dictionary<Coefficient, TextBox> CoefsTextboxes { get; } = new Dictionary<Coefficient, TextBox>(Coefficient.CoefficientList.Count);
+		private Dictionary<string, TextBox> MetricsTextboxes { get; } = new Dictionary<string, TextBox>(Coefficient.MetricsList.Count);
+		private List<Button> SortButtons { get; } = new List<Button>(Coefficient.MetricsList.Count + Coefficient.CoefficientList.Count);
+
+		private Dictionary<string, Label> PositionLabels { get; } =
+			new Dictionary<string, Label>(Coefficient.MetricsList.Count + Coefficient.CoefficientList.Count);
 
 		public MainForm()
 		{
 			InitializeComponent();
-			webBrowser1.Hide();
-			panelUSACoefs.Visible = panelRussiaCoefs.Visible = false;
 			panelRussiaCoefs.Top = panelUSACoefs.Top;
 			panelRussiaCoefs.Left = panelUSACoefs.Left;
 			panelRussiaCoefs.Width = panelUSACoefs.Width;
+			panelRussiaCoefs.Height = panelUSACoefs.Height;
+
+			ResetStockForm();
 
 			InitializeMainClass();
 
@@ -40,9 +47,10 @@ namespace StocksAnalyzer
 
 			ToolTip t = new ToolTip();
 			var yStep = 25;
+			var xPadding = 190;
 			var positionCommon = new Point(textBoxStockPriceUSD.Location.X, textBoxStockPriceUSD.Location.Y + yStep);
-			var positionUsa = new Point(labelUSAPanel.Location.X + 200, labelUSAPanel.Location.Y + yStep);
-			var positionRus = new Point(labelRussiaPanel.Location.X + 200, labelRussiaPanel.Location.Y + yStep);
+			var positionUsa = new Point(labelUSAPanel.Location.X + xPadding, labelUSAPanel.Location.Y + yStep);
+			var positionRus = new Point(labelRussiaPanel.Location.X + xPadding, labelRussiaPanel.Location.Y + yStep);
 			foreach (var coef in Coefficient.CoefficientList)
 			{
 				Point position;
@@ -61,7 +69,7 @@ namespace StocksAnalyzer
 					position = positionRus;
 					positionRus.Y += yStep;
 				}
-				CoefsTextboxes[coef.Name] = CreateTextbox(coef.Name, coef.IsUSA, coef.IsRus, position);
+				CoefsTextboxes[coef] = CreateTextbox(coef.Name, coef.IsUSA, coef.IsRus, position);
 
 				var label = CreateLabel(coef.Name, coef.Label, coef.IsUSA, coef.IsRus, position);
 				CoefsLabels[coef.Name] = label;
@@ -69,13 +77,46 @@ namespace StocksAnalyzer
 					t.SetToolTip(label, coef.Tooltip);
 
 				if (!string.IsNullOrEmpty(coef.HelpDescription))
-					CreateHelpLabel($"{coef.Name}_help", coef.HelpDescription, CoefsTextboxes[coef.Name]);
+					CreateHelpLabel($"{coef.Name}_help", coef.HelpDescription, CoefsTextboxes[coef]);
 			}
+
+
+			var positionMetric = new Point(labelMetric.Location.X + xPadding / 2, labelMetric.Location.Y + 5);
+			foreach (var metric in Coefficient.MetricsList)
+			{
+				positionMetric.Y += yStep;
+				CreateLabel($"label_{metric}", metric, positionMetric, labelMetric);
+				MetricsTextboxes[metric] = CreateTextbox(metric, positionMetric, labelMetric);
+			}
+
+			foreach (var coef in Coefficient.CoefficientList)
+			{
+				PositionLabels[coef.Name] = CreatePositionLabel(CoefsTextboxes[coef], coef.Name);
+				CreateSortButton(PositionLabels[coef.Name], coef.Name, "", coef);
+			}
+			foreach (var metric in Coefficient.MetricsList)
+			{
+				PositionLabels[metric] = CreatePositionLabel(MetricsTextboxes[metric], metric, true);
+				CreateSortButton(PositionLabels[metric], metric, metric);
+			}
+
+			// ReSharper disable once RedundantArgumentDefaultValue
+			CreateSortButton(textBoxRatingAll, textBoxRatingAll.Name, sortMode: SortingModes.PositionAll);
+			CreateSortButton(textBoxRatingCoefs, textBoxRatingCoefs.Name, sortMode: SortingModes.PositionCoef);
+			CreateSortButton(textBoxRatingMetrics, textBoxRatingMetrics.Name, sortMode: SortingModes.PositionMetric);
+
 			t.SetToolTip(labelSymbol, "Тикет");
 		}
 
 
 		private Label CreateLabel(string name, string text, bool isUsa, bool isRus, Point position)
+		{
+			Label lbl = CreateLabel(name, text, position, null);
+			AddControlToPanel(lbl, isUsa, isRus);
+			lbl.Location = new Point(position.X - lbl.Size.Width - 14, position.Y + 3);
+			return lbl;
+		}
+		private Label CreateLabel(string name, string text, Point position, Control ctr)
 		{
 			Label lbl = new Label
 			{
@@ -84,8 +125,78 @@ namespace StocksAnalyzer
 				Name = $"label{name}",
 				Text = text
 			};// maybe add TabIndex?
-			AddControlToPanel(lbl, isUsa, isRus);
-			lbl.Location = new Point(position.X - lbl.Size.Width - 14, position.Y + 3);
+			if (ctr != null)
+			{
+				ctr.Parent.Controls.Add(lbl);
+				lbl.Location = new Point(position.X - lbl.Size.Width - 14, position.Y + 3);
+			}
+
+			return lbl;
+		}
+
+		private void CreateSortButton(Control ctr, string name, string metricName = "", Coefficient coef = null, SortingModes sortMode = SortingModes.PositionAll)
+		{
+			Button btn = new Button
+			{
+				Text = @"S",
+				Size = new Size(15, 20),
+				Enabled = Stock.AllStocksInListAnalyzed
+			};
+			SortButtons.Add(btn);
+			ctr.Parent.Controls.Add(btn);
+			btn.BringToFront();
+			btn.Location = new Point(ctr.Location.X + ctr.Width + (metricName == "" && coef == null ? 12 : metricName != "" ? 30 : 40), ctr.Location.Y - 2);
+			btn.Click += (o, args) =>
+			{
+				sortMode = coef != null ? SortingModes.Coefficeint : metricName != "" ? SortingModes.Metric : sortMode;
+				SortList(sortMode, m_selectedList, coef, metricName);
+			};
+			var text = "Sort";
+
+			Label tb = null;
+			btn.MouseEnter += (o, args) =>
+			{
+				var sender = o as Control ?? throw new ArgumentNullException();
+				if (tb == null)
+				{
+					tb = new Label
+					{
+						Margin = new Padding(4),
+						Name = $"textBoxHelp_{name}",
+						BorderStyle = BorderStyle.Fixed3D,
+						Text = text,
+						AutoSize = true
+					};
+					int x = sender.Location.X;
+					int y = sender.Location.Y;
+					tb.Font = new Font(tb.Font.FontFamily, tb.Font.Size + 1);
+					tb.Location = new Point(x - sender.Width / 2, y - sender.Height + 1);
+					btn.Parent.Controls.Add(tb);
+					tb.BringToFront();
+				}
+				else
+				{
+					tb.Visible = true;
+					tb.BringToFront();
+				}
+
+			};
+			btn.MouseLeave += (o, args) => { tb.Visible = false; };
+		}
+
+		private Label CreatePositionLabel(Control ctr, string name, bool isMetric = false)
+		{
+			Label lbl = new Label
+			{
+				AutoSize = true,
+				Margin = new Padding(4, 0, 4, 0),
+				BorderStyle = BorderStyle.Fixed3D,
+				Name = $"labelSort{name}",
+				Text = @"0"
+			};
+			ctr.Parent.Controls.Add(lbl);
+			lbl.BringToFront();
+			lbl.Location = new Point(ctr.Location.X + ctr.Width + (isMetric ? 6 : 25), ctr.Location.Y + 2);
 			return lbl;
 		}
 
@@ -102,7 +213,7 @@ namespace StocksAnalyzer
 			lbl.Font = new Font(lbl.Font.FontFamily, lbl.Font.Size + 1);
 			ctr.Parent.Controls.Add(lbl);
 			lbl.BringToFront();
-			lbl.Location = new Point(ctr.Location.X + ctr.Width + 12, ctr.Location.Y);
+			lbl.Location = new Point(ctr.Location.X + ctr.Width + 6, ctr.Location.Y);
 			Label tb = null;
 			lbl.MouseEnter += (o, args) =>
 			{
@@ -135,17 +246,28 @@ namespace StocksAnalyzer
 			lbl.MouseLeave += (o, args) => { tb.Visible = false; };
 		}
 
+		private TextBox CreateTextbox(string name, Point position, Control ctr)
+		{
+			TextBox tb = CreateSimpleTextbox(name, position);
+			ctr.Parent.Controls.Add(tb);
+			return tb;
+		}
 		private TextBox CreateTextbox(string name, bool isUsa, bool isRus, Point position)
 		{
-			TextBox tb = new TextBox
+			TextBox tb = CreateSimpleTextbox(name, position);
+			AddControlToPanel(tb, isUsa, isRus);
+			return tb;
+		}
+
+		private TextBox CreateSimpleTextbox(string name, Point position)
+		{
+			return new TextBox
 			{
 				Location = position,
 				Margin = new Padding(4),
 				Name = $"textBox{name}",
 				Size = new Size(100, 22)
 			};
-			AddControlToPanel(tb, isUsa, isRus);
-			return tb;
 		}
 
 		private void AddControlToPanel(Control c, bool isUsa, bool isRus)
@@ -160,7 +282,47 @@ namespace StocksAnalyzer
 		{
 			MainClass.Initialize();
 			LoadStockListsToViewOnInit();
-			m_selectedList = m_tinkoffStocks;
+
+			string path = $"{Const.HistoryDirName}/{Const.ViewSettingsFile}";
+			if (!File.Exists(path))
+			{
+				m_selectedList = m_tinkoffStocks;
+				Logger.Log.Warn($"File {path} does not exists.");
+				return;
+			}
+			Serializer ser = new Serializer(path);
+			bool[] checks = ser.Deserialize() as bool[] ?? throw new ArgumentNullException();
+
+			if (m_selectedList == null)
+			{
+				m_selectedList = m_bestStocks;
+				if (checks[0])
+				{
+					radioButtonAllStocks.Checked = true;
+					m_selectedList = MainClass.Stocks;
+				}
+				else if (checks[1])
+				{
+					radioButtonRusStocks.Checked = true;
+					m_selectedList = m_russianStocks;
+				}
+
+				else if (checks[2])
+				{
+					radioButtonUSAStocks.Checked = true;
+					m_selectedList = m_usaStocks;
+				}
+				else if (checks[3])
+				{
+					radioButtonLondonStocks.Checked = true;
+					m_selectedList = m_londonStocks;
+				}
+				else if (checks[4])
+				{
+					radioButtonFromTinkoff.Checked = true;
+					m_selectedList = m_tinkoffStocks;
+				}
+			}
 		}
 
 		#region Methods
@@ -171,6 +333,18 @@ namespace StocksAnalyzer
 			finally
 			{
 				MainClass.WriteStockListToFile();
+				string path = $"{Const.HistoryDirName}/{Const.ViewSettingsFile}";
+				if (!File.Exists(path))
+				{
+					var fs = File.Create(path);
+					fs.Close();
+				}
+				Serializer ser = new Serializer(path);
+				ser.Serialize(new[]
+				{
+					radioButtonAllStocks.Checked, radioButtonRusStocks.Checked, radioButtonUSAStocks.Checked,
+					radioButtonLondonStocks.Checked, radioButtonFromTinkoff.Checked
+				});
 			}
 
 			try { }
@@ -178,6 +352,17 @@ namespace StocksAnalyzer
 			{
 				NLog.LogManager.Shutdown();
 			}
+		}
+
+		private void ResetStockForm(bool exceptCoefs = false)
+		{
+			textBoxRatingAll.Text = "";
+			textBoxRatingCoefs.Text = "";
+			textBoxRatingMetrics.Text = "";
+			if (exceptCoefs)
+				return;
+			checkBoxIsStarred.Enabled = false;
+			panelMain.Visible = panelUSACoefs.Visible = panelCommon.Visible = panelRussiaCoefs.Visible = false;
 		}
 
 		/// <summary>
@@ -190,7 +375,11 @@ namespace StocksAnalyzer
 				return;
 			m_selectedStock = MainClass.GetStock(true, comboBoxStocks.Text);
 			if (m_selectedStock == null)
+			{
+				ResetStockForm();
 				return;
+			}
+			panelMain.Visible = panelCommon.Visible = true;
 			checkBoxIsStarred.Enabled = true;
 
 			// Получим инфу об акции
@@ -227,13 +416,42 @@ namespace StocksAnalyzer
 			textBoxStockLastUpdated.Text = m_selectedStock.LastUpdate.ToString(CultureInfo.InvariantCulture);
 			foreach (var coef in Coefficient.CoefficientList)
 			{
-				CoefsTextboxes[coef.Name].Text = m_selectedStock[coef].ToCuteStr();
+				CoefsTextboxes[coef].Text = m_selectedStock[coef].ToCuteStr();
+				if (m_selectedStock.PositionInMetricAndCoef.ContainsKey(coef.Name) && Stock.AllStocksInListAnalyzed)
+				{
+					var pos = m_selectedStock.PositionInMetricAndCoef[coef.Name];
+					if (pos != null)
+						PositionLabels[coef.Name].Text =
+							$@"{100 * (Stock.CoefHasValueCount[coef] - (double)pos) / Stock.CoefHasValueCount[coef]:F2}%";
+					else
+						PositionLabels[coef.Name].Text = @" ";
+				}
 			}
+
+			foreach (var metric in Coefficient.MetricsList)
+			{
+				if (m_selectedStock.MetricsValues.ContainsKey(metric))
+					MetricsTextboxes[metric].Text = m_selectedStock.MetricsValues[metric].ToCuteStr();
+				if (m_selectedStock.PositionInMetricAndCoef.ContainsKey(metric) && Stock.AllStocksInListAnalyzed)
+				{
+					var pos = m_selectedStock.PositionInMetricAndCoef[metric];
+					if (pos != null)
+						PositionLabels[metric].Text =
+							$@"{100*(m_selectedList.Count - (double) pos)/m_selectedList.Count:F2}%";
+					else
+						PositionLabels[metric].Text = @" ";
+				}
+			}
+
+			if (Stock.AllStocksInListAnalyzed)
+			{
+				textBoxRatingAll.Text = $@"{m_selectedStock.AveragePositionAll:F2}";
+				textBoxRatingCoefs.Text = $@"{m_selectedStock.AveragePositionNormalizedCoefs:F2}";
+				textBoxRatingMetrics.Text = $@"{m_selectedStock.AveragePositionMetric:F2}";
+			}
+
 			if (getNewInfo)
 				labelDone.Visible = true;
-			labelMainPE.Text = @"MainPE: " + m_selectedStock.RateMainPe;
-			labelMain.Text = @"Main: " + m_selectedStock.RateMain;
-			labelMainAll.Text = @"MainAll: " + m_selectedStock.RateMainAll;
 
 		}
 
@@ -374,6 +592,13 @@ namespace StocksAnalyzer
 		}
 		private void LoadNewListInComboBox(IEnumerable<Stock> list)
 		{
+			Stock.AllStocksInListAnalyzed = false;
+			foreach (var btn in SortButtons)
+			{
+				btn.Enabled = false;
+			}
+			ResetStockForm(true);
+
 			comboBoxStocks.Items.Clear();
 			comboBoxStocks.Text = "";
 			foreach (var st in list)
@@ -534,12 +759,19 @@ namespace StocksAnalyzer
 			stopwatch.Start();
 			await Task.Run(() =>
 			{
-				Analyzer.Analyze(MainClass.Stocks);
+				Analyzer.Analyze(m_selectedList);
 			});
 
 			stopwatch.Stop();
+			Stock.AllStocksInListAnalyzed = true;
+			await FillStockForm(false);
 			MainClass.WriteLog($"Анализ мультипликаторов занял {stopwatch.Elapsed.TotalSeconds:F0} с");
+
 			SetButtonsMode(true);
+			foreach (var btn in SortButtons)
+			{
+				btn.Enabled = true;
+			}
 		}
 
 
@@ -548,42 +780,48 @@ namespace StocksAnalyzer
 		/// </summary>
 		/// <param name="regime">0-MainPE, 1-Main, 2-MainAll</param>
 		/// <param name="lst">Список акций</param>
-		private void SortList(int regime, List<Stock> lst)
+		/// <param name="coef">Коэффициент</param>
+		/// <param name="metricName">Название метрики</param>
+		private void SortList(SortingModes regime, List<Stock> lst, Coefficient coef = null, string metricName = "")
 		{
+			if (!Stock.AllStocksInListAnalyzed)
+				ButtonAnalyzeMultiplicators_Click(null, null);
 			comboBoxStocks.Items.Clear();
 			lst.Sort((s1, s2) =>
 			{
 				switch (regime)
 				{
-					case 0:
-						return s1.RateMainPe - s2.RateMainPe;
-					case 1:
-						return s1.RateMain - s2.RateMain;
-					case 2:
-						return s1.RateMainAll - s2.RateMainAll;
+					case SortingModes.PositionAll:
+						return s1.AveragePositionAll > s2.AveragePositionAll ? 1 :
+							Math.Abs(s1.AveragePositionAll - s2.AveragePositionAll) < MainClass.Tolerance ? 0 : -1;
+					case SortingModes.PositionMetric:
+						return s1.AveragePositionMetric > s2.AveragePositionMetric ? 1 :
+							Math.Abs(s1.AveragePositionMetric - s2.AveragePositionMetric) < MainClass.Tolerance ? 0 : -1;
+					case SortingModes.PositionCoef:
+						return s1.AveragePositionNormalizedCoefs > s2.AveragePositionNormalizedCoefs ? 1 :
+							Math.Abs(s1.AveragePositionNormalizedCoefs - s2.AveragePositionNormalizedCoefs) <
+							MainClass.Tolerance ? 0 : -1;
+					case SortingModes.Coefficeint:
+						if (coef == null)
+							throw new ArgumentNullException(nameof(coef));
+						var v1 = s1.NormalizedCoefficientsValues[coef];
+						var v2 = s2.NormalizedCoefficientsValues[coef];
+						if (v1.HasValue && v2.HasValue)
+							return v1 < v2 ? 1 : Math.Abs(v1.Value - v2.Value) < MainClass.Tolerance ? 0 : -1;
+						if (v1.HasValue && !v2.HasValue)
+							return -1;
+						if (!v1.HasValue && v2.HasValue)
+							return 1;
+						return 0;
+					case SortingModes.Metric:
+						var m1 = s1.MetricsValues[metricName];
+						var m2 = s2.MetricsValues[metricName];
+						return m1 < m2 ? 1 : Math.Abs(m1 - m2) < MainClass.Tolerance ? 0 : -1;
 				}
 				throw new NotSupportedException("In sort list");
 			});
 			foreach (var st in lst)
 				comboBoxStocks.Items.Add(st.FullName);
-		}
-		private void RadioButtonMainPE_CheckedChanged(object sender, EventArgs e)
-		{
-			if (radioButtonMainPE.Checked)
-				SortList(0, m_selectedList);
-		}
-
-		private void RadioButtonMain_CheckedChanged(object sender, EventArgs e)
-		{
-			if (radioButtonMain.Checked)
-				SortList(1, m_selectedList);
-
-		}
-
-		private void RadioButtonMainAll_CheckedChanged(object sender, EventArgs e)
-		{
-			if (radioButtonMainAll.Checked)
-				SortList(2, m_selectedList);
 		}
 
 		private void RadioButtonFromTinkoff_CheckedChanged(object sender, EventArgs e)

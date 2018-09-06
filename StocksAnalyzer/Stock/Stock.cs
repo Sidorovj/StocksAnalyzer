@@ -13,6 +13,14 @@ namespace StocksAnalyzer
     [Serializable]
     class Stock
     {
+		/// <summary>
+		/// Связь коэффициента и количества акций, в которых он заполнен
+		/// </summary>
+	    public static Dictionary<Coefficient, int> CoefHasValueCount { get; } = new Dictionary<Coefficient, int>(Coefficient.CoefficientList.Count);
+
+	    public static bool AllStocksInListAnalyzed = false;
+
+
         public bool IsStarred { get; set; }
         public DateTime LastUpdate { get; set; }
         public StockMarket Market { get; }
@@ -23,13 +31,23 @@ namespace StocksAnalyzer
         public bool TinkoffScanned { get; private set; }
 		public double Price { get; set; }
 
-	    private Dictionary<string, double?> CoefficientsValues { get; } = new Dictionary<string, double?>(Coefficient.CoefficientList.Count);
+		/// <summary>
+		/// Имя коэффициента к его значению
+		/// </summary>
+		private Dictionary<Coefficient, double?> CoefficientsValues { get; } = new Dictionary<Coefficient, double?>(Coefficient.CoefficientList.Count);
+	    public Dictionary<Coefficient, double?> NormalizedCoefficientsValues { get; } = new Dictionary<Coefficient, double?>(Coefficient.CoefficientList.Count);
+		/// <summary>
+		/// Название метрики к ее значению
+		/// </summary>
+		public Dictionary<string, double> MetricsValues { get; } = new Dictionary<string, double>();
+	    public Dictionary<string, int?> PositionInMetricAndCoef { get; } = new Dictionary<string, int?>();
+
+	    public double AveragePositionAll;
+	    public double AveragePositionMetric;
+	    public double AveragePositionNormalizedCoefs;
 
 		#region Metrics
-		public double MainPe { get; set; }
-        public double Main { get; set; }
-        public double MainAll { get; set; }
-        public int RateMainPe { get; set; }
+		public int RateMainPe { get; set; }
         public int RateMain { get; set; }
         public int RateMainAll { get; set; }
         #endregion
@@ -46,16 +64,25 @@ namespace StocksAnalyzer
         }
 
 
-        private double? this[string ind]
-        {
-            get => CoefficientsValues[ind];
-            set => CoefficientsValues[ind] = value;
-        }
+     //   private double? this[string ind]
+     //   {
+	    //    get
+	    //    {
+		   //     if (!CoefficientsValues.ContainsKey(ind))
+		   //     {
+			  //      Logger.Log.Warn($"В словаре коэфициентов '{nameof(CoefficientsValues)} не могу найти {ind}");
+			  //      CoefficientsValues[ind] = null;
+		   //     }
 
-        public double? this[Coefficient coef]
+		   //     return CoefficientsValues[ind];
+	    //    }
+	    //    set => CoefficientsValues[ind] = value;
+	    //}
+
+	    public double? this[Coefficient coef]
         {
-            get => this[coef.Name];
-            set => this[coef.Name] = value;
+            get => CoefficientsValues[coef];
+            set => CoefficientsValues[coef] = value;
         }
 
         public Stock(string name, double price, StockMarket mar, string symb = "")
@@ -68,7 +95,7 @@ namespace StocksAnalyzer
             IsOnTinkoff = TinkoffScanned = mar.Location == StockMarketLocation.Russia;
             foreach (var coef in Coefficient.CoefficientList)
             {
-                CoefficientsValues[coef.Name] = null;
+                CoefficientsValues[coef] = null;
 
             }
         }
