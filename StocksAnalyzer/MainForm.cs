@@ -283,7 +283,7 @@ namespace StocksAnalyzer
 			MainClass.Initialize();
 			LoadStockListsToViewOnInit();
 
-			string path = $"{Const.HistoryDirName}/{Const.ViewSettingsFile}";
+			string path = $"{Const.ToRestoreDirName}/{Const.ViewSettingsFile}";
 			if (!File.Exists(path))
 			{
 				m_selectedList = m_tinkoffStocks;
@@ -333,7 +333,7 @@ namespace StocksAnalyzer
 			finally
 			{
 				MainClass.WriteStockListToFile();
-				string path = $"{Const.HistoryDirName}/{Const.ViewSettingsFile}";
+				string path = $"{Const.ToRestoreDirName}/{Const.ViewSettingsFile}";
 				if (!File.Exists(path))
 				{
 					var fs = File.Create(path);
@@ -665,9 +665,9 @@ namespace StocksAnalyzer
 
 		private void ButtonSaveHistory_Click(object sender, EventArgs e)
 		{
-			if (!Directory.Exists(Const.HistoryDirName))
-				Directory.CreateDirectory(Const.HistoryDirName);
-			MainClass.WriteStockListToFile($"{Const.HistoryDirName}/History_file_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.dat");
+			if (!Directory.Exists(Const.ToRestoreDirName))
+				Directory.CreateDirectory(Const.ToRestoreDirName);
+			MainClass.WriteStockListToFile($"{Const.ToRestoreDirName}/History_file_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.dat");
 			MessageBox.Show(@"Сохранено");
 		}
 
