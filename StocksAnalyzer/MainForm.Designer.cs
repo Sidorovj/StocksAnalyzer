@@ -150,7 +150,7 @@
 			// radioButtonAllStocks
 			// 
 			this.radioButtonAllStocks.AutoSize = true;
-			this.radioButtonAllStocks.Location = new System.Drawing.Point(15, 105);
+			this.radioButtonAllStocks.Location = new System.Drawing.Point(15, 145);
 			this.radioButtonAllStocks.Name = "radioButtonAllStocks";
 			this.radioButtonAllStocks.Size = new System.Drawing.Size(44, 17);
 			this.radioButtonAllStocks.TabIndex = 7;
@@ -161,7 +161,7 @@
 			// radioButtonRusStocks
 			// 
 			this.radioButtonRusStocks.AutoSize = true;
-			this.radioButtonRusStocks.Location = new System.Drawing.Point(15, 122);
+			this.radioButtonRusStocks.Location = new System.Drawing.Point(15, 105);
 			this.radioButtonRusStocks.Name = "radioButtonRusStocks";
 			this.radioButtonRusStocks.Size = new System.Drawing.Size(67, 17);
 			this.radioButtonRusStocks.TabIndex = 8;
@@ -172,11 +172,11 @@
 			// radioButtonUSAStocks
 			// 
 			this.radioButtonUSAStocks.AutoSize = true;
-			this.radioButtonUSAStocks.Location = new System.Drawing.Point(15, 140);
+			this.radioButtonUSAStocks.Location = new System.Drawing.Point(15, 125);
 			this.radioButtonUSAStocks.Name = "radioButtonUSAStocks";
-			this.radioButtonUSAStocks.Size = new System.Drawing.Size(47, 17);
+			this.radioButtonUSAStocks.Size = new System.Drawing.Size(92, 17);
 			this.radioButtonUSAStocks.TabIndex = 9;
-			this.radioButtonUSAStocks.Text = "USA";
+			this.radioButtonUSAStocks.Text = "USA с Tinkoff";
 			this.radioButtonUSAStocks.UseVisualStyleBackColor = true;
 			this.radioButtonUSAStocks.CheckedChanged += new System.EventHandler(this.RadioButtonUSA_CheckedChanged);
 			// 
@@ -184,7 +184,7 @@
 			// 
 			this.radioButtonLondonStocks.AutoSize = true;
 			this.radioButtonLondonStocks.Enabled = false;
-			this.radioButtonLondonStocks.Location = new System.Drawing.Point(15, 157);
+			this.radioButtonLondonStocks.Location = new System.Drawing.Point(15, 163);
 			this.radioButtonLondonStocks.Name = "radioButtonLondonStocks";
 			this.radioButtonLondonStocks.Size = new System.Drawing.Size(61, 17);
 			this.radioButtonLondonStocks.TabIndex = 10;

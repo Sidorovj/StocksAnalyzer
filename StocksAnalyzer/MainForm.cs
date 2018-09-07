@@ -579,7 +579,7 @@ namespace StocksAnalyzer
 				m_bestStocks.Add(st);
 			if (st.Market.Location == StockMarketLocation.Russia)
 				m_russianStocks.Add(st);
-			if (st.Market.Location == StockMarketLocation.Usa)
+			if (st.Market.Location == StockMarketLocation.Usa && st.IsOnTinkoff)
 				m_usaStocks.Add(st);
 			if (st.Market.Location == StockMarketLocation.London)
 				m_londonStocks.Add(st);

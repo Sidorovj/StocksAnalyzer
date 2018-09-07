@@ -112,7 +112,7 @@ namespace StocksAnalyzer
 			{
 				string valStr = StringParser.GetNumInBracketsForFunction(formula, customFunc);
 				double? val = valStr.ParseCoefStrToDouble();
-				formula = formula.Replace($"{customFunc}({valStr})", SignedSqr(val ?? 0).ToString(CultureInfo.InvariantCulture));
+				formula = formula.Replace($"{customFunc}({valStr})", $"({SignedSqr(val ?? 0).ToString(CultureInfo.InvariantCulture)})");
 			}
 			return ParseAlgebraicFormula(formula);
 		}
