@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using StocksAnalyzer.Helpers;
+using StocksAnalyzer.WinForms;
 
 namespace StocksAnalyzer
 {
@@ -421,7 +422,7 @@ namespace StocksAnalyzer
 				{
 					var pos = m_selectedStock.PositionInMetricAndCoef[coef.Name];
 					PositionLabels[coef.Name].Text = pos != null
-						? $@"{100 * (Stock.CoefHasValueCount[coef] - (double) pos + 1) / Stock.CoefHasValueCount[coef]:F2}%"
+						? $@"{100 * (Stock.CoefHasValueCount[coef] - (double)pos + 1) / Stock.CoefHasValueCount[coef]:F2}%"
 						: @" ";
 				}
 			}
@@ -434,7 +435,7 @@ namespace StocksAnalyzer
 				{
 					var pos = m_selectedStock.PositionInMetricAndCoef[metric];
 					PositionLabels[metric].Text = pos != null
-						? $@"{100 * (m_selectedList.Count - (double) pos + 1) / m_selectedList.Count:F2}%"
+						? $@"{100 * (m_selectedList.Count - (double)pos + 1) / m_selectedList.Count:F2}%"
 						: @" ";
 				}
 			}
@@ -462,12 +463,12 @@ namespace StocksAnalyzer
 			}
 			catch (Exception ex)
 			{
-				MainClass.WriteLog(ex);
+				LogWriter.WriteLog(ex);
 			}
 
 			stopwatch.Stop();
 
-			MainClass.WriteLog($"Загрузка инфы для акции {m_selectedStock} заняла {stopwatch.Elapsed.TotalMilliseconds:F2} мс");
+			LogWriter.WriteLog($"Загрузка инфы для акции {m_selectedStock} заняла {stopwatch.Elapsed.TotalMilliseconds:F2} мс");
 			SetButtonsMode(true);
 
 			await Task.Delay(2000);
@@ -503,7 +504,8 @@ namespace StocksAnalyzer
 
 			try
 			{
-				await MainClass.GetStocksList(labelRemainingTime, progressBar);
+				await MainClass.GetStocksList(new FormsTextReporter(labelRemainingTime),
+					new FormsProgressReporter(progressBar));
 			}
 			finally
 			{
@@ -512,7 +514,7 @@ namespace StocksAnalyzer
 			FillStockLists();
 			stopwa.Stop();
 
-			MainClass.WriteLog($"Загрузка списка акций заняла {stopwa.Elapsed.TotalSeconds:F0} с");
+			LogWriter.WriteLog($"Загрузка списка акций заняла {stopwa.Elapsed.TotalSeconds:F0} с");
 			SetButtonsMode(true);
 
 			MessageBox.Show(@"Список загружен");
@@ -674,7 +676,7 @@ namespace StocksAnalyzer
 			if (filePath != "" && filePath != nameof(openFileDialog1))
 			{
 				MainClass.LoadStockListFromFile(filePath);
-				MainClass.WriteLog("Загружен файл " + filePath);
+				LogWriter.WriteLog("Загружен файл " + filePath);
 			}
 		}
 
@@ -706,15 +708,14 @@ namespace StocksAnalyzer
 			Stopwatch stopwatch = Stopwatch.StartNew();
 			try
 			{
-				await MainClass.LoadStocksData(m_selectedList, labelRemainingTime, progressBar);
+				await MainClass.LoadStocksData(m_selectedList, new FormsTextReporter(labelRemainingTime), new FormsProgressReporter(progressBar));
 			}
 			finally
 			{
 				MainClass.WriteStockListToFile();
 			}
 			stopwatch.Stop();
-			MainClass.WriteLog($"Загрузка мультипл. из инета заняла {stopwatch.Elapsed.TotalSeconds:F0} с");
-			MainClass.MakeReportAndSaveToFile(m_selectedList);
+			LogWriter.WriteLog($"Загрузка мультипл. из инета заняла {stopwatch.Elapsed.TotalSeconds:F0} с");
 
 			SetButtonsMode(true);
 			buttonOpenReport.Enabled = true;
@@ -742,10 +743,7 @@ namespace StocksAnalyzer
 
 		private void ButtonOpenReport_Click(object sender, EventArgs e)
 		{
-			if (MainClass.ReportFileName != "")
-			{
-				Process.Start(MainClass.ReportFileName);
-			}
+			MainClass.OpenReportIfExists();
 		}
 
 		private async void ButtonAnalyzeMultiplicators_Click(object sender, EventArgs e)
@@ -761,7 +759,7 @@ namespace StocksAnalyzer
 			stopwatch.Stop();
 			Stock.AllStocksInListAnalyzed = true;
 			await FillStockForm(false);
-			MainClass.WriteLog($"Анализ мультипликаторов занял {stopwatch.Elapsed.TotalSeconds:F0} с");
+			LogWriter.WriteLog($"Анализ мультипликаторов занял {stopwatch.Elapsed.TotalSeconds:F0} с");
 
 			SetButtonsMode(true);
 			foreach (var btn in SortButtons)
@@ -789,21 +787,21 @@ namespace StocksAnalyzer
 				{
 					case SortingModes.PositionAll:
 						return s1.AveragePositionAll > s2.AveragePositionAll ? 1 :
-							Math.Abs(s1.AveragePositionAll - s2.AveragePositionAll) < MainClass.Tolerance ? 0 : -1;
+							Math.Abs(s1.AveragePositionAll - s2.AveragePositionAll) < Const.Tolerance ? 0 : -1;
 					case SortingModes.PositionMetric:
 						return s1.AveragePositionMetric > s2.AveragePositionMetric ? 1 :
-							Math.Abs(s1.AveragePositionMetric - s2.AveragePositionMetric) < MainClass.Tolerance ? 0 : -1;
+							Math.Abs(s1.AveragePositionMetric - s2.AveragePositionMetric) < Const.Tolerance ? 0 : -1;
 					case SortingModes.PositionCoef:
 						return s1.AveragePositionNormalizedCoefs > s2.AveragePositionNormalizedCoefs ? 1 :
 							Math.Abs(s1.AveragePositionNormalizedCoefs - s2.AveragePositionNormalizedCoefs) <
-							MainClass.Tolerance ? 0 : -1;
+							Const.Tolerance ? 0 : -1;
 					case SortingModes.Coefficeint:
 						if (coef == null)
 							throw new ArgumentNullException(nameof(coef));
 						var v1 = s1.NormalizedCoefficientsValues[coef];
 						var v2 = s2.NormalizedCoefficientsValues[coef];
 						if (v1.HasValue && v2.HasValue)
-							return v1 < v2 ? 1 : Math.Abs(v1.Value - v2.Value) < MainClass.Tolerance ? 0 : -1;
+							return v1 < v2 ? 1 : Math.Abs(v1.Value - v2.Value) < Const.Tolerance ? 0 : -1;
 						if (v1.HasValue && !v2.HasValue)
 							return -1;
 						if (!v1.HasValue && v2.HasValue)
@@ -812,7 +810,7 @@ namespace StocksAnalyzer
 					case SortingModes.Metric:
 						var m1 = s1.MetricsValues[metricName];
 						var m2 = s2.MetricsValues[metricName];
-						return m1 < m2 ? 1 : Math.Abs(m1 - m2) < MainClass.Tolerance ? 0 : -1;
+						return m1 < m2 ? 1 : Math.Abs(m1 - m2) < Const.Tolerance ? 0 : -1;
 				}
 				throw new NotSupportedException("In sort list");
 			});
@@ -833,7 +831,8 @@ namespace StocksAnalyzer
 
 		private async void ButtonCkechTinkoff_Click(object sender, EventArgs e)
 		{
-			await MainClass.GetStocksList(labelRemainingTime, progressBar, false);
+			await MainClass.GetStocksList(new FormsTextReporter(labelRemainingTime),
+				new FormsProgressReporter(progressBar), false);
 		}
 
 	}

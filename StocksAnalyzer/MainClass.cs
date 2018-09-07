@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
+using StocksAnalyzer.Adapters;
+using StocksAnalyzer.Helpers;
 
 
 namespace StocksAnalyzer
@@ -16,25 +16,15 @@ namespace StocksAnalyzer
 
 	internal static class MainClass
 	{
-		public const double Tolerance = 1e-7;
-
-		public static string ReportFileName { get; private set; } = "";
+		private static string s_reportFileName;
 		public static Dictionary<string, string> NamesToSymbolsRus { get; } = new Dictionary<string, string>();
-		public static List<Stock> Stocks { get; set; } = new List<Stock>();
 
-		private static string s_report = "";
+		public static List<Stock> Stocks { get; set; } = new List<Stock>();
 
 		private static int s_doneEventsCount;
 
 		private static readonly object s_rusStockLoaderLocker = new object();
 
-		private static readonly string s_decimalDelimeter;
-
-		static MainClass()
-		{
-			NumberFormatInfo nfi = new NumberFormatInfo();
-			s_decimalDelimeter = nfi.NumberDecimalSeparator;
-		}
 
 		#region Methods:public
 
@@ -43,49 +33,12 @@ namespace StocksAnalyzer
 			return Stocks.FirstOrDefault(st => compareFullName && st.FullName == name || !compareFullName && st.Name == name);
 		}
 
-		/// <summary>
-		/// Преобразует строку вида "USD":0.001432 / "RUB":2B в double
-		/// </summary>
-		/// <param name="stringValue">Формат строки: "USD":0.001432</param>
-		/// <returns></returns>
-		public static double? ParseCoefStrToDouble(this string stringValue)
+		public static void OpenReportIfExists()
 		{
-			if (stringValue.IndexOf(":", StringComparison.Ordinal) > 0)
-				stringValue = stringValue.Substring(stringValue.IndexOf(':') + 1);
-			while (stringValue.EndsWith("}") || stringValue.EndsWith("%"))
-				stringValue = stringValue.Substring(0, stringValue.Length - 1);
-			double coefficient = 1;
-			if (stringValue.EndsWith("M"))
+			if (s_reportFileName != "")
 			{
-				coefficient = 1000 * 1000;
-				stringValue = stringValue.Substring(0, stringValue.Length - 1);
+				Process.Start(s_reportFileName);
 			}
-			else if (stringValue.EndsWith("B"))
-			{
-				coefficient = 1000 * 1000 * 1000;
-				stringValue = stringValue.Substring(0, stringValue.Length - 1);
-			}
-			else if (stringValue.EndsWith("k"))
-			{
-				coefficient = 1000;
-				stringValue = stringValue.Substring(0, stringValue.Length - 1);
-			}
-			else if (stringValue.EndsWith("T"))
-			{
-				coefficient = 1000.0 * 1000 * 1000 * 1000;
-				stringValue = stringValue.Substring(0, stringValue.Length - 1);
-			}
-			if (stringValue.Contains(",") && stringValue.Contains("."))
-			{
-				stringValue = stringValue.Replace(stringValue.IndexOf(",", StringComparison.Ordinal) <
-												  stringValue.IndexOf(".", StringComparison.Ordinal) ? "." : ",", "");
-			}
-			stringValue = stringValue.Replace(",", s_decimalDelimeter).Replace(".", s_decimalDelimeter);
-			if (double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
-				return result * coefficient;
-			if (stringValue == "n/a" || stringValue == "-" || stringValue == "N/A" || stringValue == "")
-				return null;
-			throw new Exception($"Не удается распарсить строку {stringValue}");
 		}
 
 		/// <summary>
@@ -97,25 +50,22 @@ namespace StocksAnalyzer
 			string fullPath = $"{Const.ToRestoreDirName}/{path}";
 			if (!Directory.Exists(Const.ToRestoreDirName) || !File.Exists(fullPath))
 			{
-				WriteLog(@"Не могу найти файл для десериализации");
+				LogWriter.WriteLog(@"Не могу найти файл для десериализации");
 				return;
 			}
 
 			Serializer ser = new Serializer(fullPath);
 			Stocks = (List<Stock>)ser.Deserialize() ?? new List<Stock>();
+
 			foreach (var coef in Coefficient.CoefficientList)
 			{
-				Stock.CoefHasValueCount[coef] = 0;
+				Stock.CoefHasValueCount[coef] = (from st in Stocks
+												 where st.NormalizedCoefficientsValues.ContainsKey(coef) &&
+													   st.NormalizedCoefficientsValues[coef].HasValue
+												 select 0).Count();
 			}
-			foreach (var st in Stocks)
-			{
-				foreach (var kpv in st.NormalizedCoefficientsValues)
-					if (kpv.Value.HasValue)
-					{
-						Stock.CoefHasValueCount[kpv.Key]++;
-						Stock.AllStocksInListAnalyzed = true;
-					}
-			}
+
+			Stock.AllStocksInListAnalyzed = Stock.CoefHasValueCount.Any(kpv => kpv.Value > 0);
 		}
 
 		/// <summary>
@@ -134,63 +84,26 @@ namespace StocksAnalyzer
 		/// Составить отчет по списку акций и записать в файл
 		/// </summary>
 		/// <param name="stockLst">Список акций</param>
-		public static void MakeReportAndSaveToFile(List<Stock> stockLst)
+		/// <param name="failedStocks">Акции, который не удалось загрузить</param>
+		private static void MakeReportAndSaveToFile(List<Stock> stockLst, string failedStocks)
 		{
-			s_report += '\n';
+			StringBuilder report = new StringBuilder();
+			report.Append($"Не удалось загрузить акции:;\n{failedStocks}");
 			foreach (var coef in Coefficient.CoefficientList)
 			{
-				var helpSt = "";
-				var numRes = 0;
-				foreach (var st in stockLst)
-				{
-					if (Math.Abs(st[coef] ?? 0) < Tolerance)
-					{
-						helpSt += st.Name + ';';
-						numRes++;
-					}
-				}
-				s_report += $"{coef};Заполнен в {stockLst.Count - numRes}/{stockLst.Count};{helpSt}\r\n";
+				var failedLst = stockLst.Where(st => Math.Abs(st[coef] ?? 0) < Const.Tolerance).ToList();
+				var helpSt = string.Join(";", failedLst);
+				var numRes = failedLst.Count;
+				report.Append($"{coef};Заполнен в {stockLst.Count - numRes}/{stockLst.Count};{helpSt}\r\n");
 			}
 
-			if (!Directory.Exists(Const.ReportDirName))
-				Directory.CreateDirectory(Const.ReportDirName);
-			ReportFileName = $"{Const.ReportDirName}/Report_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
-			using (var sr = new StreamWriter(ReportFileName, true, Encoding.UTF8))
+			s_reportFileName = Const.ReportFileName;
+			using (var sr = new StreamWriter(s_reportFileName, true, Encoding.UTF8))
 			{
-				sr.Write(s_report);
+				sr.Write(report.ToString());
 			}
 		}
 
-		/// <summary>
-		/// Записать лог в текстБокс на форме
-		/// </summary>
-		/// <param name="text">Строки лога</param>
-		/// <param name="writeLogToFile">Записывать лог</param>
-		public static async void WriteLog(string text, bool writeLogToFile = true)
-		{
-			if (writeLogToFile)
-				Logger.Log.Info(text);
-			while (Program.MyForm == null)
-				await Task.Delay(100);
-
-			text = $"{DateTime.Now:HH-mm-ss}:  {text} {Environment.NewLine}";
-			if (Program.MyForm.richTextBoxLog.InvokeRequired)
-				Program.MyForm.richTextBoxLog.BeginInvoke(
-					(MethodInvoker)delegate
-				   {
-					   Program.MyForm.richTextBoxLog.Text = text + Environment.NewLine + Program.MyForm.richTextBoxLog.Text;
-				   });
-			else
-			{
-				Program.MyForm.richTextBoxLog.Text = text + Environment.NewLine + Program.MyForm.richTextBoxLog.Text;
-			}
-		}
-
-		public static void WriteLog(Exception ex)
-		{
-			Logger.Log.Error(ex);
-			WriteLog($"Ошибка в {ex.TargetSite.Name}: {ex.Message.Substring(0, ex.Message.Length > 40 ? 40 : ex.Message.Length)}", false);
-		}
 
 		/// <summary>
 		/// Загрузить данные по акциям
@@ -199,10 +112,10 @@ namespace StocksAnalyzer
 		/// <param name="lbl">Лейбл с формы</param>
 		/// <param name="bar">Прогресс-бар</param>
 		/// <returns></returns>
-		public static async Task LoadStocksData(List<Stock> lst, Label lbl, ProgressBar bar)
+		public static async Task LoadStocksData(List<Stock> lst, IReportText lbl, IReportProgress bar)
 		{
-			s_report = "Не удалось загрузить акции:;";
 			int count = lst.Count, doneEvents = 0;
+			var report = new StringBuilder();
 			Task[] tasks = new Task[count];
 
 			Stopwatch stwatch = Stopwatch.StartNew();
@@ -212,21 +125,26 @@ namespace StocksAnalyzer
 				var i1 = i;
 				tasks[i] = Task.Run(async () =>
 				{
-					await GetStockData(lst[i1]);
+					try
+					{
+						await GetStockData(lst[i1]);
+					}
+					catch (Exception er)
+					{
+						Logger.Log.Error(
+							$"Не удалось получить инфу по {lst[i1].Name}: {er.Message}\r\n{er.StackTrace}");
+						report.Append($"{lst[i1].Name};");
+					}
 					Interlocked.Increment(ref doneEvents);
 					if (i1 % 10 != 0)
 						return;
 
 					double mins = stwatch.Elapsed.TotalSeconds * (1.0 / ((double)doneEvents / count) - 1) / 60.0;
 					mins = Math.Floor(mins) + (mins - Math.Floor(mins)) * 0.6;
-					lbl.BeginInvoke((MethodInvoker)delegate
-					{
-						lbl.Text =
-							$@"Обработано {doneEvents} / {count}. Расчетное время: {
-									(mins >= 1 ? Math.Floor(mins) + " мин " : "")
-								}{Math.Floor((mins - Math.Floor(mins)) * 100)} с";
-					});
-					bar.BeginInvoke((MethodInvoker)delegate { bar.Value = doneEvents * 100 / count; });
+					lbl.Text = $@"Обработано {doneEvents} / {count}. Расчетное время: {
+							(mins >= 1 ? Math.Floor(mins) + " мин " : "")
+						}{Math.Floor((mins - Math.Floor(mins)) * 100)} с";
+					bar.Value = doneEvents * 100 / count;
 				});
 			}
 			await Task.WhenAll(tasks);
@@ -234,39 +152,7 @@ namespace StocksAnalyzer
 			stwatch.Stop();
 			bar.Value = 100;
 			lbl.Text = @"Готово.";
-		}
-
-		public static string ToCuteStr(this double? num)
-		{
-			if (!num.HasValue)
-				return "";
-			return num.Value.ToCuteStr();
-		}
-
-		public static string ToCuteStr(this int? num)
-		{
-			if (!num.HasValue)
-				return "";
-			return ((double)num.Value).ToCuteStr();
-		}
-
-		/// <summary>
-		/// Преобразовать в короткую/красивую строку
-		/// </summary>
-		/// <param name="num">Число</param>
-		/// <returns>Строку</returns>
-		public static string ToCuteStr(this double num)
-		{
-			string str = "";
-			if (Math.Abs(num) > 1000.0 * 1000 * 1000 * 1000) // Триллион
-				str = (num / 1000 / 1000 / 1000).ToString("F2") + " T";
-			else if (Math.Abs(num) > 1000 * 1000 * 1000) // Миллиард
-				str = (num / 1000 / 1000 / 1000).ToString("F2") + " B";
-			else if (Math.Abs(num) > 1000 * 1000) // Миллион
-				str = (num / 1000 / 1000).ToString("F2") + " M";
-			else if (Math.Abs(num) > Tolerance)
-				str = num.ToString("F2");
-			return str;
+			MakeReportAndSaveToFile(lst, report.ToString());
 		}
 
 		/// <summary>
@@ -275,70 +161,61 @@ namespace StocksAnalyzer
 		/// <param name="st">Акция</param>
 		public static async Task GetStockData(Stock st)
 		{
-			string stockName = st.Name, htmlCode = "";
+			string stockName = st.Name, htmlCode;
 			st = GetStock(false, st.Name);
 			if (st == null)
 			{
-				WriteLog($"Не удалось найти акцию в getStockData: {stockName}");
+				LogWriter.WriteLog($"Не удалось найти акцию в getStockData: {stockName}");
 				return;
 			}
-
-			try
+			if (st.Market.Location == StockMarketLocation.Usa)
 			{
-				if (st.Market.Location == StockMarketLocation.Usa)
+				htmlCode = await Web.Get(string.Format(Web.GetStockDataUrlUsa, st.Symbol));
+				if (htmlCode.IndexOf(">Trailing P/E</span>", StringComparison.Ordinal) < 0)
 				{
-					htmlCode = await Web.Get(string.Format(Web.GetStockDataUrlUsa, st.Symbol));
-					if (htmlCode.IndexOf(">Trailing P/E</span>", StringComparison.Ordinal) < 0)
+					Logger.Log.Warn($"На сайте (USA) нет данных для {st.Symbol}");
+					return;
+				}
+
+				foreach (var coef in Coefficient.CoefficientList)
+				{
+					if (coef.IsUSA || coef.IsCommon)
 					{
-						Logger.Log.Warn($"На сайте (USA) нет данных для {st.Symbol}");
+						if (!string.IsNullOrEmpty(coef.SearchInHTML_USA))
+							st[coef] = GettingYahooData(coef.SearchInHTML_USA, ref htmlCode);
+						else
+							st.CalculateCoef(coef);
+					}
+				}
+
+				st.LastUpdate = DateTime.Now;
+			}
+			else if (st.Market.Location == StockMarketLocation.Russia)
+			{
+				if (!NamesToSymbolsRus.ContainsKey(st.Name))
+				{
+					LogWriter.WriteLog($"Нет ссылки для получения инфы для {st}");
+					return;
+				}
+
+				lock (s_rusStockLoaderLocker)
+				{
+					htmlCode = Web.Get(Web.GetStockDataUrlRussia + NamesToSymbolsRus[st.Name]).Result;
+					if (htmlCode.IndexOf("<span class=\"\">Коэффициент цена/прибыль", StringComparison.Ordinal) < 0)
+					{
+						Logger.Log.Warn($"На сайте (RUS) нет данных для {st.Symbol}");
 						return;
 					}
 
 					foreach (var coef in Coefficient.CoefficientList)
 					{
-						if (coef.IsUSA || coef.IsCommon)
-						{
-							if (!string.IsNullOrEmpty(coef.SearchInHTML_USA))
-								st[coef] = GettingYahooData(coef.SearchInHTML_USA, ref htmlCode);
-							else
-								st.CalculateCoef(coef);
-						}
+						if (coef.IsCommon || coef.IsRus)
+							st[coef] = GettingInvestingComData(coef.SearchInHTML_Rus, ref htmlCode,
+								coef.SearchInHTMLAppendix_Rus);
 					}
 
 					st.LastUpdate = DateTime.Now;
 				}
-				else if (st.Market.Location == StockMarketLocation.Russia)
-				{
-					if (!NamesToSymbolsRus.ContainsKey(st.Name))
-					{
-						WriteLog($"Нет ссылки для получения инфы для {st}");
-						return;
-					}
-
-					lock (s_rusStockLoaderLocker)
-					{
-						htmlCode = Web.Get(Web.GetStockDataUrlRussia + NamesToSymbolsRus[st.Name]).Result;
-						if (htmlCode.IndexOf("<span class=\"\">Коэффициент цена/прибыль", StringComparison.Ordinal) < 0)
-						{
-							Logger.Log.Warn($"На сайте (RUS) нет данных для {st.Symbol}");
-							return;
-						}
-
-						foreach (var coef in Coefficient.CoefficientList)
-						{
-							if (coef.IsCommon || coef.IsRus)
-								st[coef] = GettingInvestingComData(coef.SearchInHTML_Rus, ref htmlCode, coef.SearchInHTMLAppendix_Rus);
-						}
-
-						st.LastUpdate = DateTime.Now;
-					}
-				}
-			}
-			catch (Exception er)
-			{
-				Logger.Log.Error(
-					$"Не удалось получить инфу по {st.Name}: {er.Message}\r\n{htmlCode}\r\n{er.StackTrace}");
-				s_report += st.Name + ';';
 			}
 
 		}
@@ -349,12 +226,12 @@ namespace StocksAnalyzer
 			try
 			{
 				await StockMarket.InitializeCurrencies();
-				WriteLog("USD: " + StockMarket.GetExchangeRates(StockMarketCurrency.Usd).ToString("F2") +
+				LogWriter.WriteLog("USD: " + StockMarket.GetExchangeRates(StockMarketCurrency.Usd).ToString("F2") +
 						 "\r\nEUR: " + StockMarket.GetExchangeRates(StockMarketCurrency.Eur).ToString("F2"));
 			}
 			catch (Exception ex)
 			{
-				WriteLog(ex);
+				LogWriter.WriteLog(ex);
 			}
 			FillDict();
 		}
@@ -362,7 +239,7 @@ namespace StocksAnalyzer
 		/// <summary>
 		/// Загрузить список всех акций
 		/// </summary>
-		public static async Task GetStocksList(Label lbl, ProgressBar bar, bool loadAllStocksAgain = true)
+		public static async Task GetStocksList(IReportText lbl, IReportProgress bar, bool loadAllStocksAgain = true)
 		{
 			if (loadAllStocksAgain)
 			{
@@ -385,14 +262,11 @@ namespace StocksAnalyzer
 				double mins = stwatch.Elapsed.TotalSeconds * (1.0 / ((double)s_doneEventsCount / count) - 1) / 60.0;
 				mins = Math.Floor(mins) + (mins - Math.Floor(mins)) * 0.6;
 
-				lbl.BeginInvoke((MethodInvoker)delegate
-				{
-					lbl.Text =
-						$@"Обработано {s_doneEventsCount} / {count}. Расчетное время: {
-								(mins >= 1 ? Math.Floor(mins) + " мин " : "")
-							}{Math.Floor((mins - Math.Floor(mins)) * 100)} с";
-				});
-				bar.BeginInvoke((MethodInvoker)delegate { bar.Value = s_doneEventsCount * 100 / count; });
+				lbl.Text =
+					$@"Обработано {s_doneEventsCount} / {count}. Расчетное время: {
+							(mins >= 1 ? Math.Floor(mins) + " мин " : "")
+						}{Math.Floor((mins - Math.Floor(mins)) * 100)} с";
+				bar.Value = s_doneEventsCount * 100 / count;
 				if (tinkoffCheck.IsCompleted)
 				{
 					break;
@@ -498,12 +372,6 @@ namespace StocksAnalyzer
 				.Replace("\",\"", "|")
 				.Replace("\"", "")
 				.Split('\n');
-			// Данные код перестал работать, т.к. файл не удается скачать(((
-
-			//(Web.ReadDownloadedFile(Web.GetStocksListUrlUsaNasdaq) +
-			// Web.ReadDownloadedFile(Web.GetStocksListUrlUsaNyse)).Replace("\"", "")
-			//    .Replace("\",\"", "|")
-			//    .Split('\n');
 
 			foreach (var s in htmlCode)
 			{

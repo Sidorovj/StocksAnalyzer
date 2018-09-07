@@ -44,7 +44,7 @@ namespace StocksAnalyzer
                 }
                 catch (ArgumentException ser)
                 {
-                    MainClass.WriteLog(ser);
+                    LogWriter.WriteLog(ser);
                 }
 			}
 			RenameFileIfError(m_mCurrentFilePath);

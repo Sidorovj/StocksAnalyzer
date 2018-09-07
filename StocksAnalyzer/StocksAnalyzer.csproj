@@ -65,9 +65,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adapters\IReportProgress.cs" />
+    <Compile Include="Adapters\IReportText.cs" />
+    <Compile Include="WinForms\FormsLabelReporter.cs" />
+    <Compile Include="WinForms\FormsProgressReporter.cs" />
     <Compile Include="Analyzer.cs" />
     <Compile Include="Helpers\StringParser.cs" />
     <Compile Include="Helpers\Enums.cs" />
+    <Compile Include="LogWriterToView.cs" />
     <Compile Include="Settings\Const.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -85,6 +90,7 @@
     <Compile Include="Stock\Stock.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\Web.cs" />
+    <Compile Include="WinForms\FormsLoggerReporter.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
