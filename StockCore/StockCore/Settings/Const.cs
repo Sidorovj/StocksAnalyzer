@@ -4,13 +4,13 @@ using System.IO;
 
 namespace StocksAnalyzer
 {
-	class Const
+	public class Const
 	{
 		public const double Tolerance = 1e-7;
 		public static string SettingsDirName { get; } = @"Settings";
 		public static string AnalysisDirName { get; } = @"Analysis";
 		public static string ToRestoreDirName { get; } = @"_ToRestoreState";
-		public static string ViewSettingsFile { get; } = @"ViewSettings.dat";
+
 		public const string StockListFilePath = "stockList.dat";
 	    public static string CoefficientsSettings => "Coefficients.csv";
 		public static string ReportFileName 

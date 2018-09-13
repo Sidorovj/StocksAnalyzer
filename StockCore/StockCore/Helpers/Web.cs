@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.IO;
 
 namespace StocksAnalyzer
 {
-	static class Web
+	public static class Web
 	{
 		private static readonly CookieContainer s_cookContainer = new CookieContainer();
 

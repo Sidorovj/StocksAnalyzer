@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -11,7 +12,7 @@ namespace StocksAnalyzer
 	/// Акция и ее характеристики
 	/// </summary>
 	[Serializable]
-	class Stock
+	public class Stock
 	{
 		/// <summary>
 		/// Связь коэффициента и количества акций, в которых он заполнен
@@ -20,8 +21,11 @@ namespace StocksAnalyzer
 
 		public static bool AllStocksInListAnalyzed = false;
 
+		private static readonly Dictionary<string, string> s_namesToSymbolsRus = new Dictionary<string, string>();
+
 
 		public bool IsStarred { get; set; }
+		public string LinkToGetInfo => s_namesToSymbolsRus[Name];
 		public DateTime LastUpdate { get; set; }
 		public StockMarket Market { get; }
 		public string Name { get; }
@@ -46,6 +50,27 @@ namespace StocksAnalyzer
 		public double AveragePositionMetric;
 		public double AveragePositionNormalizedCoefs;
 
+
+		static Stock()
+		{
+			using (var fs = new FileStream($"{Const.SettingsDirName}/NamesToSymbols.csv", FileMode.Open))
+			{
+				using (var sr = new StreamReader(fs))
+				{
+					var lines = sr.ReadToEnd().Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+					foreach (var line in lines)
+					{
+						var splitted = line.Split(';');
+						if (splitted.Length < 2)
+							throw new NotSupportedException($"Wrong line {line}, fs.Position={fs.Position}");
+						var name = splitted[0];
+						var key = splitted[1];
+						s_namesToSymbolsRus[name] = key;
+					}
+				}
+			}
+		}
+
 		public override string ToString()
 		{
 			return Name;
@@ -55,7 +80,7 @@ namespace StocksAnalyzer
 		{
 			this[coef] = coef.CalculateCoef(CoefficientsValues);
 		}
-		
+
 
 		public double? this[Coefficient coef]
 		{
@@ -63,7 +88,7 @@ namespace StocksAnalyzer
 			set => CoefficientsValues[coef] = value;
 		}
 
-		public Stock(string name, double price, StockMarket mar, string symb = "")
+		internal Stock(string name, double price, StockMarket mar, string symb = "")
 		{
 			Name = name;
 			Price = price;
@@ -136,10 +161,10 @@ namespace StocksAnalyzer
 
 		private bool NameOrDescriptionContains(string searchStr, params string[] arr)
 		{
-			var query = from s in arr
-				let str = s.ToLower()
-				where s != null && searchStr.Split(' ').All(str.Contains)
-				select 0;
+			var query = from s in arr.Where(s => !string.IsNullOrEmpty(s))
+						let str = s.ToLower()
+						where s != null && searchStr.Split(' ').All(str.Contains)
+						select 0;
 			return query.Any();
 		}
 	}

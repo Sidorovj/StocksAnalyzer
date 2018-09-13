@@ -6,7 +6,7 @@ namespace StocksAnalyzer
 	/// На каком рынке торгуется акция
 	/// </summary>
 	[Flags]
-	enum StockMarketLocation
+	public enum StockMarketLocation
 	{
 		Russia = 0,
 		Usa = 10,
@@ -17,7 +17,7 @@ namespace StocksAnalyzer
 	/// Валюта, в которой торгуются акции
 	/// </summary>
 	[Flags]
-	enum StockMarketCurrency 
+	public enum StockMarketCurrency 
 	{
 		Rub = 0,
 		Usd = 10,

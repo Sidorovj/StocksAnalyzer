@@ -15,6 +15,8 @@ namespace StocksAnalyzer
 
 	public partial class MainForm : Form
 	{
+		public static string ViewSettingsFile { get; } = @"ViewSettings.dat";
+
 		private readonly List<Stock> m_russianStocks = new List<Stock>();
 		private readonly List<Stock> m_usaStocks = new List<Stock>();
 		private readonly List<Stock> m_londonStocks = new List<Stock>();
@@ -41,8 +43,6 @@ namespace StocksAnalyzer
 			panelRussiaCoefs.Height = panelUSACoefs.Height;
 
 			ResetStockForm();
-
-			InitializeMainClass();
 
 			FormClosing += Form1_FormClosing;
 
@@ -107,6 +107,10 @@ namespace StocksAnalyzer
 			CreateSortButton(textBoxRatingMetrics, textBoxRatingMetrics.Name, sortMode: SortingModes.PositionMetric);
 
 			t.SetToolTip(labelSymbol, "Тикет");
+
+#pragma warning disable 4014
+			InitializeMainClass();
+#pragma warning restore 4014
 		}
 
 
@@ -279,12 +283,14 @@ namespace StocksAnalyzer
 				panelRussiaCoefs.Controls.Add(c);
 			else panelUSACoefs.Controls.Add(c);
 		}
-		private void InitializeMainClass()
+		private async Task InitializeMainClass()
 		{
-			MainClass.Initialize();
+			await Task.Delay(10);
 			LoadStockListsToViewOnInit();
+			LogWriter.WriteLog(
+				$"Текущие котировки: \r\nUSD: {StockMarket.GetExchangeRates(StockMarketCurrency.Usd):F2}\r\nEUR: {StockMarket.GetExchangeRates(StockMarketCurrency.Eur):F2}");
 
-			string path = $"{Const.ToRestoreDirName}/{Const.ViewSettingsFile}";
+			string path = $"{Const.ToRestoreDirName}/{ViewSettingsFile}";
 			if (!File.Exists(path))
 			{
 				m_selectedList = m_tinkoffStocks;
@@ -334,7 +340,7 @@ namespace StocksAnalyzer
 			finally
 			{
 				MainClass.WriteStockListToFile();
-				string path = $"{Const.ToRestoreDirName}/{Const.ViewSettingsFile}";
+				string path = $"{Const.ToRestoreDirName}/{ViewSettingsFile}";
 				if (!File.Exists(path))
 				{
 					var fs = File.Create(path);
@@ -394,8 +400,8 @@ namespace StocksAnalyzer
 			}
 			else if (m_selectedStock.Market.Location == StockMarketLocation.Russia)
 			{
-				if (MainClass.NamesToSymbolsRus.ContainsKey(m_selectedStock.Name))
-					linkLabel1.Text = Web.GetStockDataUrlRussia + MainClass.NamesToSymbolsRus[m_selectedStock.Name];
+				if (!string.IsNullOrEmpty(m_selectedStock.LinkToGetInfo))
+					linkLabel1.Text = Web.GetStockDataUrlRussia + m_selectedStock.LinkToGetInfo;
 				panelUSACoefs.Visible = false;
 				panelRussiaCoefs.Visible = true;
 			}
@@ -422,7 +428,7 @@ namespace StocksAnalyzer
 				{
 					var pos = m_selectedStock.PositionInMetricAndCoef[coef.Name];
 					PositionLabels[coef.Name].Text = pos != null
-						? $@"{100 * (Stock.CoefHasValueCount[coef] - (double)pos + 1) / Stock.CoefHasValueCount[coef]:F2}%"
+						? $@"{100.0 * (Stock.CoefHasValueCount[coef] - pos + 1) / Stock.CoefHasValueCount[coef]:F2}%"
 						: @" ";
 				}
 			}
@@ -435,7 +441,7 @@ namespace StocksAnalyzer
 				{
 					var pos = m_selectedStock.PositionInMetricAndCoef[metric];
 					PositionLabels[metric].Text = pos != null
-						? $@"{100 * (m_selectedList.Count - (double)pos + 1) / m_selectedList.Count:F2}%"
+						? $@"{100.0 * (m_selectedList.Count - pos + 1) / m_selectedList.Count:F2}%"
 						: @" ";
 				}
 			}
@@ -502,15 +508,8 @@ namespace StocksAnalyzer
 			Stopwatch stopwa = Stopwatch.StartNew();
 			MainClass.Stocks.Clear();
 
-			try
-			{
-				await MainClass.GetStocksList(new FormsTextReporter(labelRemainingTime),
-					new FormsProgressReporter(progressBar));
-			}
-			finally
-			{
-				MainClass.WriteStockListToFile();
-			}
+			await MainClass.GetStocksList(new FormsTextReporter(labelRemainingTime),
+				new FormsProgressReporter(progressBar));
 			FillStockLists();
 			stopwa.Stop();
 
@@ -753,7 +752,7 @@ namespace StocksAnalyzer
 			stopwatch.Start();
 			await Task.Run(() =>
 			{
-				Analyzer.Analyze(m_selectedList);
+				MainClass.Analyze(m_selectedList);
 			});
 
 			stopwatch.Stop();

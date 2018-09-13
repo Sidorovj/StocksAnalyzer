@@ -1,9 +1,8 @@
-﻿using System;
-using NLog;
+﻿using NLog;
 
 namespace StocksAnalyzer
 {
-	internal static class Logger
+	public static class Logger
 	{
 		public static  NLog.Logger Log { get; }
 

@@ -11,7 +11,7 @@ using StocksAnalyzer.Helpers;
 namespace StocksAnalyzer
 {
 	[Serializable]
-	internal sealed class Coefficient
+	public sealed class Coefficient
 	{
 		/// <summary>
 		/// Список всех коэффициентов из файла с настройками
@@ -138,7 +138,7 @@ namespace StocksAnalyzer
 		/// <param name="d">Число, от которого взять корень</param>
 		/// <param name="pow">Степень</param>
 		/// <returns>Итоговое число</returns>
-		private static double SignedSqr(double d, double pow = 0.5)
+		internal static double SignedSqr(double d, double pow = 0.5)
 		{
 			return d >= 0 ? Math.Pow(d, pow) : -Math.Pow(-d, pow);
 		}

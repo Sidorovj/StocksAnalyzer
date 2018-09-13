@@ -7,26 +7,33 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using StocksAnalyzer.Adapters;
+using StocksAnalyzer.Core.Interfaces;
 using StocksAnalyzer.Helpers;
 
 
 namespace StocksAnalyzer
 {
 
-	internal static class MainClass
+	public class MainClass
 	{
 		private static string s_reportFileName;
-		public static Dictionary<string, string> NamesToSymbolsRus { get; } = new Dictionary<string, string>();
-
-		public static List<Stock> Stocks { get; set; } = new List<Stock>();
-
 		private static int s_doneEventsCount;
-
 		private static readonly object s_rusStockLoaderLocker = new object();
 
 
+		public static List<Stock> Stocks { get; set; } = new List<Stock>();
+
+		static MainClass()
+		{
+			LoadStockListFromFile();
+		}
+
 		#region Methods:public
+
+		public static void Analyze(List<Stock> lst)
+		{
+			Analyzer.Analyze(lst);
+		}
 
 		public static Stock GetStock(bool compareFullName, string name)
 		{
@@ -50,7 +57,7 @@ namespace StocksAnalyzer
 			string fullPath = $"{Const.ToRestoreDirName}/{path}";
 			if (!Directory.Exists(Const.ToRestoreDirName) || !File.Exists(fullPath))
 			{
-				LogWriter.WriteLog(@"Не могу найти файл для десериализации");
+				Logger.Log.Error(@"Не могу найти файл для десериализации");
 				return;
 			}
 
@@ -165,7 +172,7 @@ namespace StocksAnalyzer
 			st = GetStock(false, st.Name);
 			if (st == null)
 			{
-				LogWriter.WriteLog($"Не удалось найти акцию в getStockData: {stockName}");
+				Logger.Log.Error($"Не удалось найти акцию в getStockData: {stockName}");
 				return;
 			}
 			if (st.Market.Location == StockMarketLocation.Usa)
@@ -192,15 +199,15 @@ namespace StocksAnalyzer
 			}
 			else if (st.Market.Location == StockMarketLocation.Russia)
 			{
-				if (!NamesToSymbolsRus.ContainsKey(st.Name))
+				if (string.IsNullOrEmpty(st.LinkToGetInfo))
 				{
-					LogWriter.WriteLog($"Нет ссылки для получения инфы для {st}");
+					Logger.Log.Error($"Нет ссылки для получения инфы для {st}");
 					return;
 				}
 
 				lock (s_rusStockLoaderLocker)
 				{
-					htmlCode = Web.Get(Web.GetStockDataUrlRussia + NamesToSymbolsRus[st.Name]).Result;
+					htmlCode = Web.Get(Web.GetStockDataUrlRussia + st.LinkToGetInfo).Result;
 					if (htmlCode.IndexOf("<span class=\"\">Коэффициент цена/прибыль", StringComparison.Ordinal) < 0)
 					{
 						Logger.Log.Warn($"На сайте (RUS) нет данных для {st.Symbol}");
@@ -220,21 +227,6 @@ namespace StocksAnalyzer
 
 		}
 
-		public static async void Initialize()
-		{
-			LoadStockListFromFile();
-			try
-			{
-				await StockMarket.InitializeCurrencies();
-				LogWriter.WriteLog("USD: " + StockMarket.GetExchangeRates(StockMarketCurrency.Usd).ToString("F2") +
-						 "\r\nEUR: " + StockMarket.GetExchangeRates(StockMarketCurrency.Eur).ToString("F2"));
-			}
-			catch (Exception ex)
-			{
-				LogWriter.WriteLog(ex);
-			}
-			FillDict();
-		}
 
 		/// <summary>
 		/// Загрузить список всех акций
@@ -280,8 +272,15 @@ namespace StocksAnalyzer
 
 		#endregion
 
+
+
 		#region Methods:private
 
+		private MainClass()
+		{
+
+		}
+		
 		private static void CheckForRepeatsAndSort()
 		{
 			var temp = Stocks;
@@ -307,6 +306,10 @@ namespace StocksAnalyzer
 			{
 				var task = await Task.WhenAny(tinkoffTask);
 				tinkoffTask.Remove(task);
+				if (task.IsFaulted && task.Exception != null)
+				{
+					Logger.Log.Error(task.Exception.InnerExceptions);
+				}
 				Interlocked.Increment(ref s_doneEventsCount);
 			}
 
@@ -425,28 +428,6 @@ namespace StocksAnalyzer
 			return temp.Substring(0, temp.IndexOf("</td", StringComparison.Ordinal)).ParseCoefStrToDouble();
 		}
 
-		/// <summary>
-		/// Заполнить словарь списком акций, которые надо обработать
-		/// </summary>
-		private static void FillDict()
-		{
-			using (var fs = new FileStream($"{Const.SettingsDirName}/NamesToSymbols.csv", FileMode.Open))
-			{
-				using (var sr = new StreamReader(fs))
-				{
-					var lines = sr.ReadToEnd().Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-					foreach (var line in lines)
-					{
-						var splitted = line.Split(';');
-						if (splitted.Length < 2)
-							throw new NotSupportedException($"Wrong line {line}, fs.Position={fs.Position}");
-						var name = splitted[0];
-						var key = splitted[1];
-						NamesToSymbolsRus[name] = key;
-					}
-				}
-			}
-		}
 
 		#endregion
 	}

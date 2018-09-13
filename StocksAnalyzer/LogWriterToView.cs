@@ -1,6 +1,6 @@
 ﻿using System;
-using StocksAnalyzer.Adapters;
 using StocksAnalyzer.WinForms;
+using StocksAnalyzer.Core.Interfaces;
 
 namespace StocksAnalyzer
 {

@@ -2,13 +2,39 @@
 using System.Globalization;
 namespace StocksAnalyzer.Helpers
 {
-	static class StringParser
+	public static class StringParser
 	{
+		public static string ToCuteStr(this double? num)
+		{
+			if (!num.HasValue)
+				return "";
+			return num.Value.ToCuteStr();
+		}
+
+		/// <summary>
+		/// Преобразовать в короткую/красивую строку
+		/// </summary>
+		/// <param name="num">Число</param>
+		/// <returns>Строку</returns>
+		public static string ToCuteStr(this double num)
+		{
+			string str = "";
+			if (Math.Abs(num) > 1000.0 * 1000 * 1000 * 1000) // Триллион
+				str = (num / 1000 / 1000 / 1000).ToString("F2") + " T";
+			else if (Math.Abs(num) > 1000 * 1000 * 1000) // Миллиард
+				str = (num / 1000 / 1000 / 1000).ToString("F2") + " B";
+			else if (Math.Abs(num) > 1000 * 1000) // Миллион
+				str = (num / 1000 / 1000).ToString("F2") + " M";
+			else if (Math.Abs(num) > Const.Tolerance)
+				str = num.ToString("F2");
+			return str;
+		}
+
 		/// <summary>
 		/// Например для sin(3.0) вернет 3.0
 		/// </summary>
 		/// <returns>Текстовое значение в скобках</returns>
-		public static string GetNumInBracketsForFunction(string where, string functName)
+		internal static string GetNumInBracketsForFunction(string where, string functName)
 		{
 			var index = where.IndexOf(functName, StringComparison.Ordinal);
 			string funct = where.Substring(index,
@@ -24,7 +50,7 @@ namespace StocksAnalyzer.Helpers
 		/// </summary>
 		/// <param name="stringValue">Формат строки: "USD":0.001432</param>
 		/// <returns></returns>
-		public static double? ParseCoefStrToDouble(this string stringValue)
+		internal static double? ParseCoefStrToDouble(this string stringValue)
 		{
 			if (stringValue.IndexOf(":", StringComparison.Ordinal) > 0)
 				stringValue = stringValue.Substring(stringValue.IndexOf(':') + 1);
@@ -65,30 +91,5 @@ namespace StocksAnalyzer.Helpers
 			throw new Exception($"Не удается распарсить строку {stringValue}");
 		}
 
-		public static string ToCuteStr(this double? num)
-		{
-			if (!num.HasValue)
-				return "";
-			return num.Value.ToCuteStr();
-		}
-
-		/// <summary>
-		/// Преобразовать в короткую/красивую строку
-		/// </summary>
-		/// <param name="num">Число</param>
-		/// <returns>Строку</returns>
-		public static string ToCuteStr(this double num)
-		{
-			string str = "";
-			if (Math.Abs(num) > 1000.0 * 1000 * 1000 * 1000) // Триллион
-				str = (num / 1000 / 1000 / 1000).ToString("F2") + " T";
-			else if (Math.Abs(num) > 1000 * 1000 * 1000) // Миллиард
-				str = (num / 1000 / 1000 / 1000).ToString("F2") + " B";
-			else if (Math.Abs(num) > 1000 * 1000) // Миллион
-				str = (num / 1000 / 1000).ToString("F2") + " M";
-			else if (Math.Abs(num) > Const.Tolerance)
-				str = num.ToString("F2");
-			return str;
-		}
 	}
 }

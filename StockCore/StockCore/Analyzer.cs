@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -7,8 +8,11 @@ using System.Text;
 
 namespace StocksAnalyzer
 {
-	static class Analyzer
+	internal static class Analyzer
 	{
+		private static readonly int s_fromPercent = 10;
+		private static readonly int s_toPercent = 100 - s_fromPercent;
+
 		private static string OutputFileName
 		{
 			get
@@ -27,6 +31,23 @@ namespace StocksAnalyzer
 		/// <param name="list">Список акций</param>
 		public static void Analyze(List<Stock> list)
 		{
+			foreach (var st in list)
+			{
+				foreach (var coef in Coefficient.CoefficientList)
+				{
+					st.NormalizedCoefficientsValues[coef] = coef.Normalize(st[coef]);
+				}
+			}
+
+			Dictionary<Coefficient, double> leftBorders = new Dictionary<Coefficient, double>(Coefficient.CoefficientList.Count);
+			Dictionary<Coefficient, double> rightBorders = new Dictionary<Coefficient, double>(Coefficient.CoefficientList.Count);
+			foreach (var coef in Coefficient.CoefficientList)
+			{
+				var borders = TakeNthElemValue(list, coef);
+				leftBorders[coef] = borders.Item1;
+				rightBorders[coef] = borders.Item2;
+			}
+
 			string data = "Название акции;Market;";
 			using (var sWrite = new StreamWriter(OutputFileName, true, Encoding.UTF8))
 			{
@@ -43,16 +64,14 @@ namespace StocksAnalyzer
 
 					data = $"{st.Name.Replace(';', '.')};{st.Market.Location.ToString()};";
 
-					foreach (var coef in Coefficient.CoefficientList)
-					{
-						st.NormalizedCoefficientsValues[coef] = coef.Normalize(st[coef]);
-					}
 					foreach (var metric in Coefficient.MetricsList)
 					{
 						st.MetricsValues[metric] = 0;
 						foreach (var coef in Coefficient.CoefficientList)
 						{
-							st.MetricsValues[metric] += (st.NormalizedCoefficientsValues[coef] ?? 0) *
+							var compactVal = Compact(st.NormalizedCoefficientsValues[coef], leftBorders[coef],
+								rightBorders[coef]);
+							st.MetricsValues[metric] += Coefficient.SignedSqr(compactVal) *
 														coef.MetricWeight[metric];
 						}
 						data += st.MetricsValues[metric].ToString(CultureInfo.InvariantCulture) + ';';
@@ -66,6 +85,33 @@ namespace StocksAnalyzer
 			}
 
 			SetRatings(list);
+		}
+
+		#endregion
+
+		#region Compacting functions
+
+		private static double Compact(double? value, double leftBorder, double rightBorder)
+		{
+			if (value == null)
+				return 0;
+			if (Math.Abs(rightBorder - leftBorder) < Const.Tolerance)
+				return value.Value;
+			return 2 * (value.Value - leftBorder) / (rightBorder - leftBorder) - 1;
+		}
+
+		[SuppressMessage("ReSharper", "PossibleInvalidOperationException")]
+		private static (double, double) TakeNthElemValue(List<Stock> list, Coefficient coef)
+		{
+			var query = (from st in list
+						 let norm = st.NormalizedCoefficientsValues[coef]
+						 where norm != null
+						 orderby norm.Value
+						 select norm.Value).ToList();
+			if (query.Count == 0)
+				return (0, 0);
+			return (query[(int)Math.Round((double)s_fromPercent * query.Count / 100)], query.Take((int)Math.Round(
+				(double)s_toPercent * query.Count / 100)).Last());
 		}
 
 		#endregion
@@ -85,15 +131,15 @@ namespace StocksAnalyzer
 				stock.PositionInMetricAndCoef.Clear();
 				foreach (var metric in stock.MetricsValues)
 				{
-					var rate = 1;
+					var rate = 0;
 					foreach (var anotherStock in list)
-						if (metric.Value <= anotherStock.MetricsValues[metric.Key])
+						if ( metric.Value <= anotherStock.MetricsValues[metric.Key])
 							rate++;
 					stock.PositionInMetricAndCoef[metric.Key] = rate;
 				}
 				foreach (var coef in stock.NormalizedCoefficientsValues)
 				{
-					int? rate = 1;
+					int? rate = 0;
 					if (coef.Value == null)
 					{
 						rate = null;

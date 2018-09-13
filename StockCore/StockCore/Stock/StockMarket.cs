@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 namespace StocksAnalyzer
@@ -10,13 +9,13 @@ namespace StocksAnalyzer
 	/// Представляет собой рынок, на котором обращаются акции
 	/// </summary>
 	[Serializable]
-	internal class StockMarket
+	public sealed class StockMarket
 	{
 		public StockMarketLocation Location { get; }
 		public StockMarketCurrency Currency { get; }
 
-		private static double s_exchangeRateRubToUsd; // Переделать в словарь
-		private static double s_exchangeRateRubToEur;
+		private static readonly double s_exchangeRateRubToUsd; // Переделать в словарь
+		private static readonly double s_exchangeRateRubToEur;
 
 		public StockMarket(StockMarketLocation loc, StockMarketCurrency curr)
 		{
@@ -24,13 +23,9 @@ namespace StocksAnalyzer
 			Currency = curr;
 		}
 
-
-		/// <summary>
-		/// Получение текущих курсов обмена
-		/// </summary>
-		public static async Task InitializeCurrencies()
+		static StockMarket()
 		{
-			string response = await Web.Get(Web.ExchangeRatesUrl).ConfigureAwait(false);
+			string response = Web.Get(Web.ExchangeRatesUrl).Result;
 			JObject rates = JObject.Parse(response);
 			s_exchangeRateRubToEur = rates["rates"]["RUB"].Value<double>();
 			s_exchangeRateRubToUsd = s_exchangeRateRubToEur / rates["rates"]["USD"].Value<double>();

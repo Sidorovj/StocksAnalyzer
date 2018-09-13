@@ -1,5 +1,5 @@
 ﻿using System.Windows.Forms;
-using StocksAnalyzer.Adapters;
+using StocksAnalyzer.Core.Interfaces;
 
 namespace StocksAnalyzer.WinForms
 {
