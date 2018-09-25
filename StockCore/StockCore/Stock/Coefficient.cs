@@ -45,8 +45,8 @@ namespace StocksAnalyzer
 		public bool IsUSA { get; private set; }
 
 
-		private string m_analyzerFormula { get; set; }
-		private string m_calculateFormula { get; set; }
+		private string m_analyzerFormula;
+		private string m_calculateFormula;
 
 		private Coefficient(string name)
 		{

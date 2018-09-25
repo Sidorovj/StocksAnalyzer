@@ -33,8 +33,10 @@ namespace StocksAnalyzer.Helpers
 		/// <summary>
 		/// Например для sin(3.0) вернет 3.0
 		/// </summary>
+		/// <param name="where">Строка, в которой ищем</param>
+		/// <param name="functName">Название функции (напр. sin)</param>
 		/// <returns>Текстовое значение в скобках</returns>
-		internal static string GetNumInBracketsForFunction(string where, string functName)
+		public static string GetNumInBracketsForFunction(string where, string functName)
 		{
 			var index = where.IndexOf(functName, StringComparison.Ordinal);
 			string funct = where.Substring(index,
@@ -50,7 +52,7 @@ namespace StocksAnalyzer.Helpers
 		/// </summary>
 		/// <param name="stringValue">Формат строки: "USD":0.001432</param>
 		/// <returns></returns>
-		internal static double? ParseCoefStrToDouble(this string stringValue)
+		public static double? ParseCoefStrToDouble(this string stringValue)
 		{
 			if (stringValue.IndexOf(":", StringComparison.Ordinal) > 0)
 				stringValue = stringValue.Substring(stringValue.IndexOf(':') + 1);
@@ -84,7 +86,7 @@ namespace StocksAnalyzer.Helpers
 			}
 
 			stringValue = stringValue.Replace(",", ".");
-			if (Double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
+			if (double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
 				return result * coefficient;
 			if (stringValue == "n/a" || stringValue == "-" || stringValue == "N/A" || stringValue == "")
 				return null;

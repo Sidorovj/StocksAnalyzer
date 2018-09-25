@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockInterfaces", "StockInt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockCore", "StockCore\StockCore\StockCore.csproj", "{CFD48D8A-713E-4A32-8315-581818C02A2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockCoreTests", "StockCoreTests\StockCoreTests\StockCoreTests.csproj", "{B9D4EC48-0D26-42A1-A75E-8FE1213D8D0C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{98D783DA-13E0-428F-88FB-2A6ED6BC920D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{CFD48D8A-713E-4A32-8315-581818C02A2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFD48D8A-713E-4A32-8315-581818C02A2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFD48D8A-713E-4A32-8315-581818C02A2A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B9D4EC48-0D26-42A1-A75E-8FE1213D8D0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B9D4EC48-0D26-42A1-A75E-8FE1213D8D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B9D4EC48-0D26-42A1-A75E-8FE1213D8D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B9D4EC48-0D26-42A1-A75E-8FE1213D8D0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98D783DA-13E0-428F-88FB-2A6ED6BC920D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98D783DA-13E0-428F-88FB-2A6ED6BC920D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98D783DA-13E0-428F-88FB-2A6ED6BC920D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98D783DA-13E0-428F-88FB-2A6ED6BC920D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

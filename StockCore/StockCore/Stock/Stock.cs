@@ -88,7 +88,7 @@ namespace StocksAnalyzer
 			set => CoefficientsValues[coef] = value;
 		}
 
-		internal Stock(string name, double price, StockMarket mar, string symb = "")
+		public Stock(string name, double price, StockMarket mar, string symb = "")
 		{
 			Name = name;
 			Price = price;
