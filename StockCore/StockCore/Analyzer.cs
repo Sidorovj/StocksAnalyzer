@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using StockCore.Stock;
 
 namespace StocksAnalyzer
 {
@@ -28,9 +29,10 @@ namespace StocksAnalyzer
 		/// <summary>
 		/// Анализирует показатели акций, превращая их в одно число, используя метрики
 		/// </summary>
-		/// <param name="list">Список акций</param>
-		public static void Analyze(List<Stock> list)
+		/// <param name="stList">Список акций</param>
+		public static void Analyze(StockList stList)
 		{
+			var list = stList.StList.ToList();
 			foreach (var st in list)
 			{
 				foreach (var coef in Coefficient.CoefficientList)
@@ -53,7 +55,7 @@ namespace StocksAnalyzer
 			{
 				// Write the metrics names
 				foreach (var str in Coefficient.MetricsList)
-					data += str + ';';
+					data += str.ToString() + ';';
 				data += ";";
 				foreach (var str in Coefficient.CoefficientList.Select(c => c.Name))
 					data += str + ';';
@@ -84,7 +86,7 @@ namespace StocksAnalyzer
 				}
 			}
 
-			SetRatings(list);
+			SetRatings(stList, list);
 		}
 
 		#endregion
@@ -118,24 +120,24 @@ namespace StocksAnalyzer
 
 		#region Ratings and positions
 
-		private static void SetRatings(List<Stock> list)
+		private static void SetRatings(StockList stockList, List<Stock> list)
 		{
+
 			foreach (var coef in Coefficient.CoefficientList)
 			{
-
 				Stock.CoefHasValueCount[coef] = 0;
 			}
 
 			foreach (var stock in list)
 			{
-				stock.PositionInMetricAndCoef.Clear();
+				stock.ListToRatings.Clear();
 				foreach (var metric in stock.MetricsValues)
 				{
 					var rate = 0;
 					foreach (var anotherStock in list)
-						if ( metric.Value <= anotherStock.MetricsValues[metric.Key])
+						if (metric.Value <= anotherStock.MetricsValues[metric.Key])
 							rate++;
-					stock.PositionInMetricAndCoef[metric.Key] = rate;
+					stock.ListToRatings[stockList].Add(metric.Key, rate);
 				}
 				foreach (var coef in stock.NormalizedCoefficientsValues)
 				{
@@ -155,32 +157,32 @@ namespace StocksAnalyzer
 							}
 					}
 
-					stock.PositionInMetricAndCoef[coef.Key.Name] = rate;
+					stock.ListToRatings[stockList].Add(coef.Key, rate);
 				}
 
-				SetAveragePosition(stock, list.Count);
+				SetAveragePosition(stockList, stock, list.Count);
 			}
 		}
 
-		private static void SetAveragePosition(Stock st, int maxVal)
+		private static void SetAveragePosition(StockList stockList, Stock st, int maxVal)
 		{
 			int sumAll = 0, totalAll = 0;
 			int sumMetr = 0, totalMetr = 0;
 			int sumCoefs = 0, totalCoefs = 0;
-			foreach (var metric in st.PositionInMetricAndCoef)
+			foreach (var rating in st.ListToRatings[stockList])
 			{
-				if (metric.Value.HasValue)
+				if (rating.Value != null)
 				{
-					sumAll += metric.Value.Value;
+					sumAll += rating.Value.Value;
 					totalAll++;
-					if (Coefficient.MetricsList.Contains(metric.Key))
+					if (Coefficient.MetricsList.Contains(rating.Key))
 					{
-						sumMetr += metric.Value.Value;
+						sumMetr += rating.Value.Value;
 						totalMetr++;
 					}
 					else
 					{
-						sumCoefs += metric.Value.Value;
+						sumCoefs += rating.Value.Value;
 						totalCoefs++;
 					}
 				}

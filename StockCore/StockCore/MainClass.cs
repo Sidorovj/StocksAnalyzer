@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using StockCore.Stock;
 using StocksAnalyzer.Core.Interfaces;
 using StocksAnalyzer.Helpers;
 
@@ -21,6 +22,22 @@ namespace StocksAnalyzer
 
 		public static AvailableLanguages Language = AvailableLanguages.Russian;
 
+		public static List<StockList> PossibleStockList { get; } = new List<StockList>
+		{
+			new StockList(StockListNamesEnum.All, list => list),
+			new StockList(StockListNamesEnum.Tinkoff, list => list.Where(s => s.IsOnTinkoff)),
+			new StockList
+			(
+				StockListNamesEnum.Rus,
+				list => list.Where(s => s.Market.Location == StockMarketLocation.Russia)
+			),
+			new StockList
+			(StockListNamesEnum.Usa,
+				list => list.Where(s => s.Market.Location == StockMarketLocation.Usa)
+			),
+			new StockList(StockListNamesEnum.Starred, list => list.Where(s => s.IsStarred))
+		};
+
 		public static List<Stock> Stocks { get; private set; } = new List<Stock>();
 
 		static MainClass()
@@ -30,9 +47,12 @@ namespace StocksAnalyzer
 
 		#region Methods:public
 
-		public static void Analyze(List<Stock> lst)
+		public static void Analyze()
 		{
-			Analyzer.Analyze(lst);
+			foreach (var stockList in PossibleStockList)
+			{
+				Analyzer.Analyze(stockList);
+			}
 		}
 
 		public static Stock GetStock(bool compareFullName, string name)
@@ -144,7 +164,7 @@ namespace StocksAnalyzer
 					}
 
 					Interlocked.Increment(ref doneEvents);
-					if (i1%10 != 0)
+					if (i1 % 10 != 0)
 						return;
 
 					if (lbl != null)
@@ -153,7 +173,7 @@ namespace StocksAnalyzer
 						mins = Math.Floor(mins) + (mins - Math.Floor(mins)) * 0.6;
 						lbl.Text = $@"Обработано {doneEvents} / {count}. Расчетное время: {
 								(mins >= 1 ? Math.Floor(mins) + " мин " : "")
-							}{Math.Floor((mins - Math.Floor(mins))*100)} с";
+							}{Math.Floor((mins - Math.Floor(mins)) * 100)} с";
 					}
 					if (bar != null)
 						bar.Value = doneEvents * 100 / count;
@@ -240,6 +260,7 @@ namespace StocksAnalyzer
 		/// </summary>
 		public static async Task GetStocksList(IReportText lbl, IReportProgress bar, bool loadAllStocksAgain = true)
 		{
+			Stocks.Clear();
 			try
 			{
 				if (loadAllStocksAgain)

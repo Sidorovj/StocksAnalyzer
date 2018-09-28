@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using StockCore.Interfaces;
+using StockCore.Stock;
 
 namespace StocksAnalyzer
 {
@@ -48,8 +50,8 @@ namespace StocksAnalyzer
 		/// <summary>
 		/// Название метрики к ее значению
 		/// </summary>
-		public Dictionary<string, double> MetricsValues { get; } = new Dictionary<string, double>();
-		public Dictionary<string, int?> PositionInMetricAndCoef { get; } = new Dictionary<string, int?>();
+		public Dictionary<Metric, double> MetricsValues { get; } = new Dictionary<Metric, double>();
+		public Dictionary<StockList, Dictionary<IFactor, int?>> ListToRatings { get; } = new Dictionary<StockList, Dictionary<IFactor, int?>>();
 
 		public double AveragePositionAll;
 		public double AveragePositionMetric;

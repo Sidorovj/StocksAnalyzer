@@ -129,6 +129,7 @@
     <Compile Include="Helpers\Serializer.cs" />
     <Compile Include="Helpers\StringParser.cs" />
     <Compile Include="Helpers\Web.cs" />
+    <Compile Include="Interfaces\IFactor.cs" />
     <Compile Include="Interfaces\IReportProgress.cs" />
     <Compile Include="Interfaces\IReportText.cs" />
     <Compile Include="LocalStrings.cs" />
@@ -137,7 +138,9 @@
     <Compile Include="Settings\Const.cs" />
     <Compile Include="Stock\Coefficient.cs" />
     <Compile Include="Stock\Enums.cs" />
+    <Compile Include="Stock\Metric.cs" />
     <Compile Include="Stock\Stock.cs" />
+    <Compile Include="Stock\StockList.cs" />
     <Compile Include="Stock\StockMarket.cs" />
   </ItemGroup>
   <ItemGroup>

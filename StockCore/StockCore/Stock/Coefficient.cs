@@ -4,6 +4,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using org.mariuszgromada.math.mxparser;
+using StockCore.Interfaces;
+using StockCore.Stock;
 using StocksAnalyzer.Helpers;
 
 // ReSharper disable InconsistentNaming
@@ -11,7 +13,7 @@ using StocksAnalyzer.Helpers;
 namespace StocksAnalyzer
 {
 	[Serializable]
-	public sealed class Coefficient
+	public sealed class Coefficient: IFactor
 	{
 		/// <summary>
 		/// Список всех коэффициентов из файла с настройками
@@ -20,13 +22,13 @@ namespace StocksAnalyzer
 		/// <summary>
 		/// Список всех метрик
 		/// </summary>
-		public static List<string> MetricsList { get; } = new List<string>();
+		public static List<Metric> MetricsList { get; } = new List<Metric>();
 
 
 		/// <summary>
 		/// Значение веса коэффициентов для соответствующих метрик
 		/// </summary>
-		public Dictionary<string, double> MetricWeight { get; } = new Dictionary<string, double>();
+		public Dictionary<Metric, double> MetricWeight { get; } = new Dictionary<Metric, double>();
 
 		public string Name { get; }
 		public string Label { get; private set; }
@@ -154,26 +156,30 @@ namespace StocksAnalyzer
 		{
 			using (var reader = new StreamReader($"{Const.SettingsDirName}/{Const.CoefficientsSettings}"))
 			{
-				Dictionary<int, (string, bool)> columnNumToName = null;
+				Dictionary<int, (string, Metric)> columnNumToName = null;
 				while (!reader.EndOfStream)
 				{
 					string[] data = reader.ReadLine()?.Split(';');
 					if (data?[0] == "Name")
 					{
-						columnNumToName = new Dictionary<int, (string, bool)>(data.Length);
+						columnNumToName = new Dictionary<int, (string, Metric)>(data.Length);
 						bool isMetric = false;
 						for (var i = 0; i < data.Length; i++)
 						{
 							if (data[i] == "#Metrics")
 							{
 								isMetric = true;
-								columnNumToName.Add(i, ("", false));
+								columnNumToName.Add(i, ("", null));
 							}
 							else
 							{
-								columnNumToName.Add(i, (data[i], isMetric));
+								Metric m = null;
 								if (isMetric)
-									MetricsList.Add(data[i]);
+								{
+									m = new Metric(data[i]);
+									MetricsList.Add(m);
+								}
+								columnNumToName.Add(i, (data[i], m));
 							}
 						}
 					}
@@ -185,7 +191,7 @@ namespace StocksAnalyzer
 			}
 		}
 
-		private static Coefficient ParseCoefficient(string[] data, Dictionary<int, (string, bool)> columnNumToName)
+		private static Coefficient ParseCoefficient(string[] data, Dictionary<int, (string, Metric)> columnNumToName)
 		{
 			if (data == null || columnNumToName == null)
 				throw new ArgumentNullException(data == null ? nameof(data) : nameof(columnNumToName));
@@ -198,9 +204,9 @@ namespace StocksAnalyzer
 
 				string value = data[i];
 				// if is metric
-				if (columnNumToName[i].Item2)
+				if (columnNumToName[i].Item2 != null)
 				{
-					coef.MetricWeight[columnNumToName[i].Item1] = value.ParseCoefStrToDouble() ?? 0;
+					coef.MetricWeight[columnNumToName[i].Item2] = value.ParseCoefStrToDouble() ?? 0;
 				}
 				else
 				{

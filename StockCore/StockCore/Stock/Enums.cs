@@ -23,6 +23,16 @@ namespace StocksAnalyzer
 		Usd = 10,
 		Eur = 20
 	}
-    
-    
+
+	[Flags]
+	public enum StockListNamesEnum
+	{
+		All,
+		Tinkoff,
+		Usa,
+		Rus,
+		Starred
+	}
+
+
 }
