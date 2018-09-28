@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,7 +29,11 @@ namespace StocksAnalyzer
 		public string LinkToGetInfo => s_namesToSymbolsRus[Name];
 		public DateTime LastUpdate { get; set; }
 		public StockMarket Market { get; }
-		public string Name { get; }
+
+		[Key]
+		// ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+		// Needs to have setter cause of entity framework DB migration
+		public string Name { get; private set; }
 		public string Symbol { get; }
 		public string FullName => $"{Name} [{Market.Location}]";
 		public bool IsOnTinkoff { get; private set; }
@@ -38,7 +43,7 @@ namespace StocksAnalyzer
 		/// <summary>
 		/// Имя коэффициента к его значению
 		/// </summary>
-		private Dictionary<Coefficient, double?> CoefficientsValues { get; } = new Dictionary<Coefficient, double?>(Coefficient.CoefficientList.Count);
+		public Dictionary<Coefficient, double?> CoefficientsValues { get; } = new Dictionary<Coefficient, double?>(Coefficient.CoefficientList.Count);
 		public Dictionary<Coefficient, double?> NormalizedCoefficientsValues { get; } = new Dictionary<Coefficient, double?>(Coefficient.CoefficientList.Count);
 		/// <summary>
 		/// Название метрики к ее значению
@@ -101,6 +106,7 @@ namespace StocksAnalyzer
 				CoefficientsValues[coef] = null;
 			}
 		}
+		private Stock() { }
 
 		public async Task UnderstandIsItOnTinkoff()
 		{

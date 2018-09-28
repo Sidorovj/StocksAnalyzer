@@ -77,6 +77,11 @@ namespace StocksAnalyzer
 			return false;
 		}
 
+		public static Coefficient Get(string name)
+		{
+			return CoefficientList.First(c => c.Name == name);
+		}
+
 		/// <summary>
 		/// Рассчет значения коэффициента 
 		/// </summary>
@@ -174,9 +179,7 @@ namespace StocksAnalyzer
 					}
 					else if (!string.IsNullOrEmpty(data?[0]))
 					{
-						CoefficientList.Add(ParseCoefficient(data, columnNumToName) ??
-											throw new ArgumentNullException(
-												$"Method {nameof(ParseCoefficient)} return null"));
+						CoefficientList.Add(ParseCoefficient(data, columnNumToName));
 					}
 				}
 			}

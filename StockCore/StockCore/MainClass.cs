@@ -10,7 +10,6 @@ using Newtonsoft.Json.Linq;
 using StocksAnalyzer.Core.Interfaces;
 using StocksAnalyzer.Helpers;
 
-
 namespace StocksAnalyzer
 {
 
@@ -20,8 +19,9 @@ namespace StocksAnalyzer
 		private static int s_doneEventsCount;
 		private static readonly object s_rusStockLoaderLocker = new object();
 
+		public static AvailableLanguages Language = AvailableLanguages.Russian;
 
-		public static List<Stock> Stocks { get; set; } = new List<Stock>();
+		public static List<Stock> Stocks { get; private set; } = new List<Stock>();
 
 		static MainClass()
 		{
@@ -142,23 +142,30 @@ namespace StocksAnalyzer
 							$"Не удалось получить инфу по {lst[i1].Name}: {er.Message}\r\n{er.StackTrace}");
 						report.Append($"{lst[i1].Name};");
 					}
+
 					Interlocked.Increment(ref doneEvents);
-					if (i1 % 10 != 0)
+					if (i1%10 != 0)
 						return;
 
-					double mins = stwatch.Elapsed.TotalSeconds * (1.0 / ((double)doneEvents / count) - 1) / 60.0;
-					mins = Math.Floor(mins) + (mins - Math.Floor(mins)) * 0.6;
-					lbl.Text = $@"Обработано {doneEvents} / {count}. Расчетное время: {
-							(mins >= 1 ? Math.Floor(mins) + " мин " : "")
-						}{Math.Floor((mins - Math.Floor(mins)) * 100)} с";
-					bar.Value = doneEvents * 100 / count;
+					if (lbl != null)
+					{
+						double mins = stwatch.Elapsed.TotalSeconds * (1.0 / ((double)doneEvents / count) - 1) / 60.0;
+						mins = Math.Floor(mins) + (mins - Math.Floor(mins)) * 0.6;
+						lbl.Text = $@"Обработано {doneEvents} / {count}. Расчетное время: {
+								(mins >= 1 ? Math.Floor(mins) + " мин " : "")
+							}{Math.Floor((mins - Math.Floor(mins))*100)} с";
+					}
+					if (bar != null)
+						bar.Value = doneEvents * 100 / count;
 				});
 			}
 			await Task.WhenAll(tasks);
 
 			stwatch.Stop();
-			bar.Value = 100;
-			lbl.Text = @"Готово.";
+			if (bar != null)
+				bar.Value = 100;
+			if (lbl != null)
+				lbl.Text = @"Готово.";
 			MakeReportAndSaveToFile(lst, report.ToString());
 		}
 
@@ -233,39 +240,50 @@ namespace StocksAnalyzer
 		/// </summary>
 		public static async Task GetStocksList(IReportText lbl, IReportProgress bar, bool loadAllStocksAgain = true)
 		{
-			if (loadAllStocksAgain)
+			try
 			{
-				var getRus = Task.Run(GetRussianStocks);
-				var getUsa = Task.Run((Action)GetUsaStocks);
-
-				await Task.WhenAll(getRus, getUsa);
-
-				CheckForRepeatsAndSort();
-			}
-
-			int count = Stocks.Count;
-			s_doneEventsCount = 0;
-
-			Stopwatch stwatch = Stopwatch.StartNew();
-			var tinkoffCheck = Task.Run(async () => await CheckAllForTinkoff(count));
-
-			while (true)
-			{
-				double mins = stwatch.Elapsed.TotalSeconds * (1.0 / ((double)s_doneEventsCount / count) - 1) / 60.0;
-				mins = Math.Floor(mins) + (mins - Math.Floor(mins)) * 0.6;
-
-				lbl.Text =
-					$@"Обработано {s_doneEventsCount} / {count}. Расчетное время: {
-							(mins >= 1 ? Math.Floor(mins) + " мин " : "")
-						}{Math.Floor((mins - Math.Floor(mins)) * 100)} с";
-				bar.Value = s_doneEventsCount * 100 / count;
-				if (tinkoffCheck.IsCompleted)
+				if (loadAllStocksAgain)
 				{
-					break;
+					var getRus = Task.Run(GetRussianStocks);
+					var getUsa = Task.Run((Action)GetUsaStocks);
+
+					await Task.WhenAll(getRus, getUsa);
+
+					CheckForRepeatsAndSort();
 				}
-				await Task.Delay(5 * 1000);
-				if (tinkoffCheck.IsCanceled || tinkoffCheck.IsFaulted)
-					break;
+
+				int count = Stocks.Count;
+				s_doneEventsCount = 0;
+
+				Stopwatch stwatch = Stopwatch.StartNew();
+				var tinkoffCheck = Task.Run(async () => await CheckAllForTinkoff(count));
+
+				while (true)
+				{
+					double mins = stwatch.Elapsed.TotalSeconds * (1.0 / ((double)s_doneEventsCount / count) - 1) / 60.0;
+					mins = Math.Floor(mins) + (mins - Math.Floor(mins)) * 0.6;
+
+					if (lbl != null)
+						lbl.Text =
+							$@"Обработано {s_doneEventsCount} / {count}. Расчетное время: {
+									(mins >= 1 ? Math.Floor(mins) + " мин " : "")
+								}{Math.Floor((mins - Math.Floor(mins)) * 100)} с";
+					if (bar != null)
+						bar.Value = s_doneEventsCount * 100 / count;
+					if (tinkoffCheck.IsCompleted)
+					{
+						break;
+					}
+
+					await Task.Delay(5 * 1000);
+					if (tinkoffCheck.IsCanceled || tinkoffCheck.IsFaulted)
+						break;
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.Log.Error(ex);
+				throw;
 			}
 		}
 
@@ -280,7 +298,7 @@ namespace StocksAnalyzer
 		{
 
 		}
-		
+
 		private static void CheckForRepeatsAndSort()
 		{
 			var temp = Stocks;

@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StockCore\StockCore\StockCore.csproj" />
-    <ProjectReference Include="..\StockInterfaces\StockInterfaces\StockInterfaces.csproj" />
     <ProjectReference Include="..\StocksAnalyzer\StocksAnalyzerForms.csproj" />
   </ItemGroup>
 

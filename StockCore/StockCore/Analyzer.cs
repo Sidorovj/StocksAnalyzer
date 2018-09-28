@@ -10,7 +10,7 @@ namespace StocksAnalyzer
 {
 	internal static class Analyzer
 	{
-		private static readonly int s_fromPercent = 10;
+		private static readonly int s_fromPercent = 5;
 		private static readonly int s_toPercent = 100 - s_fromPercent;
 
 		private static string OutputFileName

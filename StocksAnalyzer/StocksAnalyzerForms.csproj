@@ -102,11 +102,6 @@
       <Project>{cfd48d8a-713e-4a32-8315-581818c02a2a}</Project>
       <Name>StockCore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\StockInterfaces\StockInterfaces\StockInterfaces.csproj">
-      <Project>{ff336acd-011b-4bbc-91e9-a50c2eda146d}</Project>
-      <Name>StockInterfaces</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
