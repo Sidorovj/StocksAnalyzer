@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using StockCore.Interfaces;
 using StockCore.Stock;
 
 namespace StocksAnalyzer
@@ -130,7 +131,10 @@ namespace StocksAnalyzer
 
 			foreach (var stock in list)
 			{
-				stock.ListToRatings.Clear();
+				if (stock.ListToRatings.ContainsKey(stockList))
+					stock.ListToRatings[stockList].Clear();
+				else
+					stock.ListToRatings[stockList] = new Dictionary<IFactor, int?>();
 				foreach (var metric in stock.MetricsValues)
 				{
 					var rate = 0;

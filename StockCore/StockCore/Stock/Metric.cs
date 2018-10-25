@@ -1,7 +1,9 @@
-﻿using StockCore.Interfaces;
+﻿using System;
+using StockCore.Interfaces;
 
 namespace StockCore.Stock
 {
+	[Serializable]
 	public class Metric : IFactor
 	{
 		public string Name { get; }
@@ -11,7 +13,7 @@ namespace StockCore.Stock
 		/// <param name="input">Строка формата Name=Label=Tooltip</param>
 		internal Metric(string input)
 		{
-			var splitted = input.Split('=');
+			var splitted = input.Split('-');
 			Name = splitted[0];
 			Label = splitted[1];
 			Tooltip = splitted[2];

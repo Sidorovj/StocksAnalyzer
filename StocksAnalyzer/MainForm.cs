@@ -21,7 +21,7 @@ namespace StocksAnalyzer
 		public static string ViewSettingsFile { get; } = @"ViewSettings.dat";
 
 		private readonly List<string> m_bestStocksNames = new List<string>();
-		private StockList m_selectedList = GetList(StockListNamesEnum.All);
+		private StockList m_selectedList = GetList(StockListNamesEnum.Tinkoff);
 		private Stock m_selectedStock;
 
 		// ReSharper disable once CollectionNeverQueried.Local
@@ -89,7 +89,7 @@ namespace StocksAnalyzer
 			}
 
 
-			var positionMetric = new Point(labelMetric.Location.X + xPadding/2, labelMetric.Location.Y + 5);
+			var positionMetric = new Point(labelMetric.Location.X + xPadding / 2, labelMetric.Location.Y + 5);
 			foreach (var metric in Coefficient.MetricsList)
 			{
 				positionMetric.Y += yStep;
@@ -187,7 +187,7 @@ namespace StocksAnalyzer
 					int x = sender.Location.X;
 					int y = sender.Location.Y;
 					tb.Font = new Font(tb.Font.FontFamily, tb.Font.Size + 1);
-					tb.Location = new Point(x - sender.Width/2, y - sender.Height + 1);
+					tb.Location = new Point(x - sender.Width / 2, y - sender.Height + 1);
 					btn.Parent.Controls.Add(tb);
 					tb.BringToFront();
 				}
@@ -249,7 +249,7 @@ namespace StocksAnalyzer
 
 					};
 					tb.Font = new Font(tb.Font.FontFamily, tb.Font.Size + 1);
-					tb.Location = new Point(x - tb.Width/2, y - lbl.Height - 5);
+					tb.Location = new Point(x - tb.Width / 2, y - lbl.Height - 5);
 					Controls.Add(tb);
 					tb.BringToFront();
 				}
@@ -434,13 +434,13 @@ namespace StocksAnalyzer
 			{
 				textBoxStockPrice.Text = m_selectedStock.Price.ToString(CultureInfo.InvariantCulture);
 				textBoxStockPriceUSD.Text =
-					(m_selectedStock.Price/StockMarket.GetExchangeRates(StockMarketCurrency.Usd)).ToString("F2");
+					(m_selectedStock.Price / StockMarket.GetExchangeRates(StockMarketCurrency.Usd)).ToString("F2");
 			}
 			else if (m_selectedStock.Market.Currency == StockMarketCurrency.Usd)
 			{
 				textBoxStockPriceUSD.Text = m_selectedStock.Price.ToString(CultureInfo.InvariantCulture);
 				textBoxStockPrice.Text =
-					(m_selectedStock.Price*StockMarket.GetExchangeRates(StockMarketCurrency.Usd)).ToString("F2");
+					(m_selectedStock.Price * StockMarket.GetExchangeRates(StockMarketCurrency.Usd)).ToString("F2");
 			}
 
 			textBoxStockSymbol.Text = m_selectedStock.Symbol;
@@ -448,11 +448,12 @@ namespace StocksAnalyzer
 			foreach (var coef in Coefficient.CoefficientList)
 			{
 				CoefsTextboxes[coef].Text = m_selectedStock[coef].ToCuteStr();
-				if (m_selectedStock.ListToRatings[m_selectedList].ContainsKey(coef) && Stock.AllStocksInListAnalyzed)
+				if (m_selectedStock.ListToRatings.ContainsKey(m_selectedList) && m_selectedStock.ListToRatings[m_selectedList].ContainsKey(coef) &&
+					Stock.AllStocksInListAnalyzed)
 				{
 					var pos = m_selectedStock.ListToRatings[m_selectedList][coef];
 					PositionLabels[coef].Text = pos != null
-						? $@"{100.0*(Stock.CoefHasValueCount[coef] - pos + 1)/Stock.CoefHasValueCount[coef]:F2}%"
+						? $@"{100.0 * (Stock.CoefHasValueCount[coef] - pos + 1) / Stock.CoefHasValueCount[coef]:F2}%"
 						: @" ";
 				}
 			}
@@ -462,11 +463,12 @@ namespace StocksAnalyzer
 			{
 				if (m_selectedStock.MetricsValues.ContainsKey(metric))
 					MetricsTextboxes[metric].Text = m_selectedStock.MetricsValues[metric].ToCuteStr();
-				if (m_selectedStock.ListToRatings[m_selectedList].ContainsKey(metric) && Stock.AllStocksInListAnalyzed)
+				if (m_selectedStock.ListToRatings.ContainsKey(m_selectedList) && m_selectedStock.ListToRatings[m_selectedList].ContainsKey(metric) &&
+					Stock.AllStocksInListAnalyzed)
 				{
 					var pos = m_selectedStock.ListToRatings[m_selectedList][metric];
 					PositionLabels[metric].Text = pos != null
-						? $@"{100.0*(listCount - pos + 1)/listCount:F2}%"
+						? $@"{100.0 * (listCount - pos + 1) / listCount:F2}%"
 						: @" ";
 				}
 			}
