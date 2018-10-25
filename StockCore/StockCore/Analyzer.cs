@@ -1,92 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
-using StockCore.Stock;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using StockCore.Interfaces;
+using StocksAnalyzer.Data;
 
 namespace StocksAnalyzer
 {
-	internal static class Analyzer
+	internal class Analyzer : IStockAnalyze
 	{
 		private static readonly int s_fromPercent = 5;
 		private static readonly int s_toPercent = 100 - s_fromPercent;
-
-		private static string OutputFileName
-		{
-			get
-			{
-				if (!Directory.Exists(Const.AnalysisDirName))
-					Directory.CreateDirectory(Const.AnalysisDirName);
-				return $"{Const.AnalysisDirName}/Analyzed_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
-			}
-		}
-
+		
 		#region Main function
 
 		/// <summary>
 		/// Анализирует показатели акций, превращая их в одно число, используя метрики
 		/// </summary>
-		/// <param name="stList">Список акций</param>
-		public static void Analyze(StockList stList)
+		/// <param name="listName">Название списка</param>
+		/// <param name="stocks">Список акций</param>
+		public void Analyze(StockListNamesEnum listName, IEnumerable<Data.Stock> stocks, DbSet<Data.Coefficient> coefsList)
 		{
-			var list = stList.StList.ToList();
-			foreach (var st in list)
+			var coefsCount = coefsList.Count();
+			var stockList = stocks.ToList();
+			Dictionary<Data.Coefficient, double> leftBorders = new Dictionary<Data.Coefficient, double>(coefsCount);
+			Dictionary<Data.Coefficient, double> rightBorders = new Dictionary<Data.Coefficient, double>(coefsCount);
+			foreach (var coef in coefsList)
 			{
-				foreach (var coef in Coefficient.CoefficientList)
-				{
-					st.NormalizedCoefficientsValues[coef] = coef.Normalize(st[coef]);
-				}
-			}
-
-			Dictionary<Coefficient, double> leftBorders = new Dictionary<Coefficient, double>(Coefficient.CoefficientList.Count);
-			Dictionary<Coefficient, double> rightBorders = new Dictionary<Coefficient, double>(Coefficient.CoefficientList.Count);
-			foreach (var coef in Coefficient.CoefficientList)
-			{
-				var borders = TakeNthElemValue(list, coef);
+				var borders = TakeNthElemValue(stockList, coef);
 				leftBorders[coef] = borders.Item1;
 				rightBorders[coef] = borders.Item2;
 			}
-
-			string data = "Название акции;Market;";
-			using (var sWrite = new StreamWriter(OutputFileName, true, Encoding.UTF8))
+			
+			foreach (var st in stockList)
 			{
-				// Write the metrics names
-				foreach (var str in Coefficient.MetricsList)
-					data += str.ToString() + ';';
-				data += ";";
-				foreach (var str in Coefficient.CoefficientList.Select(c => c.Name))
-					data += str + ';';
-				sWrite.WriteLine(data);
 
-				foreach (Stock st in list)
+				foreach (var metric in CoefficientOld.MetricsList)
 				{
-
-					data = $"{st.Name.Replace(';', '.')};{st.Market.Location.ToString()};";
-
-					foreach (var metric in Coefficient.MetricsList)
+					st.MetricsValues[metric] = 0;
+					foreach (var coef in CoefficientOld.CoefficientList)
 					{
-						st.MetricsValues[metric] = 0;
-						foreach (var coef in Coefficient.CoefficientList)
-						{
-							var compactVal = Compact(st.NormalizedCoefficientsValues[coef], leftBorders[coef],
-								rightBorders[coef]);
-							st.MetricsValues[metric] += Coefficient.SignedSqr(compactVal) *
-														coef.MetricWeight[metric];
-						}
-						data += st.MetricsValues[metric].ToString(CultureInfo.InvariantCulture) + ';';
+						var compactVal = Compact(st.NormalizedCoefficientsValues[coef], leftBorders[coef],
+							rightBorders[coef]);
+						st.MetricsValues[metric] += CoefficientOld.SignedSqr(compactVal) *
+													coef.MetricWeight[metric];
 					}
-
-					data += ';';
-					foreach (var param in st.NormalizedCoefficientsValues.Keys)
-						data += st.NormalizedCoefficientsValues[param].ToString() + ';';
-					sWrite.WriteLine(data);
 				}
 			}
 
-			SetRatings(stList, list);
+			SetRatings(listName, stocks);
+		}
+
+		/// <summary>
+		/// Analyze all lists
+		/// </summary>
+		public void AnalyzeAll(IEnumerable<StockList> stockLists)
+		{
+			IEnumerable<StockListToStock> sss;
+			sss.First().
+			foreach (var list in stockLists)
+				Analyze(null,list);
 		}
 
 		#endregion
@@ -103,41 +78,41 @@ namespace StocksAnalyzer
 		}
 
 		[SuppressMessage("ReSharper", "PossibleInvalidOperationException")]
-		private static (double, double) TakeNthElemValue(List<Stock> list, Coefficient coef)
+		private static (double, double) TakeNthElemValue(IEnumerable<Data.Stock> stocks, Data.Coefficient coef)
 		{
-			var query = (from st in list
-						 let norm = st.NormalizedCoefficientsValues[coef]
-						 where norm != null
-						 orderby norm.Value
-						 select norm.Value).ToList();
+			var query = (from st in stocks
+				let norm = st.CoefficientValues.First(val => val.Coefficient.Equals(coef)).NormalizedValue
+				where norm != null
+				orderby norm.Value
+				select norm.Value).ToList();
 			if (query.Count == 0)
 				return (0, 0);
-			return (query[(int)Math.Round((double)s_fromPercent * query.Count / 100)], query.Take((int)Math.Round(
-				(double)s_toPercent * query.Count / 100)).Last());
+			return (query[(int) Math.Round((double) s_fromPercent*query.Count/100)], query.Take((int) Math.Round(
+				(double) s_toPercent*query.Count/100)).Last());
 		}
 
 		#endregion
 
 		#region Ratings and positions
 
-		private static void SetRatings(StockList stockList, List<Stock> list)
+		private static void SetRatings(StockListNamesEnum listName, List<StockOld> list)
 		{
-
-			foreach (var coef in Coefficient.CoefficientList)
+			foreach (var coef in CoefficientOld.CoefficientList)
 			{
-				Stock.CoefHasValueCount[coef] = 0;
+				StockOld.CoefHasValueCount[listName][coef] = 0;
 			}
 
-			foreach (var stock in list)
+			Parallel.ForEach(list, stock =>
 			{
-				stock.ListToRatings.Clear();
+				var newRatings = new Dictionary<IFactor, int?>();
+				stock.ListToRatings[listName] = newRatings;
 				foreach (var metric in stock.MetricsValues)
 				{
 					var rate = 0;
 					foreach (var anotherStock in list)
 						if (metric.Value <= anotherStock.MetricsValues[metric.Key])
 							rate++;
-					stock.ListToRatings[stockList].Add(metric.Key, rate);
+					newRatings.Add(metric.Key, rate);
 				}
 				foreach (var coef in stock.NormalizedCoefficientsValues)
 				{
@@ -148,7 +123,7 @@ namespace StocksAnalyzer
 					}
 					else
 					{
-						Stock.CoefHasValueCount[coef.Key]++;
+						StockOld.CoefHasValueCount[listName][coef.Key]++;
 						foreach (var anotherStock in list)
 							if (anotherStock.NormalizedCoefficientsValues[coef.Key].HasValue &&
 								coef.Value <= anotherStock.NormalizedCoefficientsValues[coef.Key])
@@ -157,25 +132,26 @@ namespace StocksAnalyzer
 							}
 					}
 
-					stock.ListToRatings[stockList].Add(coef.Key, rate);
+					newRatings.Add(coef.Key, rate);
 				}
 
-				SetAveragePosition(stockList, stock, list.Count);
-			}
+				SetAveragePosition(listName, stock, list.Count);
+
+			});
 		}
 
-		private static void SetAveragePosition(StockList stockList, Stock st, int maxVal)
+		private static void SetAveragePosition(StockListNamesEnum listName, StockOld st, int maxVal)
 		{
 			int sumAll = 0, totalAll = 0;
 			int sumMetr = 0, totalMetr = 0;
 			int sumCoefs = 0, totalCoefs = 0;
-			foreach (var rating in st.ListToRatings[stockList])
+			foreach (var rating in st.ListToRatings[listName])
 			{
 				if (rating.Value != null)
 				{
 					sumAll += rating.Value.Value;
 					totalAll++;
-					if (Coefficient.MetricsList.Contains(rating.Key))
+					if (CoefficientOld.MetricsList.Contains(rating.Key))
 					{
 						sumMetr += rating.Value.Value;
 						totalMetr++;
@@ -189,17 +165,17 @@ namespace StocksAnalyzer
 			}
 
 			if (totalAll == 0)
-				st.AveragePositionAll = maxVal;
+				st.AveragePositionAll[listName] = maxVal;
 			else
-				st.AveragePositionAll = (double)sumAll / totalAll;
+				st.AveragePositionAll[listName] = (double)sumAll / totalAll;
 			if (totalMetr == 0)
-				st.AveragePositionMetric = maxVal;
+				st.AveragePositionMetric[listName] = maxVal;
 			else
-				st.AveragePositionMetric = (double)sumMetr / totalMetr;
+				st.AveragePositionMetric[listName] = (double)sumMetr / totalMetr;
 			if (totalCoefs == 0)
-				st.AveragePositionNormalizedCoefs = maxVal;
+				st.AveragePositionNormalizedCoefs[listName] = maxVal;
 			else
-				st.AveragePositionNormalizedCoefs = (double)sumCoefs / totalCoefs;
+				st.AveragePositionNormalizedCoefs[listName] = (double)sumCoefs / totalCoefs;
 		}
 		#endregion
 	}

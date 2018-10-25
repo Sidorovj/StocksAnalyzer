@@ -41,6 +41,7 @@ namespace StocksAnalyzer
 				BinaryFormatter bf = new BinaryFormatter();
 				try
 				{
+					fs.Position = 0;
 					return bf.Deserialize(fs);
 				}
 				catch (SerializationException ser)

@@ -10,7 +10,7 @@ namespace StocksAnalyzer
 			{
 				switch (MainClass.Language)
 				{
-					case AvailableLanguages.Russian:
+					case AvailableLanguagesEnum.Russian:
 						return @"Русский";
 					default:
 						return @"Russian";
@@ -23,7 +23,7 @@ namespace StocksAnalyzer
 			{
 				switch (MainClass.Language)
 				{
-					case AvailableLanguages.Russian:
+					case AvailableLanguagesEnum.Russian:
 						return @"Английский";
 					default:
 						return @"English";
@@ -36,7 +36,7 @@ namespace StocksAnalyzer
 			{
 				switch (MainClass.Language)
 				{
-					case AvailableLanguages.Russian:
+					case AvailableLanguagesEnum.Russian:
 						return @"Акции";
 					default:
 						return @"Stocks";

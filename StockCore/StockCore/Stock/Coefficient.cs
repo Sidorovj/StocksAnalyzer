@@ -13,22 +13,22 @@ using StocksAnalyzer.Helpers;
 namespace StocksAnalyzer
 {
 	[Serializable]
-	public sealed class Coefficient: IFactor
+	internal sealed class CoefficientOld: IFactor
 	{
 		/// <summary>
 		/// Список всех коэффициентов из файла с настройками
 		/// </summary>
-		public static List<Coefficient> CoefficientList { get; } = new List<Coefficient>();
+		public static List<CoefficientOld> CoefficientList { get; } = new List<CoefficientOld>();
 		/// <summary>
 		/// Список всех метрик
 		/// </summary>
-		public static List<Metric> MetricsList { get; } = new List<Metric>();
+		public static List<MetricOld> MetricsList { get; } = new List<MetricOld>();
 
 
 		/// <summary>
 		/// Значение веса коэффициентов для соответствующих метрик
 		/// </summary>
-		public Dictionary<Metric, double> MetricWeight { get; } = new Dictionary<Metric, double>();
+		public Dictionary<MetricOld, double> MetricWeight { get; } = new Dictionary<MetricOld, double>();
 
 		public string Name { get; }
 		public string Label { get; private set; }
@@ -50,7 +50,7 @@ namespace StocksAnalyzer
 		private string m_analyzerFormula;
 		private string m_calculateFormula;
 
-		private Coefficient(string name)
+		private CoefficientOld(string name)
 		{
 			Name = name;
 		}
@@ -65,21 +65,21 @@ namespace StocksAnalyzer
 			return Name.GetHashCode();
 		}
 
-		public bool Equals(Coefficient coef)
+		public bool Equals(CoefficientOld coef)
 		{
 			return Name == coef.Name;
 		}
 
 		public override bool Equals(object coef)
 		{
-			if (coef is Coefficient coefficient)
+			if (coef is CoefficientOld coefficient)
 			{
 				return Equals(coefficient);
 			}
 			return false;
 		}
 
-		public static Coefficient Get(string name)
+		public static CoefficientOld Get(string name)
 		{
 			return CoefficientList.First(c => c.Name == name);
 		}
@@ -89,7 +89,7 @@ namespace StocksAnalyzer
 		/// </summary>
 		/// <param name="coefValues">Словарь имя параметра-значение</param>
 		/// <returns>Значение коэффициента</returns>
-		public double? CalculateCoef(Dictionary<Coefficient, double?> coefValues)
+		public double? CalculateCoef(Dictionary<CoefficientOld, double?> coefValues)
 		{
 			var formula = m_calculateFormula;
 			foreach (var coef in coefValues.Keys.Where(c => m_calculateFormula.Contains($"${{{c}}}")))
@@ -152,17 +152,17 @@ namespace StocksAnalyzer
 
 		#region Static (loader)
 
-		static Coefficient()
+		static CoefficientOld()
 		{
 			using (var reader = new StreamReader($"{Const.SettingsDirName}/{Const.CoefficientsSettings}"))
 			{
-				Dictionary<int, (string, Metric)> columnNumToName = null;
+				Dictionary<int, (string, MetricOld)> columnNumToName = null;
 				while (!reader.EndOfStream)
 				{
 					string[] data = reader.ReadLine()?.Split(';');
 					if (data?[0] == "Name")
 					{
-						columnNumToName = new Dictionary<int, (string, Metric)>(data.Length);
+						columnNumToName = new Dictionary<int, (string, MetricOld)>(data.Length);
 						bool isMetric = false;
 						for (var i = 0; i < data.Length; i++)
 						{
@@ -173,10 +173,10 @@ namespace StocksAnalyzer
 							}
 							else
 							{
-								Metric m = null;
+								MetricOld m = null;
 								if (isMetric)
 								{
-									m = new Metric(data[i]);
+									m = new MetricOld(data[i]);
 									MetricsList.Add(m);
 								}
 								columnNumToName.Add(i, (data[i], m));
@@ -191,12 +191,12 @@ namespace StocksAnalyzer
 			}
 		}
 
-		private static Coefficient ParseCoefficient(string[] data, Dictionary<int, (string, Metric)> columnNumToName)
+		private static CoefficientOld ParseCoefficient(string[] data, Dictionary<int, (string, MetricOld)> columnNumToName)
 		{
 			if (data == null || columnNumToName == null)
 				throw new ArgumentNullException(data == null ? nameof(data) : nameof(columnNumToName));
 			int nameIndex = columnNumToName.FirstOrDefault(c => c.Value.Item1 == "Name").Key;
-			Coefficient coef = new Coefficient(data[nameIndex]);
+			CoefficientOld coef = new CoefficientOld(data[nameIndex]);
 			for (var i = 0; i < columnNumToName.Count; i++)
 			{
 				if (string.IsNullOrEmpty(columnNumToName[i].Item1))

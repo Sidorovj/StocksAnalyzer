@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json.Linq;
 
-namespace StocksAnalyzer
+namespace StocksAnalyzer.Data
 {
-
-	/// <summary>
-	/// Представляет собой рынок, на котором обращаются акции
-	/// </summary>
-	[Serializable]
-	internal sealed class StockMarket
+	public class StockMarket
 	{
-		public StockMarketLocationEnum Location { get; }
-		public StockMarketCurrencyEnum Currency { get; }
+		[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public int Id { get; set; }
+		[ForeignKey("LocationId")]
+		public StockMarketLocation Location { get; set; }
+		[ForeignKey("CurrencyId")]
+		public StockMarketCurrency Currency { get; set; }
 
-		private static readonly double s_exchangeRateRubToUsd; // Переделать в словарь
-		private static readonly double s_exchangeRateRubToEur;
+
+		//TODO: peredelat v dictionary
+		private static double s_exchangeRateRubToUsd; 
+		private static double s_exchangeRateRubToEur;
 
 		public StockMarket(StockMarketLocationEnum loc, StockMarketCurrencyEnum curr)
 		{
@@ -24,6 +26,11 @@ namespace StocksAnalyzer
 		}
 
 		static StockMarket()
+		{
+			RefreshExchangeRates();
+		}
+
+		public static void RefreshExchangeRates()
 		{
 			string response = Web.Get(Web.ExchangeRatesUrl).Result;
 			JObject rates = JObject.Parse(response);
@@ -47,6 +54,6 @@ namespace StocksAnalyzer
 			}
 			throw new KeyNotFoundException();
 		}
-	}
 
+	}
 }

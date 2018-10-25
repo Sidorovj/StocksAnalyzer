@@ -6,7 +6,7 @@ namespace StocksAnalyzer
 	/// На каком рынке торгуется акция
 	/// </summary>
 	[Flags]
-	public enum StockMarketLocation
+	public enum StockMarketLocationEnum
 	{
 		Russia = 0,
 		Usa = 10,
@@ -17,22 +17,22 @@ namespace StocksAnalyzer
 	/// Валюта, в которой торгуются акции
 	/// </summary>
 	[Flags]
-	public enum StockMarketCurrency 
+	public enum StockMarketCurrencyEnum
 	{
 		Rub = 0,
 		Usd = 10,
 		Eur = 20
 	}
 
-	[Flags]
-	public enum StockListNamesEnum
-	{
-		All,
-		Tinkoff,
-		Usa,
-		Rus,
-		Starred
-	}
+	//[Flags]
+	//public enum StockListNamesEnum
+	//{
+	//	All,
+	//	Tinkoff,
+	//	Usa,
+	//	Rus,
+	//	Starred
+	//}
 
 
 }

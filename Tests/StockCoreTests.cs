@@ -11,8 +11,8 @@ namespace Tests
 	public class StockCoreTests
 	{
 		[Theory]
-		[InlineData("a1", 1, StockMarketLocation.Russia, StockMarketCurrency.Rub)]
-		public void TestSerializer(string name, double price, StockMarketLocation sml, StockMarketCurrency smc)
+		[InlineData("a1", 1, StockMarketLocationEnum.Russia, StockMarketCurrency.Rub)]
+		public void TestSerializer(string name, double price, StockMarketLocationEnum sml, StockMarketCurrency smc)
 		{
 			Serializer ser = new Serializer("tmp.dat");
 			Stock st = new Stock(name, price, new StockMarket(sml, smc));

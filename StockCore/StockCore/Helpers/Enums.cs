@@ -3,7 +3,7 @@
 namespace StocksAnalyzer.Helpers
 {
 	[Flags]
-	public enum SortingModes
+	public enum SortingModesEnum
 	{
 		Name,
 		Price,
@@ -15,7 +15,7 @@ namespace StocksAnalyzer.Helpers
 	}
 
 	[Flags]
-	public enum AvailableLanguages
+	public enum AvailableLanguagesEnum
 	{
 		Russian,
 		English

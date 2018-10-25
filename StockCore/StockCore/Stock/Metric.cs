@@ -1,17 +1,21 @@
-﻿using StockCore.Interfaces;
+﻿using System;
+using StockCore.Interfaces;
 
 namespace StockCore.Stock
 {
-	public class Metric : IFactor
+	[Serializable]
+	internal class MetricOld : IFactor
 	{
 		public string Name { get; }
 		public string Label { get; }
 		public string Tooltip { get; }
 
 		/// <param name="input">Строка формата Name=Label=Tooltip</param>
-		internal Metric(string input)
+		internal MetricOld(string input)
 		{
-			var splitted = input.Split('=');
+			var splitted = input.Split('-');
+			if (splitted.Length !=3)
+				throw new ArgumentException($"Неверно заполнен файл настроек Coefficients, input={input}", nameof(input));
 			Name = splitted[0];
 			Label = splitted[1];
 			Tooltip = splitted[2];
@@ -24,12 +28,12 @@ namespace StockCore.Stock
 
 		public override bool Equals(object obj)
 		{
-			if (obj is Metric m)
+			if (obj is MetricOld m)
 				return Equals(m);
 			return false;
 		}
 
-		public bool Equals(Metric m)
+		public bool Equals(MetricOld m)
 		{
 			return m.Name == Name;
 		}

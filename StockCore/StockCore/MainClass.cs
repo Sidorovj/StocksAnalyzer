@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using StockCore.Interfaces;
 using StockCore.Stock;
 using StocksAnalyzer.Core.Interfaces;
 using StocksAnalyzer.Helpers;
@@ -14,51 +16,35 @@ using StocksAnalyzer.Helpers;
 namespace StocksAnalyzer
 {
 
-	public class MainClass
+	/// <summary>
+	/// Must be a singleton
+	/// </summary>
+	internal class MainClass : IStockLoader, IAdministrating
 	{
 		private static string s_reportFileName;
 		private static int s_doneEventsCount;
 		private static readonly object s_rusStockLoaderLocker = new object();
 
-		public static AvailableLanguages Language = AvailableLanguages.Russian;
+		public static AvailableLanguagesEnum Language = AvailableLanguagesEnum.Russian;
 
-		public static List<StockList> PossibleStockList { get; } = new List<StockList>
-		{
-			new StockList(StockListNamesEnum.All, list => list),
-			new StockList(StockListNamesEnum.Tinkoff, list => list.Where(s => s.IsOnTinkoff)),
-			new StockList
-			(
-				StockListNamesEnum.Rus,
-				list => list.Where(s => s.Market.Location == StockMarketLocation.Russia)
-			),
-			new StockList
-			(StockListNamesEnum.Usa,
-				list => list.Where(s => s.Market.Location == StockMarketLocation.Usa)
-			),
-			new StockList(StockListNamesEnum.Starred, list => list.Where(s => s.IsStarred))
-		};
+		internal static ReadOnlyDictionary<StockListNamesEnum, StockListOld> PossibleStockList { get; } =
+			new ReadOnlyDictionary<StockListNamesEnum, StockListOld>(new Dictionary<StockListNamesEnum, StockListOld>
+			{
+				[StockListNamesEnum.All] = new StockListOld(list => list),
+				[StockListNamesEnum.Tinkoff] = new StockListOld(list => list.Where(s => s.IsOnTinkoff)),
+				[StockListNamesEnum.Rus] = new StockListOld(
+					list => list.Where(s => s.Market.Location == StockMarketLocationEnum.Russia)
+				),
+				[StockListNamesEnum.Usa] = new StockListOld(
+					list => list.Where(s => s.Market.Location == StockMarketLocationEnum.Usa)
+				),
+				[StockListNamesEnum.Starred] = new StockListOld(list => list.Where(s => s.IsStarred))
+			});
 
-		public static List<Stock> Stocks { get; private set; } = new List<Stock>();
-
-		static MainClass()
-		{
-			LoadStockListFromFile();
-		}
-
+		internal static List<StockOld> Stocks { get; private set; } = new List<StockOld>();
+		
 		#region Methods:public
 
-		public static void Analyze()
-		{
-			foreach (var stockList in PossibleStockList)
-			{
-				Analyzer.Analyze(stockList);
-			}
-		}
-
-		public static Stock GetStock(bool compareFullName, string name)
-		{
-			return Stocks.FirstOrDefault(st => compareFullName && st.FullName == name || !compareFullName && st.Name == name);
-		}
 
 		public static void OpenReportIfExists()
 		{
@@ -68,189 +54,163 @@ namespace StocksAnalyzer
 			}
 		}
 
-		/// <summary>
-		/// Загружает список из файла
-		/// </summary>
-		/// <param name="path"></param>
-		public static void LoadStockListFromFile(string path = Const.StockListFilePath)
-		{
-			string fullPath = $"{Const.ToRestoreDirName}/{path}";
-			if (!Directory.Exists(Const.ToRestoreDirName) || !File.Exists(fullPath))
-			{
-				Logger.Log.Error(@"Не могу найти файл для десериализации");
-				return;
-			}
+		///// <summary>
+		///// Загружает список из файла
+		///// </summary>
+		///// <param name="path"></param>
+		//public static void LoadStockListFromFile(string path = Const.StockListFilePath)
+		//{
+		//	string fullPath = $"{Const.ToRestoreDirName}/{path}";
+		//	if (!Directory.Exists(Const.ToRestoreDirName) || !File.Exists(fullPath))
+		//	{
+		//		Logger.Log.Error(@"Не могу найти файл для десериализации");
+		//		return;
+		//	}
 
-			Serializer ser = new Serializer(fullPath);
-			Stocks = (List<Stock>)ser.Deserialize() ?? new List<Stock>();
+		//	Serializer ser = new Serializer(fullPath);
+		//	Stocks = (List<Stock>)ser.Deserialize() ?? new List<Stock>();
 
-			foreach (var coef in Coefficient.CoefficientList)
-			{
-				Stock.CoefHasValueCount[coef] = (from st in Stocks
-												 where st.NormalizedCoefficientsValues.ContainsKey(coef) &&
-													   st.NormalizedCoefficientsValues[coef].HasValue
-												 select 0).Count();
-			}
+		//	foreach (var kpv in PossibleStockList)
+		//	{
+		//		Stock.CoefHasValueCount.Add(kpv.Key, new Dictionary<Coefficient, int>(Coefficient.CoefficientList.Count));
+		//		foreach (var coef in Coefficient.CoefficientList)
+		//		{
+		//			Stock.CoefHasValueCount[kpv.Key][coef] = (from st in Stocks
+		//													  where st.NormalizedCoefficientsValues.ContainsKey(coef) &&
+		//															st.NormalizedCoefficientsValues[coef].HasValue
+		//													  select 0).Count();
+		//		}
+		//	}
+		//	Stock.AllStocksAnalyzed = Stock.CoefHasValueCount.Any(k => k.Value.Any(num => num.Value > 0));
+		//}
 
-			Stock.AllStocksInListAnalyzed = Stock.CoefHasValueCount.Any(kpv => kpv.Value > 0);
-		}
-
-		/// <summary>
-		/// Сериализует список акций в файл
-		/// </summary>
-		/// <param name="path">Путь к файлу</param>
-		public static void WriteStockListToFile(string path = Const.StockListFilePath)
-		{
-			if (!Directory.Exists(Const.ToRestoreDirName))
-				Directory.CreateDirectory(Const.ToRestoreDirName);
-			Serializer ser = new Serializer($"{Const.ToRestoreDirName}/{path}");
-			ser.Serialize(Stocks);
-		}
-
-		/// <summary>
-		/// Составить отчет по списку акций и записать в файл
-		/// </summary>
-		/// <param name="stockLst">Список акций</param>
-		/// <param name="failedStocks">Акции, который не удалось загрузить</param>
-		private static void MakeReportAndSaveToFile(List<Stock> stockLst, string failedStocks)
-		{
-			StringBuilder report = new StringBuilder();
-			report.Append($"Не удалось загрузить акции:;\n{failedStocks}");
-			foreach (var coef in Coefficient.CoefficientList)
-			{
-				var failedLst = stockLst.Where(st => Math.Abs(st[coef] ?? 0) < Const.Tolerance).ToList();
-				var helpSt = string.Join(";", failedLst);
-				var numRes = failedLst.Count;
-				report.Append($"{coef};Заполнен в {stockLst.Count - numRes}/{stockLst.Count};{helpSt}\r\n");
-			}
-
-			s_reportFileName = Const.ReportFileName;
-			using (var sr = new StreamWriter(s_reportFileName, true, Encoding.UTF8))
-			{
-				sr.Write(report.ToString());
-			}
-		}
+		///// <summary>
+		///// Сериализует список акций в файл
+		///// </summary>
+		///// <param name="path">Путь к файлу</param>
+		//public static void WriteStockListToFile(string path = Const.StockListFilePath)
+		//{
+		//	if (!Directory.Exists(Const.ToRestoreDirName))
+		//		Directory.CreateDirectory(Const.ToRestoreDirName);
+		//	Serializer ser = new Serializer($"{Const.ToRestoreDirName}/{path}");
+		//	ser.Serialize(Stocks);
+		//}
 
 
 		/// <summary>
 		/// Загрузить данные по акциям
 		/// </summary>
-		/// <param name="lst">Список акций</param>
+		/// <param name="stockList">Список акций</param>
 		/// <param name="lbl">Лейбл с формы</param>
 		/// <param name="bar">Прогресс-бар</param>
 		/// <returns></returns>
-		public static async Task LoadStocksData(List<Stock> lst, IReportText lbl, IReportProgress bar)
+		public async Task LoadStocksData(IEnumerable<Data.Stock> stockList, IReportText lbl, IReportProgress bar)
 		{
-			int count = lst.Count, doneEvents = 0;
-			var report = new StringBuilder();
-			Task[] tasks = new Task[count];
+			//var lst = stockList.ToList();
+			//int count = lst.Count, doneEvents = 0;
+			//var report = new StringBuilder();
+			//Task[] tasks = new Task[count];
 
-			Stopwatch stwatch = Stopwatch.StartNew();
+			//Stopwatch stwatch = Stopwatch.StartNew();
 
-			for (int i = 0; i < lst.Count; i++)
-			{
-				var i1 = i;
-				tasks[i] = Task.Run(async () =>
-				{
-					try
-					{
-						await GetStockData(lst[i1]);
-					}
-					catch (Exception er)
-					{
-						Logger.Log.Error(
-							$"Не удалось получить инфу по {lst[i1].Name}: {er.Message}\r\n{er.StackTrace}");
-						report.Append($"{lst[i1].Name};");
-					}
+			//for (int i = 0; i < lst.Count; i++)
+			//{
+			//	var i1 = i;
+			//	tasks[i] = Task.Run(async () =>
+			//	{
+			//		try
+			//		{
+			//			await GetStockData(lst[i1]);
+			//		}
+			//		catch (Exception er)
+			//		{
+			//			Logger.Log.Error(
+			//				$"Не удалось получить инфу по {lst[i1].Name}: {er.Message}\r\n{er.StackTrace}");
+			//			report.Append($"{lst[i1].Name};");
+			//		}
 
-					Interlocked.Increment(ref doneEvents);
-					if (i1 % 10 != 0)
-						return;
+			//		Interlocked.Increment(ref doneEvents);
+			//		if (i1 % 10 != 0)
+			//			return;
 
-					if (lbl != null)
-					{
-						double mins = stwatch.Elapsed.TotalSeconds * (1.0 / ((double)doneEvents / count) - 1) / 60.0;
-						mins = Math.Floor(mins) + (mins - Math.Floor(mins)) * 0.6;
-						lbl.Text = $@"Обработано {doneEvents} / {count}. Расчетное время: {
-								(mins >= 1 ? Math.Floor(mins) + " мин " : "")
-							}{Math.Floor((mins - Math.Floor(mins)) * 100)} с";
-					}
-					if (bar != null)
-						bar.Value = doneEvents * 100 / count;
-				});
-			}
-			await Task.WhenAll(tasks);
+			//		if (lbl != null)
+			//		{
+			//			double mins = stwatch.Elapsed.TotalSeconds * (1.0 / ((double)doneEvents / count) - 1) / 60.0;
+			//			mins = Math.Floor(mins) + (mins - Math.Floor(mins)) * 0.6;
+			//			lbl.Text = $@"Обработано {doneEvents} / {count}. Расчетное время: {
+			//					(mins >= 1 ? Math.Floor(mins) + " мин " : "")
+			//				}{Math.Floor((mins - Math.Floor(mins)) * 100)} с";
+			//		}
+			//		if (bar != null)
+			//			bar.Value = doneEvents * 100 / count;
+			//	});
+			//}
+			//await Task.WhenAll(tasks);
 
-			stwatch.Stop();
-			if (bar != null)
-				bar.Value = 100;
-			if (lbl != null)
-				lbl.Text = @"Готово.";
-			MakeReportAndSaveToFile(lst, report.ToString());
+			//stwatch.Stop();
+			//if (bar != null)
+			//	bar.Value = 100;
+			//if (lbl != null)
+			//	lbl.Text = @"Готово.";
+			//MakeReportAndSaveToFile(lst, report.ToString());
 		}
 
 		/// <summary>
 		/// Получить данные по акции из интернета
 		/// </summary>
 		/// <param name="st">Акция</param>
-		public static async Task GetStockData(Stock st)
+		public async Task GetStockData(Data.Stock st)
 		{
-			string stockName = st.Name, htmlCode;
-			st = GetStock(false, st.Name);
-			if (st == null)
-			{
-				Logger.Log.Error($"Не удалось найти акцию в getStockData: {stockName}");
-				return;
-			}
-			if (st.Market.Location == StockMarketLocation.Usa)
-			{
-				htmlCode = await Web.Get(string.Format(Web.GetStockDataUrlUsa, st.Symbol));
-				if (htmlCode.IndexOf(">Trailing P/E</span>", StringComparison.Ordinal) < 0)
-				{
-					Logger.Log.Warn($"На сайте (USA) нет данных для {st.Symbol}");
-					return;
-				}
+			//string htmlCode;
+			//if (st.Market.Location == StockMarketLocationEnum.Usa)
+			//{
+			//	htmlCode = await Web.Get(string.Format(Web.GetStockDataUrlUsa, st.Symbol));
+			//	if (htmlCode.IndexOf(">Trailing P/E</span>", StringComparison.Ordinal) < 0)
+			//	{
+			//		Logger.Log.Warn($"На сайте (USA) нет данных для {st.Symbol}");
+			//		return;
+			//	}
 
-				foreach (var coef in Coefficient.CoefficientList)
-				{
-					if (coef.IsUSA || coef.IsCommon)
-					{
-						if (!string.IsNullOrEmpty(coef.SearchInHTML_USA))
-							st[coef] = GettingYahooData(coef.SearchInHTML_USA, ref htmlCode);
-						else
-							st.CalculateCoef(coef);
-					}
-				}
+			//	foreach (var coef in Coefficient.CoefficientList)
+			//	{
+			//		if (coef.IsUSA || coef.IsCommon)
+			//		{
+			//			if (!string.IsNullOrEmpty(coef.SearchInHTML_USA))
+			//				st[coef] = GettingYahooData(coef.SearchInHTML_USA, ref htmlCode);
+			//			else
+			//				st.CalculateCoef(coef);
+			//		}
+			//	}
 
-				st.LastUpdate = DateTime.Now;
-			}
-			else if (st.Market.Location == StockMarketLocation.Russia)
-			{
-				if (string.IsNullOrEmpty(st.LinkToGetInfo))
-				{
-					Logger.Log.Error($"Нет ссылки для получения инфы для {st}");
-					return;
-				}
+			//	st.LastUpdate = DateTime.Now;
+			//}
+			//else if (st.Market.Location == StockMarketLocationEnum.Russia)
+			//{
+			//	if (string.IsNullOrEmpty(st.LinkToGetInfo))
+			//	{
+			//		Logger.Log.Error($"Нет ссылки для получения инфы для {st}");
+			//		return;
+			//	}
 
-				lock (s_rusStockLoaderLocker)
-				{
-					htmlCode = Web.Get(Web.GetStockDataUrlRussia + st.LinkToGetInfo).Result;
-					if (htmlCode.IndexOf("<span class=\"\">Коэффициент цена/прибыль", StringComparison.Ordinal) < 0)
-					{
-						Logger.Log.Warn($"На сайте (RUS) нет данных для {st.Symbol}");
-						return;
-					}
+			//	lock (s_rusStockLoaderLocker)
+			//	{
+			//		htmlCode = Web.Get(Web.GetStockDataUrlRussia + st.LinkToGetInfo).Result;
+			//		if (htmlCode.IndexOf("<span class=\"\">Коэффициент цена/прибыль", StringComparison.Ordinal) < 0)
+			//		{
+			//			Logger.Log.Warn($"На сайте (RUS) нет данных для {st.Symbol}");
+			//			return;
+			//		}
 
-					foreach (var coef in Coefficient.CoefficientList)
-					{
-						if (coef.IsCommon || coef.IsRus)
-							st[coef] = GettingInvestingComData(coef.SearchInHTML_Rus, ref htmlCode,
-								coef.SearchInHTMLAppendix_Rus);
-					}
+			//		foreach (var coef in Coefficient.CoefficientList)
+			//		{
+			//			if (coef.IsCommon || coef.IsRus)
+			//				st[coef] = GettingInvestingComData(coef.SearchInHTML_Rus, ref htmlCode,
+			//					coef.SearchInHTMLAppendix_Rus);
+			//		}
 
-					st.LastUpdate = DateTime.Now;
-				}
-			}
+			//		st.LastUpdate = DateTime.Now;
+			//	}
+			//}
 
 		}
 
@@ -258,12 +218,12 @@ namespace StocksAnalyzer
 		/// <summary>
 		/// Загрузить список всех акций
 		/// </summary>
-		public static async Task GetStocksList(IReportText lbl, IReportProgress bar, bool loadAllStocksAgain = true)
+		public async Task GetStocksList(IReportText lbl, IReportProgress bar, bool onlyCheckForTinkoff = false)
 		{
 			Stocks.Clear();
 			try
 			{
-				if (loadAllStocksAgain)
+				if (!onlyCheckForTinkoff)
 				{
 					var getRus = Task.Run(GetRussianStocks);
 					var getUsa = Task.Run((Action)GetUsaStocks);
@@ -308,26 +268,44 @@ namespace StocksAnalyzer
 			}
 		}
 
-
 		#endregion
 
 
 
 		#region Methods:private
 
-		private MainClass()
+		/// <summary>
+		/// Составить отчет по списку акций и записать в файл
+		/// </summary>
+		/// <param name="stockLst">Список акций</param>
+		/// <param name="failedStocks">Акции, который не удалось загрузить</param>
+		private static void MakeReportAndSaveToFile(List<StockOld> stockLst, string failedStocks)
 		{
+			StringBuilder report = new StringBuilder();
+			report.Append($"Не удалось загрузить акции:;\n{failedStocks}");
+			foreach (var coef in CoefficientOld.CoefficientList)
+			{
+				var failedLst = stockLst.Where(st => Math.Abs(st[coef] ?? 0) < Const.Tolerance).ToList();
+				var helpSt = string.Join(";", failedLst);
+				var numRes = failedLst.Count;
+				report.Append($"{coef};Заполнен в {stockLst.Count - numRes}/{stockLst.Count};{helpSt}\r\n");
+			}
 
+			s_reportFileName = Const.ReportFileName;
+			using (var sr = new StreamWriter(s_reportFileName, true, Encoding.UTF8))
+			{
+				sr.Write(report.ToString());
+			}
 		}
 
 		private static void CheckForRepeatsAndSort()
 		{
 			var temp = Stocks;
-			Stocks = new List<Stock>(temp.Count / 3);
-			foreach (var st in temp)
+			Stocks = new List<StockOld>(temp.Count / 3);
+			foreach (var stock in temp)
 			{
-				if (GetStock(false, st.Name) == null)
-					Stocks.Add(st);
+				if (temp.FirstOrDefault(st => st.Name == stock.Name) == null)
+					Stocks.Add(stock);
 			}
 			//Отсортируем по алфавиту
 			Stocks.Sort((s1, s2) => string.CompareOrdinal(s1.Name, s2.Name));
@@ -351,7 +329,6 @@ namespace StocksAnalyzer
 				}
 				Interlocked.Increment(ref s_doneEventsCount);
 			}
-
 		}
 
 		/// <summary>
@@ -398,8 +375,8 @@ namespace StocksAnalyzer
 				if (currencyToken["currency"].Value<string>() != "RUB")
 					continue;
 
-				var newStock = new Stock(st["symbol"]["showName"].Value<string>(), currencyToken["value"].Value<double>(),
-					new StockMarket(StockMarketLocation.Russia, StockMarketCurrency.Rub));
+				var newStock = new StockOld(st["symbol"]["showName"].Value<string>(), currencyToken["value"].Value<double>(),
+					new StockMarket(StockMarketLocationEnum.Russia, StockMarketCurrencyEnum.Rub));
 				Stocks.Add(newStock);
 			}
 		}
@@ -426,7 +403,7 @@ namespace StocksAnalyzer
 				double? price = parameters[2].ParseCoefStrToDouble();
 				if (price.HasValue && price.Value > 0)
 				{
-					var newStock = new Stock(name, price.Value, new StockMarket(StockMarketLocation.Usa, StockMarketCurrency.Usd), symb);
+					var newStock = new StockOld(name, price.Value, new StockMarket(StockMarketLocationEnum.Usa, StockMarketCurrencyEnum.Usd), symb);
 					Stocks.Add(newStock);
 				}
 			}
@@ -469,5 +446,15 @@ namespace StocksAnalyzer
 
 
 		#endregion
+
+		public Task CreateNewStocks(bool deleteOld = false)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void CreateCoefficientsAndMetrics(bool deleteOld = false)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
