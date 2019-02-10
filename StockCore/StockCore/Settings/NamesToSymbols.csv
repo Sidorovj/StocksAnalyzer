@@ -7,7 +7,7 @@ QIWI;qiwi-plc-ratios
 Yandex;yandex-ratios
 ЯНДЕКС, ао;yandex-ratios
 GTL, ао;gtl-oao-ratios
-Абрау-Дюрсо, ао;abrau-durso-oao-ratios
+АбрауДюрсо;abrau-durso-oao-ratios
 Авангард АКБ, ао;akb-avangard-oao-ratios
 АВТОВАЗ;avtovaz-ratios
 АВТОВАЗ, ао;avtovaz-ratios
@@ -117,9 +117,9 @@ GTL, ао;gtl-oao-ratios
 Иркутскэнерго;irkutskenergo-ratios
 Иркутскэнерго, ао;irkutskenergo-ratios
 Органический синтез;kazanorgsintez-ratios
-Казаньоргсинтез, ао;kazanorgsintez-ratios
+ПАО «КАЗАНЬОРГСИНТЕЗ»;kazanorgsintez-ratios
 Органический синтез - акции привилегированные;organicheskiy-sintez-kpao-ratios
-Казаньоргсинтез, ап;organicheskiy-sintez-kpao-ratios
+ПАО «КАЗАНЬОРГСИНТЕЗ» - акции привилегированные;organicheskiy-sintez-kpao-ratios
 Калужская сбытовая компания;kaluga-power-sale-comp-ratios
 Калужская СК, ао;kaluga-power-sale-comp-ratios
 КАМАЗ;kamaz-ratios
@@ -132,7 +132,7 @@ GTL, ао;gtl-oao-ratios
 Ковровский механический завод, ао;kovrovskiy-mekhanicheskiy-ratios
 М.Видео;mvideo_rts-ratios
 Компания М.видео, ао;mvideo_rts-ratios
-Коршуновский ГОК, ао;korshynov-mining-plant-ratios
+КоршГОК ао;korshynov-mining-plant-ratios
 Костромская СК, ао;kostroma-retail-company-ratios
 Костромская СК, ап;kostroma-retail-company-(pref)-ratios
 Красноярскэнергосбыт, ао;krasnoyarskenergosbyt-ratios
@@ -241,7 +241,7 @@ GTL, ао;gtl-oao-ratios
 ОМЗ, ап;omz-(pref)-ratios
 ОМПК, ао;ostankinskiy-myasopererabatyva-ratios
 Омскшина, ао;omskshina-oao-ratios
-ОПИН (Открытые инвестиции), ао;otkrytye-investitsii-oao-ratios
+ИНГРАД;otkrytye-investitsii-oao-ratios
 Отисифарм, ао;otcpharm-pao-ratios
 Павловский автобус, ао;pavlovskiy-avtobus-oao-ratios
 Пермэнергосбыт;perm-sb-ratios
@@ -378,7 +378,7 @@ GTL, ао;gtl-oao-ratios
 ЦМТ, ао;cmt-ratios
 ЦМТ, ап;cmt-(pref)-ratios
 Челябинский цинковый завод, ао;chelabinskyi-cinkovyi-zavod-ratios
-Челябэнергосбыт, ао;chelyabenergosbyt-ratios
+ЧелябЭС ао;chelyabenergosbyt-ratios
 Челябэнергосбыт, ап;chelyab-energosbyt-ap-ratios
 ЧЗПСН;chzpsn-profnastil-oao-ratios
 ЧЗПСН-Профнастил, ао;chzpsn-profnastil-oao-ratios

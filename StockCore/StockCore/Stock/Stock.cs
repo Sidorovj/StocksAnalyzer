@@ -150,7 +150,7 @@ namespace StocksAnalyzer
 			}
 
 			if (jsonReponse?["payload"]?["total"] != null && (int)jsonReponse["payload"]["total"] >= 0)
-				for (var j = 0; j < (int)jsonReponse["payload"]["total"]; j++)
+				for (var j = 0; j < jsonReponse["payload"]["values"].Count(); j++)
 				{
 					var symbol = jsonReponse["payload"]?["values"]?[j]?["symbol"];
 					if (NameOrDescriptionContains(
